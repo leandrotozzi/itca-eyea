@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bobinas de Encendido y Módulos · Guía Visual ITCA</title>
+<link rel="stylesheet" href="guia.css">
+<style>
+/* --- estilos específicos de esta página --- */
+.sparkbolt{opacity:0}
+.sparkbolt.on{opacity:1;animation:sparkflick .12s steps(2) 4}
+@keyframes sparkflick{50%{opacity:.25}}
+.coilfield{opacity:0;transition:opacity .5s}
+.coilfield.on{opacity:.9}
+.calcout{font-family:ui-monospace,Menlo,monospace;font-weight:800;line-height:1;
+  font-size:clamp(2rem,8vw,3.2rem);color:var(--spark);letter-spacing:-.02em}
+.calcunit{font-size:.9rem;color:var(--muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.formula{font-family:ui-monospace,Menlo,monospace;font-size:.9rem;color:var(--muted);
+  background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:9px 13px;margin-top:12px;display:inline-block}
+.formula b{color:var(--copper)}
+.tyfig{transition:opacity .25s}
+.oilbody{transition:fill .4s}
+.oildrip{opacity:0;transition:opacity .4s}
+.oildrip.on{opacity:1;animation:drip 1.6s ease-in infinite}
+@keyframes drip{0%{transform:translateY(0);opacity:.9}70%{opacity:.9}100%{transform:translateY(26px);opacity:0}}
+.parts-legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:12px;font-size:.85rem;color:var(--muted)}
+.parts-legend span{display:inline-flex;align-items:center;gap:7px}
+.swatch{width:14px;height:4px;border-radius:2px;display:inline-block}
+.deflist{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:6px}
+.deflist .row{display:grid;grid-template-columns:130px 1fr;gap:12px;background:var(--panel);padding:10px 14px}
+.deflist .row .k{font-family:ui-monospace,Menlo,monospace;font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--copper)}
+.deflist .row .v{font-size:.92rem}
+@media(max-width:520px){.deflist .row{grid-template-columns:1fr;gap:2px}}
+</style>
+</head>
+<body>
+<div class="readbar" id="readbar"></div>
+
+<header class="site">
+  <div class="hbar">
+    <a class="logo" href="index.html" aria-label="Inicio"><img src="logo.png" alt="ITCA"></a>
+    <div class="brand"><b>Bobinas y <span class="spark">módulos</span></b><span>Guía visual · 1ª parte</span></div>
+    <div class="grow"></div>
+    <a class="navlink" href="index.html">← Índice</a>
+    <a class="navlink" href="../test-electricidad.html">Test ⚡</a>
+    <button class="iconbtn" onclick="toggleTheme()" aria-label="Cambiar tema"><span id="themeIcon">🌙</span></button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero reveal">
+    <span class="eyebrow"><span class="dot"></span> Bobina · Transformador · Módulo de ignición</span>
+    <h1 class="big display">La bobina: de <span class="spark">12&nbsp;V</span> a <span class="spark">45.000&nbsp;V</span> en el corte</h1>
+    <p class="sub">Qué es una bobina de encendido, cómo un simple corte de corriente crea la chispa, los tipos que fueron apareciendo (cartucho, chispa doble, COP), los valores que hay que conocer y cómo se prueba en el banco. Con esquemas interactivos basados en BERU, Bosch y HELLAMEX.</p>
+    <div class="metastrip">
+      <span class="chip">⚡ Salta a <b>25–45&nbsp;kV</b></span>
+      <span class="chip">🧲 Principio del <b>transformador</b></span>
+      <span class="chip">🕹️ <b>5</b> esquemas interactivos</span>
+    </div>
+  </section>
+
+  <!-- 01 · QUÉ ES / TRANSFORMADOR / CORTE -->
+  <section class="block reveal" id="que-es">
+    <div class="kicker"><span class="num">01</span><span class="rule"></span></div>
+    <h2 class="sec display">Qué es y por qué la chispa nace del <span class="spark">corte</span></h2>
+    <p class="lead">La bobina eleva los <b>12&nbsp;V</b> de la batería hasta decenas de miles de volts para que la chispa salte en la bujía. Funciona como <b>autotransformador</b> y se basa en la <b>ley de inducción</b>: todo cambio de corriente en una bobina induce tensión. La clave es que <b>no es la carga lo que genera la chispa, sino el colapso brusco del campo al cortar</b>.</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>La bobina por dentro</b><span class="mono">autotransformador</span></div>
+      <div class="body">
+        <svg viewBox="0 0 720 250" role="img" aria-label="Corte de la bobina: primario grueso y secundario fino sobre un núcleo de hierro">
+          <!-- fuente 12V -->
+          <rect x="24" y="98" width="48" height="52" rx="7" class="node"/>
+          <text x="48" y="129" text-anchor="middle" class="lbl-strong" font-size="12">12V</text>
+          <text x="48" y="170" text-anchor="middle" class="lbl">batería</text>
+          <!-- carcasa bobina -->
+          <rect x="150" y="52" width="230" height="150" rx="14" fill="none" stroke="var(--line2)" stroke-width="1.4" stroke-dasharray="4 4"/>
+          <text x="265" y="44" text-anchor="middle" class="lbl">carcasa + aislante (resina)</text>
+          <!-- núcleo de hierro laminado -->
+          <rect x="257" y="70" width="16" height="118" rx="3" fill="color-mix(in srgb,var(--wire) 45%,transparent)"/>
+          <text x="265" y="200" text-anchor="middle" class="lbl">núcleo Fe</text>
+          <!-- primario: cobre grueso pocas vueltas -->
+          <path d="M212 82 q22 -8 0 -16 M212 100 q22 -8 0 -16 M212 118 q22 -8 0 -16 M212 136 q22 -8 0 -16 M212 154 q22 -8 0 -16"
+                fill="none" stroke="var(--copper)" stroke-width="5.5" stroke-linecap="round" transform="translate(0,6)"/>
+          <text x="196" y="196" text-anchor="middle" class="lbl" fill="var(--copper)">primario</text>
+          <!-- secundario: fino muchas vueltas -->
+          <path d="M296 74 q26 -6 0 -12 M296 86 q26 -6 0 -12 M296 98 q26 -6 0 -12 M296 110 q26 -6 0 -12 M296 122 q26 -6 0 -12 M296 134 q26 -6 0 -12 M296 146 q26 -6 0 -12 M296 158 q26 -6 0 -12 M296 170 q26 -6 0 -12"
+                fill="none" stroke="var(--spark)" stroke-width="1.6"/>
+          <text x="334" y="196" text-anchor="middle" class="lbl" fill="var(--spark)">secundario</text>
+          <!-- cableado primario -->
+          <path class="wire flow" d="M72 116 H200"/>
+          <path class="wire" d="M200 176 V220 H120"/>
+          <text x="120" y="238" text-anchor="middle" class="lbl">al módulo / ruptor</text>
+          <circle cx="116" cy="220" r="4" class="node"/>
+          <!-- salida alta -->
+          <path class="wire-hi" d="M360 78 H470"/>
+          <g transform="translate(474,44)">
+            <rect x="0" y="60" width="20" height="40" rx="3" class="node"/>
+            <line x1="10" y1="100" x2="10" y2="116" class="wire"/><line x1="10" y1="122" x2="10" y2="134" class="wire"/>
+            <path class="sparkbolt" id="sbHero" d="M10 116 l-6 5 l6 -1 l-6 8 l10 -8 l-5 1 l5 -6" stroke="var(--spark)" stroke-width="2.2" fill="none"/>
+            <text x="10" y="152" text-anchor="middle" class="lbl">bujía</text>
+          </g>
+          <text x="628" y="112" text-anchor="middle" class="calcunit">U₂ hasta</text>
+          <text x="628" y="140" text-anchor="middle" class="lbl-strong" font-size="20" fill="var(--spark)">45 kV</text>
+        </svg>
+        <div class="parts-legend">
+          <span><i class="swatch" style="background:var(--copper)"></i> Primario: cobre grueso, ~100–250 vueltas</span>
+          <span><i class="swatch" style="background:var(--spark)"></i> Secundario: cobre finísimo, ~10.000–25.000 vueltas</span>
+          <span><i class="swatch flow" style="background:var(--wire);height:3px"></i> corriente primaria</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub3">El proceso, paso a paso</h3>
+    <div class="steps">
+      <div class="step"><div><h4>Carga (almacena energía)</h4><p>Se cierra el circuito primario → circula corriente → se crea un campo magnético que <b>guarda energía</b>. Primario cerrado, secundario abierto.</p></div></div>
+      <div class="step"><div><h4>Corte</h4><p>En el instante del encendido, la etapa final (módulo o ruptor) <b>corta bruscamente</b> la corriente del primario.</p></div></div>
+      <div class="step"><div><h4>Inducción</h4><p>El campo magnético se colapsa de golpe → induce alta tensión, <b>multiplicada por la relación de vueltas</b> secundario/primario.</p></div></div>
+      <div class="step"><div><h4>Chispa</h4><p>Al alcanzarse la tensión de encendido se produce la <b>descarga disruptiva</b> en la bujía y se enciende la mezcla. Ahora el primario está abierto y el secundario cerrado.</p></div></div>
+    </div>
+
+    <div class="callout mem"><span class="lab">Para memorizar</span>
+      <p><b>La chispa nace del CORTE de corriente, no de la carga.</b> El colapso instantáneo del campo es lo que genera la alta tensión. La tensión máxima depende de la <b>relación de vueltas</b>, la calidad del <b>núcleo de hierro</b> y el campo magnético.</p></div>
+  </section>
+
+  <!-- 02 · VALORES + CHISPAS/MIN -->
+  <section class="block reveal" id="valores">
+    <div class="kicker"><span class="num">02</span><span class="rule"></span></div>
+    <h2 class="sec display">Valores típicos y cuántas chispas hace falta</h2>
+    <p class="lead">Los números que conviene tener a mano (según <b>BERU</b>, Información Técnica n.º&nbsp;07). Fijate en las dos resistencias: <b>primario en el orden de las décimas de ohm</b> y <b>secundario en kΩ</b>.</p>
+
+    <div class="tblscroll" style="margin-top:18px">
+      <table class="tbl">
+        <thead><tr><th>Parámetro</th><th>Símbolo</th><th>Valor típico</th></tr></thead>
+        <tbody>
+          <tr><td>Corriente primaria</td><td class="mono">I₁</td><td class="mono">6 a 20 A</td></tr>
+          <tr><td>Tiempo de carga</td><td class="mono">T₁</td><td class="mono">1,5 a 4,0 ms</td></tr>
+          <tr><td>Tensión secundaria</td><td class="mono">U₂</td><td class="mono">25 a 45 kV</td></tr>
+          <tr><td>Duración de la chispa</td><td class="mono">TFu</td><td class="mono">1,3 a 2,0 ms</td></tr>
+          <tr><td>Energía de la chispa</td><td class="mono">WFu</td><td class="mono">10–60 mJ (normal), 140–200 mJ (iny. directa)</td></tr>
+          <tr><td>Corriente de la chispa</td><td class="mono">IFu</td><td class="mono">80 a 115 mA</td></tr>
+          <tr><td><b>Resistencia primario</b></td><td class="mono">R₁</td><td class="mono">0,3 a 0,6 Ω</td></tr>
+          <tr><td><b>Resistencia secundario</b></td><td class="mono">R₂</td><td class="mono">5 a 20 kΩ</td></tr>
+          <tr><td>Vueltas primario</td><td class="mono">N₁</td><td class="mono">100 a 250</td></tr>
+          <tr><td>Vueltas secundario</td><td class="mono">N₂</td><td class="mono">10.000 a 25.000</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card"><span class="ic">🌡️</span><span class="tag">rango de trabajo</span><h4>-40 a +180 °C</h4><p>Una bobina moderna aguanta ese rango, vibraciones de hasta 55&nbsp;g y gasolina, aceite y líquido de frenos.</p></div>
+      <div class="card"><span class="ic">⚡</span><span class="tag">tensión secundaria</span><h4>hasta 45.000 V</h4><p>Los motores modernos (más RPM y temperatura) exigen más de 26.000&nbsp;V en todo el régimen.</p></div>
+      <div class="card"><span class="ic">🔁</span><span class="tag">vida útil</span><h4>~45 millones</h4><p>De chispas por bujía en unos 30.000&nbsp;km. Están diseñadas para durar toda la vida del auto.</p></div>
+    </div>
+
+    <div class="callout warn"><span class="lab">⚠️ Seguridad</span>
+      <p>Con energías de chispa de hasta <span class="val">200 mJ</span> y tensiones de <span class="val">45 kV</span>, tocar estas piezas en funcionamiento puede provocar <b>lesiones mortales</b>. Nunca las manipules con el motor en marcha.</p></div>
+
+    <h3 class="sub3">¿Cuántas chispas necesita un motor?</h3>
+    <p class="lead">Número de chispas por minuto = <b>(rpm × cilindros) ÷ 2</b> (en 4 tiempos, cada bujía enciende una vez cada dos vueltas). Movelo:</p>
+
+    <div class="schematic" style="margin-top:18px">
+      <div class="cap"><span class="led"></span><b>Calculadora de chispas por minuto</b><span class="mono" id="calcMono">4 cil · 3.000 rpm</span></div>
+      <div class="body">
+        <div class="grid g2" style="align-items:center">
+          <div style="text-align:center;padding:8px 0">
+            <div class="calcunit">chispas / minuto</div>
+            <div class="calcout" id="calcOut">6.000</div>
+            <div class="formula">chispas/min = <b>rpm</b> × <b>cil</b> ÷ 2</div>
+          </div>
+          <div>
+            <div class="readout" style="margin-bottom:6px">Régimen: <b id="calcRpmVal">3.000</b> rpm</div>
+            <input class="slider" id="calcRpm" type="range" min="600" max="7000" step="100" value="3000">
+            <div style="display:flex;justify-content:space-between" class="lbl"><span>ralentí</span><span>alto régimen</span></div>
+            <div class="readout" style="margin:16px 0 6px">Cilindros</div>
+            <div class="seg" id="calcCil">
+              <button data-c="3">3</button>
+              <button class="on" data-c="4">4</button>
+              <button data-c="6">6</button>
+              <button data-c="8">8</button>
+            </div>
+            <p class="lbl" style="margin-top:12px">Ejemplo del resumen: <b>4 cilindros a 3.000 rpm → 6.000 chispas/min</b>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · TIPOS DE BOBINA -->
+  <section class="block reveal" id="tipos">
+    <div class="kicker"><span class="num">03</span><span class="rule"></span></div>
+    <h2 class="sec display">Tipos de bobina (la evolución)</h2>
+    <p class="lead">De una sola bobina central con distribuidor, a una bobina por bujía montada arriba de ella. Elegí un tipo y mirá cómo cambia el esquema:</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Arquitectura según el tipo</b><span class="mono" id="tyMono">cartucho</span></div>
+      <div class="body">
+        <div class="seg" id="tySeg" style="margin-bottom:16px;flex-wrap:wrap">
+          <button class="on" data-t="cartucho">Cartucho</button>
+          <button data-t="doble">Chispa doble</button>
+          <button data-t="cop">COP / lápiz</button>
+          <button data-t="regleta">Regleta</button>
+        </div>
+        <div class="grid g2" style="align-items:center">
+          <svg viewBox="0 0 360 210" role="img" aria-label="Esquema de la arquitectura del tipo de bobina elegido">
+            <!-- CARTUCHO -->
+            <g class="tyfig" id="ty-cartucho">
+              <rect x="18" y="80" width="52" height="60" rx="9" class="node"/>
+              <text x="44" y="115" text-anchor="middle" class="lbl-strong" font-size="11">bobina</text>
+              <text x="44" y="158" text-anchor="middle" class="lbl">1 central</text>
+              <path class="wire-hi" d="M70 100 H120"/>
+              <circle cx="150" cy="105" r="30" class="node"/>
+              <circle cx="150" cy="105" r="5" class="hot"/>
+              <text x="150" y="152" text-anchor="middle" class="lbl">distribuidor</text>
+              <path class="wire-hi" d="M180 92 H250 V40"/>
+              <path class="wire-hi" d="M180 100 H262 V88"/>
+              <path class="wire-hi" d="M180 112 H262 V128"/>
+              <path class="wire-hi" d="M180 120 H250 V172"/>
+              <g fill="none">
+                <rect x="244" y="24" width="14" height="20" rx="2" class="node"/>
+                <rect x="256" y="72" width="14" height="20" rx="2" class="node"/>
+                <rect x="256" y="112" width="14" height="20" rx="2" class="node"/>
+                <rect x="244" y="164" width="14" height="20" rx="2" class="node"/>
+              </g>
+              <text x="300" y="108" text-anchor="middle" class="lbl">4 bujías</text>
+            </g>
+            <!-- CHISPA DOBLE -->
+            <g class="tyfig" id="ty-doble" style="display:none">
+              <rect x="130" y="76" width="100" height="60" rx="10" class="node"/>
+              <text x="180" y="105" text-anchor="middle" class="lbl-strong" font-size="11">1 bobina</text>
+              <text x="180" y="122" text-anchor="middle" class="lbl">2 torretas</text>
+              <path class="wire-hi" d="M140 76 V44 H70 V40"/>
+              <path class="wire-hi" d="M220 76 V44 H290 V40"/>
+              <rect x="60" y="22" width="18" height="22" rx="3" class="node"/>
+              <rect x="282" y="22" width="18" height="22" rx="3" class="node"/>
+              <text x="69" y="16" text-anchor="middle" class="lbl">cil. 1</text>
+              <text x="291" y="16" text-anchor="middle" class="lbl">cil. 4</text>
+              <text x="180" y="164" text-anchor="middle" class="lbl">chispa perdida · sin cables largos</text>
+            </g>
+            <!-- COP -->
+            <g class="tyfig" id="ty-cop" style="display:none">
+              <g transform="translate(70,0)">
+                <rect x="0" y="40" width="34" height="66" rx="8" class="node"/>
+                <text x="17" y="30" text-anchor="middle" class="lbl">bobina</text>
+                <rect x="6" y="106" width="22" height="18" rx="2" fill="color-mix(in srgb,var(--copper) 35%,transparent)" stroke="var(--copper)" stroke-width="1.4"/>
+                <rect x="9" y="124" width="16" height="26" rx="2" class="node"/>
+                <line x1="17" y1="150" x2="17" y2="166" class="wire"/>
+                <text x="17" y="184" text-anchor="middle" class="lbl">bujía</text>
+              </g>
+              <g transform="translate(200,0)" opacity=".55">
+                <rect x="0" y="40" width="34" height="66" rx="8" class="node"/>
+                <rect x="6" y="106" width="22" height="18" rx="2" fill="color-mix(in srgb,var(--copper) 35%,transparent)" stroke="var(--copper)" stroke-width="1.4"/>
+                <rect x="9" y="124" width="16" height="26" rx="2" class="node"/>
+                <line x1="17" y1="150" x2="17" y2="166" class="wire"/>
+              </g>
+              <text x="180" y="200" text-anchor="middle" class="lbl">1 bobina por cilindro, directo sobre la bujía · sin cables de alta</text>
+            </g>
+            <!-- REGLETA -->
+            <g class="tyfig" id="ty-regleta" style="display:none">
+              <rect x="40" y="46" width="280" height="40" rx="9" fill="none" stroke="var(--line2)" stroke-width="1.4" stroke-dasharray="4 4"/>
+              <text x="180" y="38" text-anchor="middle" class="lbl">casete · carcasa común</text>
+              <g>
+                <rect x="60" y="52" width="30" height="28" rx="5" class="node"/>
+                <rect x="140" y="52" width="30" height="28" rx="5" class="node"/>
+                <rect x="220" y="52" width="30" height="28" rx="5" class="node"/>
+                <rect x="290" y="52" width="24" height="28" rx="5" class="node" opacity=".5"/>
+              </g>
+              <path class="wire-hi" d="M75 80 V120"/><path class="wire-hi" d="M155 80 V120"/><path class="wire-hi" d="M235 80 V120"/>
+              <rect x="66" y="120" width="18" height="26" rx="2" class="node"/>
+              <rect x="146" y="120" width="18" height="26" rx="2" class="node"/>
+              <rect x="226" y="120" width="18" height="26" rx="2" class="node"/>
+              <text x="180" y="176" text-anchor="middle" class="lbl">varias bobinas de chispa simple juntas</text>
+            </g>
+          </svg>
+          <div>
+            <div class="callout" id="tyInfo" style="margin-top:0"><span class="lab" id="tyTitle">Cartucho (tradicional)</span>
+              <p id="tyDesc">Una sola bobina central; el distribuidor reparte mecánicamente la chispa (distribución giratoria de alta tensión), control por platino.</p></div>
+            <div class="deflist">
+              <div class="row"><span class="k">Bobinas</span><span class="v" id="tyBob">1 central</span></div>
+              <div class="row"><span class="k">Cables de alta</span><span class="v" id="tyCab">Sí, con distribuidor</span></div>
+              <div class="row"><span class="k">Sensor árbol de levas</span><span class="v" id="tySen">No (control por platino)</span></div>
+              <div class="row"><span class="k">Uso típico</span><span class="v" id="tyUso">Autos clásicos / antiguos</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout tip"><span class="lab">Ventajas del COP / chispa simple</span>
+      <p><b>Menos pérdidas de tensión</b> de todos los sistemas (sin cables de alta), mayor rango de ajuste del ángulo de encendido y <b>monitoreo de fallos de encendido</b> (primario y secundario) → diagnóstico por OBD. La <b>doble bobina BERU</b> (última generación) suma modo <b>multichispa</b> y energía variable para mezclas pobres y EGR alto.</p></div>
+  </section>
+
+  <!-- 04 · CHISPA PERDIDA + CHISPA DE ACTIVACIÓN -->
+  <section class="block reveal" id="chispa-perdida">
+    <div class="kicker"><span class="num">04</span><span class="rule"></span></div>
+    <h2 class="sec display">Chispa perdida y la chispa de activación</h2>
+    <p class="lead">Una bobina de <b>chispa doble</b> alimenta <b>2 bujías a la vez</b>: cuando excitás su terminal, saltan las dos chispas simultáneamente en los cilindros complementarios. Una es <b>útil</b> (cilindro en compresión) y la otra es <b>perdida</b> (cilindro en escape). Disparala:</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Chispa perdida · un disparo, dos torretas</b><span class="mono" id="fpMono">en reposo</span></div>
+      <div class="body">
+        <svg viewBox="0 0 640 240" role="img" aria-label="Bobina de chispa doble disparando dos chispas simultáneas">
+          <!-- bobina central -->
+          <rect x="270" y="150" width="100" height="60" rx="10" class="node"/>
+          <text x="320" y="176" text-anchor="middle" class="lbl-strong" font-size="11">bobina doble</text>
+          <text x="320" y="192" text-anchor="middle" class="lbl">1 excitación</text>
+          <!-- terminal excitación -->
+          <path class="wire" id="fpExc" d="M320 210 V228 H420"/>
+          <circle cx="420" cy="228" r="4" class="node"/>
+          <text x="470" y="232" text-anchor="middle" class="lbl">terminal de excitación</text>
+          <!-- salidas de alta a las 2 torretas -->
+          <path class="wire-hi" d="M280 150 V96 H120 V70"/>
+          <path class="wire-hi" d="M360 150 V96 H520 V70"/>
+          <!-- torreta / bujía IZQ (cil 1, compresión) -->
+          <g transform="translate(100,10)">
+            <rect x="0" y="26" width="40" height="20" rx="3" fill="color-mix(in srgb,var(--copper) 30%,transparent)" stroke="var(--copper)" stroke-width="1.4"/>
+            <rect x="8" y="46" width="24" height="34" rx="3" class="node"/>
+            <line x1="20" y1="80" x2="20" y2="94" class="wire"/><line x1="20" y1="100" x2="20" y2="112" class="wire"/>
+            <path class="sparkbolt" id="sbL" d="M20 94 l-7 6 l7 -1 l-7 9 l12 -9 l-6 1 l6 -7" stroke="var(--spark)" stroke-width="2.4" fill="none"/>
+            <text x="20" y="130" text-anchor="middle" class="lbl">cil. 1</text>
+            <text x="20" y="146" text-anchor="middle" class="lbl" fill="var(--ok)">útil (compresión)</text>
+          </g>
+          <!-- torreta / bujía DER (cil 4, escape) -->
+          <g transform="translate(500,10)">
+            <rect x="0" y="26" width="40" height="20" rx="3" fill="color-mix(in srgb,var(--copper) 30%,transparent)" stroke="var(--copper)" stroke-width="1.4"/>
+            <rect x="8" y="46" width="24" height="34" rx="3" class="node"/>
+            <line x1="20" y1="80" x2="20" y2="94" class="wire"/><line x1="20" y1="100" x2="20" y2="112" class="wire"/>
+            <path class="sparkbolt" id="sbR" d="M20 94 l-7 6 l7 -1 l-7 9 l12 -9 l-6 1 l6 -7" stroke="var(--spark)" stroke-width="2.4" fill="none"/>
+            <text x="20" y="130" text-anchor="middle" class="lbl">cil. 4</text>
+            <text x="20" y="146" text-anchor="middle" class="lbl" fill="var(--muted)">perdida (escape)</text>
+          </g>
+        </svg>
+        <div class="ctrls">
+          <button class="btn primary" id="fpFire">⚡ Disparar</button>
+          <span class="lbl">4&nbsp;cil → pares 1-4 y 2-3 · <b>no necesita</b> sensor de árbol de levas</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub3">La chispa de activación (y cómo se suprime)</h3>
+    <p class="lead">Al <b>cargar</b> la bobina, el campo creciente induce una tensión no deseada (~1,5&nbsp;kV) en el secundario que podría hacer saltar una "chispa de activación" e inflamar la mezcla a destiempo. Cada sistema la suprime distinto:</p>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card"><span class="ic">🎯</span><span class="tag">giratoria</span><h4>Distribuidor</h4><p>La distancia rotor–tapa la suprime automáticamente.</p></div>
+      <div class="card"><span class="ic">🔀</span><span class="tag">chispa doble</span><h4>Dos bujías en serie</h4><p>Reparten la tensión: 1,5&nbsp;kV ÷ 2 = 0,75&nbsp;kV, insuficiente para saltar.</p></div>
+      <div class="card" style="border-color:var(--bad-line)"><span class="ic">🚫</span><span class="tag" style="color:var(--bad)">chispa simple</span><h4>Diodo de alta tensión</h4><p>Un diodo AT en el secundario bloquea la descarga de activación.</p></div>
+    </div>
+    <div class="callout warn"><span class="lab">⚠️ No invertir la polaridad</span>
+      <p>En chispa simple con diodo AT, <b>no se puede invertir la polaridad de los terminales 1 y 15</b>: si se conectan al revés, <b>se destruye el diodo</b>.</p></div>
+  </section>
+
+  <!-- 05 · RESINA VS ACEITE -->
+  <section class="block reveal" id="resina">
+    <div class="kicker"><span class="num">05</span><span class="rule"></span></div>
+    <h2 class="sec display">Resina asfáltica vs. aceite (Bosch)</h2>
+    <p class="lead">Bosch fabrica bobinas con <b>resina asfáltica</b> (sólida) <b>desde 1974</b>, en reemplazo de las de <b>aceite</b>. Compará los dos rellenos:</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Relleno aislante de la bobina</b><span class="mono" id="raMono">resina asfáltica</span></div>
+      <div class="body">
+        <div class="seg" id="raSeg" style="margin-bottom:16px">
+          <button class="on" data-r="resina">Resina asfáltica</button>
+          <button data-r="aceite">Aceite (antiguas)</button>
+        </div>
+        <div class="grid g2" style="align-items:center">
+          <svg viewBox="0 0 300 220" role="img" aria-label="Corte de una bobina montada boca abajo mostrando el relleno">
+            <!-- carcasa boca abajo (salida de alta hacia abajo) -->
+            <rect x="90" y="30" width="120" height="150" rx="12" fill="none" stroke="var(--line2)" stroke-width="1.6"/>
+            <!-- relleno -->
+            <rect id="raFill" class="oilbody" x="96" y="36" width="108" height="132" rx="9" fill="color-mix(in srgb,var(--copper) 30%,transparent)"/>
+            <!-- núcleo + bobinado esquemático -->
+            <rect x="143" y="50" width="14" height="104" rx="3" fill="color-mix(in srgb,var(--wire) 50%,transparent)"/>
+            <path d="M110 62 q30 -6 0 -12 M110 80 q30 -6 0 -12 M110 98 q30 -6 0 -12 M110 116 q30 -6 0 -12 M110 134 q30 -6 0 -12"
+                  fill="none" stroke="var(--spark)" stroke-width="1.4"/>
+            <!-- salida de alta hacia abajo -->
+            <line x1="150" y1="180" x2="150" y2="200" class="wire-hi"/>
+            <text x="150" y="216" text-anchor="middle" class="lbl">salida de alta ↓ (montaje boca abajo)</text>
+            <!-- gota de aceite (solo aceite) -->
+            <path class="oildrip" id="raDrip" d="M150 182 q-6 8 0 14 q6 -6 0 -14 Z" fill="color-mix(in srgb,var(--copper) 60%,transparent)" stroke="var(--copper)" stroke-width="1"/>
+            <text x="245" y="60" text-anchor="middle" class="lbl" id="raState">sólido</text>
+          </svg>
+          <div>
+            <div class="callout" id="raGood" style="margin-top:0"><span class="lab" id="raGoodLab">✓ Ventajas de la resina</span>
+              <p id="raGoodTxt">Mejor aislante sólido y mayor <b>rigidez dieléctrica</b> → más potencia de encendido. Mantiene los enrollamientos fijos (evita cortocircuitos internos). <b>Sin goteos ni explosiones</b> y funciona en <b>cualquier posición</b>, aguantando altas temperaturas.</p></div>
+            <div class="callout warn" id="raBad" style="margin-top:12px"><span class="lab" id="raBadLab">✗ Límites del aceite</span>
+              <p id="raBadTxt">Puede <b>gotear</b> si se monta con la salida de alta hacia abajo, y a alta temperatura el aceite <b>hierve</b> y aumenta la presión interna. No garantiza los +26.000&nbsp;V que exigen los motores modernos en todo el régimen → fallas de encendido.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub3">Datos técnicos de bobinas Bosch asfálticas (ejemplos)</h3>
+    <div class="tblscroll" style="margin-top:12px">
+      <table class="tbl">
+        <thead><tr><th>Referencia</th><th>Tipo</th><th>Alim.</th><th>Potencia</th><th>Primario</th><th>Secundario</th><th>Pre-resistor</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">9 220 081 039</td><td>E-12V</td><td class="mono">12 V</td><td class="mono">24.000 V</td><td class="mono">3,1–4,2 Ω</td><td class="mono">4,8–8,2 kΩ</td><td>—</td></tr>
+          <tr><td class="mono">9 220 081 054</td><td>K-12V</td><td class="mono">12 V</td><td class="mono">26.000 V</td><td class="mono">2,9–3,8 Ω</td><td class="mono">6,5–10,8 kΩ</td><td>—</td></tr>
+          <tr><td class="mono">9 220 081 067</td><td>KW-12V</td><td class="mono">7–10 V</td><td class="mono">28.000 V</td><td class="mono">1,2–1,6 Ω</td><td class="mono">5,2–8,8 kΩ</td><td class="mono">0,8 Ω</td></tr>
+          <tr><td class="mono">9 220 081 091</td><td>KW-12V</td><td class="mono">12 V</td><td class="mono">28.000 V</td><td class="mono">0,9–1,5 Ω</td><td class="mono">4,5–7,0 kΩ</td><td>sin resistor</td></tr>
+          <tr><td class="mono">9 220 081 097</td><td>KW-12V</td><td class="mono">12 V</td><td class="mono">34.000 V</td><td class="mono">0,9–1,5 Ω</td><td class="mono">4,4–7,0 kΩ</td><td>sin resistor</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn"><span class="lab">⚠️ Sobre el resistor (balastro) externo</span>
+      <p><b>Bosch NO fabrica bobinas con resistor incorporado.</b> Las que lo necesitan trabajan con <b>7–10&nbsp;V</b>; las que no, con <b>12&nbsp;V</b>. Usar resistor donde no corresponde <b>baja la potencia de chispa</b>; no usarlo donde sí corresponde <b>recalienta la bobina</b>. Consultá siempre el adhesivo o la tabla de aplicaciones.</p></div>
+  </section>
+
+  <!-- 06 · MÓDULOS DE IGNICIÓN -->
+  <section class="block reveal" id="modulos">
+    <div class="kicker"><span class="num">06</span><span class="rule"></span></div>
+    <h2 class="sec display">Módulos de ignición (Indiel / Prestolite)</h2>
+    <p class="lead">El <b>módulo de ignición</b> es la etapa de potencia electrónica que reemplaza al platino: recibe la señal del captor y <b>conmuta la corriente del primario</b> de la bobina.</p>
+    <div class="grid g2" style="margin-top:18px">
+      <div class="card"><span class="ic">🔁</span><span class="tag">intercambiable</span><h4>Referencia cruzada</h4><p>Pieza intercambiable con tablas de equivalencia entre fabricantes (Bosch, Marelli, Lucas, Delco, Hitachi…) según marca y modelo del vehículo.</p></div>
+      <div class="card"><span class="ic">🧪</span><span class="tag">probador PPM 03</span><h4>Prueba a 500 RPM</h4><p>El probador de módulos <b>PPM 03</b> detecta problemas de <b>baja señal a 500 RPM</b> y sirve para módulos con variación de RPM.</p></div>
+    </div>
+    <div class="callout tip"><span class="lab">💡 Dato de diagnóstico</span>
+      <p>Muchas fallas intermitentes de encendido <b>en frío o a bajas RPM</b> se deben a un módulo que entrega <b>señal débil a bajas revoluciones</b> — por eso el probador chequea justamente a <b>500 RPM</b>.</p></div>
+
+    <div class="callout"><span class="lab">Ventajas de la etapa final integrada</span>
+      <p>Cuando la electrónica de potencia va <b>dentro</b> de la bobina se gana: diagnóstico y señal de corriente iónica, <b>supresión de interferencias</b>, corte de potencia, <b>limitación de corriente</b>, corte térmico, identificación de cortocircuitos y <b>estabilización de alta tensión</b>. El <b>"tiempo de cierre"</b> pasa de ser el tiempo con el platino <i>cerrado</i> a ser el tiempo con la <b>corriente primaria activada</b>.</p></div>
+  </section>
+
+  <!-- 07 · NOMENCLATURA -->
+  <section class="block reveal" id="terminales">
+    <div class="kicker"><span class="num">07</span><span class="rule"></span></div>
+    <h2 class="sec display">Nomenclatura de terminales y señales</h2>
+    <p class="lead">Las bobinas modernas se clasifican por su <b>cantidad de pines</b> (de 1 a 7) y por su tipo constructivo. Las siglas más comunes:</p>
+    <div class="tblscroll" style="margin-top:18px">
+      <table class="tbl">
+        <thead><tr><th>Sigla</th><th>Significado</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">B+</td><td>Positivo de batería</td></tr>
+          <tr><td class="mono">B− / GND</td><td>Negativo de batería / masa</td></tr>
+          <tr><td class="mono">+ / −</td><td>Positivo / negativo del sensor Hall</td></tr>
+          <tr><td class="mono">HALL INPUT</td><td>Entrada de señal del sensor Hall</td></tr>
+          <tr><td class="mono">C (COIL) / C1, C2…</td><td>Señal del módulo hacia el <b>primario</b> de la bobina</td></tr>
+          <tr><td class="mono">P+ / P−</td><td>Señal de la bobina impulsora (captor inductivo) hacia el módulo</td></tr>
+          <tr><td class="mono">IN</td><td>Entrada de señal de la ECU o del sensor</td></tr>
+          <tr><td class="mono">S.OUT</td><td>Salida de señal hacia la ECU (MCE)</td></tr>
+          <tr><td class="mono">TACO</td><td>Salida de señal hacia el tacómetro</td></tr>
+          <tr><td class="mono">EST</td><td><i>Electronic Spark Timing</i> — pulso de control de avance hacia la ECU</td></tr>
+          <tr><td class="mono">REF</td><td>Señal de <b>RPM</b> del módulo hacia la ECU</td></tr>
+          <tr><td class="mono">BY PASS</td><td>Línea de control del sistema HEI (<i>High Energy Ignition</i>), ECU → módulo</td></tr>
+          <tr><td class="mono">N/C</td><td>No conectado</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card"><span class="tag">2 pines</span><h4>+ / −</h4><p>Bobina individual COP con torreta central (la mayoría).</p></div>
+      <div class="card"><span class="tag">3 pines</span><h4>+, S, −</h4><p>COP con excitación, o de <b>chispa perdida</b> numerada (uno alimenta, dos excitan pares de torretas).</p></div>
+      <div class="card"><span class="tag">4 a 7 pines</span><h4>casetes / múltiples</h4><p>Cada terminal de excitación dispara <b>un par de torretas</b> (dos cilindros complementarios).</p></div>
+    </div>
+    <div class="callout mem"><span class="lab">Para memorizar</span>
+      <p>En una bobina de chispa perdida, al excitar <b>una sola</b> terminal se ve el <b>arco simultáneo en las dos torretas</b> de sus cilindros complementarios. La <b>terminal negativa es "pulsante"</b>: es el lado que la ECU corta a masa.</p></div>
+  </section>
+
+  <!-- 08 · PRUEBA DE BANCO -->
+  <section class="block reveal" id="prueba">
+    <div class="kicker"><span class="num">08</span><span class="rule"></span></div>
+    <h2 class="sec display">Prueba de banco y diagnóstico</h2>
+    <p class="lead">Método simple para probar la bobina (y el módulo) fuera del vehículo, <b>sin osciloscopio</b> (HELLAMEX). Instrumental: <b>batería</b>, un <b>condensador</b> como fuente de pulso y una <b>lámpara de prueba</b> (o bujía) para ver el arco.</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Conexión de banco · COP de 2 pines</b><span class="mono">batería + condensador + lámpara</span></div>
+      <div class="body">
+        <svg viewBox="0 0 660 220" role="img" aria-label="Esquema de conexión de la prueba de banco de una bobina">
+          <!-- batería -->
+          <rect x="24" y="86" width="54" height="60" rx="7" class="node"/>
+          <text x="51" y="112" text-anchor="middle" class="lbl-strong" font-size="11">batería</text>
+          <text x="51" y="128" text-anchor="middle" class="lbl">12 V</text>
+          <text x="18" y="80" class="lbl-strong" font-size="13">+</text>
+          <text x="76" y="80" class="lbl-strong" font-size="13">−</text>
+          <!-- positivo a bobina -->
+          <path class="wire flow" d="M40 86 V50 H300"/>
+          <text x="180" y="42" text-anchor="middle" class="lbl">+ a terminal positiva</text>
+          <!-- bobina -->
+          <rect x="300" y="70" width="90" height="90" rx="11" class="node"/>
+          <text x="345" y="108" text-anchor="middle" class="lbl-strong" font-size="11">bobina</text>
+          <text x="345" y="124" text-anchor="middle" class="lbl">(COP)</text>
+          <!-- terminal negativa a condensador -->
+          <path class="wire" d="M300 150 H240"/>
+          <!-- condensador -->
+          <line x1="240" y1="134" x2="240" y2="166" class="wire"/>
+          <line x1="228" y1="134" x2="228" y2="166" class="wire"/>
+          <path class="wire" d="M228 150 H150 V146"/>
+          <text x="234" y="188" text-anchor="middle" class="lbl">condensador</text>
+          <text x="234" y="203" text-anchor="middle" class="lbl">(fuente de pulso)</text>
+          <!-- negativo batería -->
+          <path class="wire" d="M62 146 V150 H150"/>
+          <!-- torreta central + chispa a lámpara -->
+          <path class="wire-hi" d="M390 90 H470"/>
+          <g transform="translate(474,54)">
+            <rect x="0" y="26" width="20" height="40" rx="3" class="node"/>
+            <line x1="10" y1="66" x2="10" y2="80" class="wire"/>
+            <path class="sparkbolt" id="sbBank" d="M10 80 l-6 5 l6 -1 l-6 8 l10 -8 l-5 1 l5 -6" stroke="var(--spark)" stroke-width="2.2" fill="none"/>
+            <line x1="10" y1="98" x2="10" y2="112" class="wire"/>
+            <text x="10" y="130" text-anchor="middle" class="lbl">≈ 0,5 cm</text>
+          </g>
+          <!-- lámpara a masa -->
+          <circle cx="560" cy="120" r="24" fill="var(--panel)" stroke="var(--line2)" stroke-width="1.6"/>
+          <text x="560" y="124" text-anchor="middle" class="lbl">lámpara</text>
+          <path class="wire" d="M560 144 V180 H150"/>
+          <text x="560" y="164" text-anchor="middle" class="lbl">a masa</text>
+        </svg>
+        <div class="ctrls" style="margin-top:4px">
+          <button class="btn sig" id="bankFire">Excitar el condensador ⚡</button>
+          <span class="lbl">Al chispear las puntas del condensador se "corta" el primario → salta alta en la torreta central.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:16px">
+      <div>
+        <h3 class="sub3">Procedimiento (COP de 2 pines)</h3>
+        <div class="steps">
+          <div class="step"><div><h4>Positivo</h4><p>Terminal positiva de la bobina al <b>positivo</b> de la batería.</p></div></div>
+          <div class="step"><div><h4>Condensador</h4><p>Cuerpo del condensador al <b>negativo</b> de la batería; el otro extremo a la <b>terminal negativa</b> de la bobina.</p></div></div>
+          <div class="step"><div><h4>Excitar</h4><p>Chispear las puntas del condensador para generar el pulso que <b>corta</b> el primario.</p></div></div>
+          <div class="step"><div><h4>Observar</h4><p>Debe saltar <b>alta tensión en la torreta central</b> hacia una punta a tierra (a ≈ 0,5&nbsp;cm; conviene colocar una bujía).</p></div></div>
+        </div>
+      </div>
+      <div>
+        <h3 class="sub3">Diagnóstico con multímetro</h3>
+        <div class="grid" style="gap:12px">
+          <div class="card"><span class="tag">primario</span><h4>Entre 15 y 1</h4><p>Típico <b>0,3–0,6 Ω</b> en modernas (ej. 0,5&nbsp;kΩ ±0,05 en algunas de chispa doble).</p></div>
+          <div class="card"><span class="tag">secundario</span><h4>En las salidas de alta</h4><p>Típico <b>5–20 kΩ</b> (ej. 4,0–6,0&nbsp;kΩ en la doble VW/Audi entre cilindros 1+4 / 2+3).</p></div>
+          <div class="card"><span class="tag">estroboscópica</span><h4>Frecuencia irregular</h4><p>Si la intermitencia es irregular en un cilindro → falla en la bobina o el sistema de ese cilindro. <b>Comparar siempre con la especificación.</b></p></div>
+        </div>
+      </div>
+    </div>
+    <div class="callout tip"><span class="lab">Prueba del módulo externo</span>
+      <p>Se alimenta el módulo, se conecta su salida a un borne de la bobina (el otro a positivo), la masa del módulo al negativo y se <b>excita puenteando sus terminales de mando</b>; la chispa debe brincar entre la bobina y la lámpara. En algunas aplicaciones, la bobina se prueba <b>a través del módulo</b>.</p></div>
+  </section>
+
+  <!-- 09 · FALLAS / ORIGINAL vs FALSIFICACIÓN -->
+  <section class="block reveal" id="fallas">
+    <div class="kicker"><span class="num">09</span><span class="rule"></span></div>
+    <h2 class="sec display">Fallas comunes y original vs. falsificación</h2>
+    <p class="lead">Las bobinas modernas duran toda la vida del auto; cuando fallan, <b>muchas veces la causa no es la bobina sino su entorno</b>.</p>
+    <div class="grid g2" style="margin-top:18px">
+      <div class="card"><span class="tag" style="color:var(--bad)">suciedad y humedad</span><h4>Agua y sal de ruta</h4><p>El <b>lavado con hidrolavadora</b> destruye juntas y corroe contactos (suelen estar en zonas expuestas).</p></div>
+      <div class="card"><span class="tag" style="color:var(--bad)">carga térmica</span><h4>Cerca del escape</h4><p>Bobinas junto al catalizador o colector, o tipo receptáculo (sin refrigeración), pueden fallar aun siendo buenas.</p></div>
+      <div class="card"><span class="tag" style="color:var(--bad)">conectores</span><h4>Cables de bujía</h4><p>Tomas de baja calidad, agrietadas o con aire → descargas disruptivas y fallos intermitentes.</p></div>
+      <div class="card"><span class="tag" style="color:var(--bad)">mala instalación</span><h4>Par de apriete</h4><p>Apretar a 15&nbsp;N·m en vez de 6&nbsp;N·m agrieta el cuerpo; herramienta incorrecta parte la bobina en dos.</p></div>
+      <div class="card"><span class="tag" style="color:var(--bad)">falta de grasa</span><h4>Conector de bujía</h4><p>Sin grasa hay fusión bobina-bujía y descargas en el cuello. Siempre aplicar <b>grasa para bujías</b> y revisar el conector al cambiar bujías.</p></div>
+      <div class="card"><span class="tag" style="color:var(--bad)">falsificación</span><h4>Rellena con "grava"</h4><p>Copias con carcasa sin resina dejan <b>burbujas de aire</b> que se ionizan → cortocircuito o descarga disruptiva.</p></div>
+    </div>
+    <div class="callout warn"><span class="lab">⚠️ Original vs. falsificación</span>
+      <p>Las copias baratas usan materiales de baja calidad: soldaduras deficientes, cuerpos extraños, cable de alta demasiado cerca del núcleo. <b>No igualan las propiedades eléctricas ni la resistencia térmica</b> de la original → fallos precoces y daños secundarios.</p></div>
+
+    <h3 class="sub3">Diagnóstico rápido</h3>
+    <div class="steps">
+      <div class="step"><div><h4>Síntomas</h4><p>El motor <b>no arranca</b> (bobina/módulo sin salida de alta) o <b>marcha inestable</b> → falla en el cilindro cuya bobina no trabaja.</p></div></div>
+      <div class="step"><div><h4>Comprobar alimentaciones</h4><p>Revisar el arnés: sin falsos contactos, fisuras ni corrosión.</p></div></div>
+      <div class="step"><div><h4>Prueba de banco</h4><p>Hacer la prueba de banco al módulo y/o a la bobina. Inspección visual: sin fisuras ni fugas; evitar la humedad.</p></div></div>
+    </div>
+  </section>
+
+  <!-- Practicar -->
+  <section class="block reveal">
+    <div class="kicker"><span class="num">10</span><span class="rule"></span></div>
+    <h2 class="sec display">Practicá lo que viste</h2>
+    <a class="panel pad-lg hubcard" href="../test-electricidad.html" style="margin-top:18px;min-height:auto;display:flex;flex-direction:column;text-decoration:none;color:inherit">
+      <span class="tag">Test interactivo</span>
+      <h3 style="font-size:1.28rem;margin:.3em 0 .2em;font-weight:800">Preguntas de bobinas, encendido y todo el módulo</h3>
+      <p style="color:var(--muted);margin:.2em 0 0">Una a la vez, con teclado 1–4, corrección al final e historial de errores por tema.</p>
+      <span class="go" style="margin-top:14px;font-weight:800;color:var(--spark);display:inline-flex;gap:7px;align-items:center">Ir al test ⚡ →</span>
+    </a>
+  </section>
+
+</main>
+
+<footer class="site"><div class="wrap" style="padding-bottom:0">
+  <div class="footrow">
+    <span>ITCA · Electricidad Automotriz — material de estudio. Español rioplatense.</span>
+    <a class="navlink" href="../test-electricidad.html">Practicar en el test ⚡</a>
+  </div>
+</div></footer>
+
+<script src="guia.js"></script>
+<script>
+/* ---------- 02 · Calculadora de chispas/min ---------- */
+(function(){
+  var rpm=document.getElementById('calcRpm'), rpmVal=document.getElementById('calcRpmVal'),
+      out=document.getElementById('calcOut'), mono=document.getElementById('calcMono'),
+      seg=document.getElementById('calcCil');
+  var cil=4;
+  function fmt(n){ return n.toLocaleString('es-AR'); }
+  function upd(){
+    var r=+rpm.value;
+    rpmVal.textContent=fmt(r);
+    out.textContent=fmt(Math.round(r*cil/2));
+    mono.textContent=cil+' cil · '+fmt(r)+' rpm';
+  }
+  rpm.addEventListener('input',upd);
+  seg.querySelectorAll('button').forEach(function(b){
+    b.onclick=function(){
+      seg.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on'); cil=+b.dataset.c; upd();
+    };
+  });
+  upd();
+})();
+
+/* ---------- 03 · Tipos de bobina ---------- */
+(function(){
+  var seg=document.getElementById('tySeg'), mono=document.getElementById('tyMono'),
+      figs={cartucho:'ty-cartucho',doble:'ty-doble',cop:'ty-cop',regleta:'ty-regleta'},
+      title=document.getElementById('tyTitle'), desc=document.getElementById('tyDesc'),
+      bob=document.getElementById('tyBob'), cab=document.getElementById('tyCab'),
+      sen=document.getElementById('tySen'), uso=document.getElementById('tyUso');
+  var data={
+    cartucho:{m:'cartucho',t:'Cartucho (tradicional)',
+      d:'Una sola bobina central; el distribuidor reparte mecánicamente la chispa (distribución giratoria de alta tensión), control por platino.',
+      bob:'1 central',cab:'Sí, con distribuidor',sen:'No (control por platino)',uso:'Autos clásicos / antiguos'},
+    doble:{m:'chispa doble',t:'De chispa doble (chispa perdida)',
+      d:'Alimenta 2 bujías a la vez (pares de trabajo). Genera 2 chispas por giro de cigüeñal. Solo motores con número PAR de cilindros.',
+      bob:'1 cada 2 cil (4→2, 6→3)',cab:'Sí, 2 salidas (sin cables largos)',sen:'No necesita árbol de levas',uso:'Motores de nº par de cilindros'},
+    cop:{m:'COP / lápiz',t:'De chispa simple (COP / lápiz / varilla)',
+      d:'Una bobina por bujía, montada directamente sobre ella. Sin cables de alta. Genera una chispa por carrera de explosión.',
+      bob:'1 por cilindro, sobre la bujía',cab:'Sin cables de alta',sen:'Requiere sensor de árbol de levas',uso:'Motores modernos (pares e impares)'},
+    regleta:{m:'regleta',t:'Regletas (casetes / módulos)',
+      d:'Varias bobinas de chispa simple en una carcasa común. Menos cables, motor más ordenado.',
+      bob:'Varias de chispa simple juntas',cab:'Pocos cables, más ordenado',sen:'Según el sistema',uso:'Motores de 3 y 4 cilindros'}
+  };
+  function set(key){
+    Object.keys(figs).forEach(function(k){
+      document.getElementById(figs[k]).style.display=(k===key)?'inline':'none';
+    });
+    var d=data[key];
+    mono.textContent=d.m; title.textContent=d.t; desc.textContent=d.d;
+    bob.textContent=d.bob; cab.textContent=d.cab; sen.textContent=d.sen; uso.textContent=d.uso;
+    seg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.t===key); });
+  }
+  seg.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ set(b.dataset.t); }; });
+  set('cartucho');
+})();
+
+/* ---------- 04 · Chispa perdida (disparar) ---------- */
+(function(){
+  var fire=document.getElementById('fpFire'), mono=document.getElementById('fpMono'),
+      sbL=document.getElementById('sbL'), sbR=document.getElementById('sbR'),
+      exc=document.getElementById('fpExc');
+  fire.onclick=function(){
+    sbL.classList.remove('on'); sbR.classList.remove('on'); exc.classList.remove('flow');
+    // reflow para reiniciar animación
+    void sbL.getBBox();
+    sbL.classList.add('on'); sbR.classList.add('on'); exc.classList.add('flow');
+    mono.textContent='¡2 chispas simultáneas!';
+    setTimeout(function(){
+      sbL.classList.remove('on'); sbR.classList.remove('on'); exc.classList.remove('flow');
+      mono.textContent='en reposo';
+    },900);
+  };
+})();
+
+/* ---------- 05 · Resina vs aceite ---------- */
+(function(){
+  var seg=document.getElementById('raSeg'), mono=document.getElementById('raMono'),
+      fill=document.getElementById('raFill'), drip=document.getElementById('raDrip'),
+      state=document.getElementById('raState'),
+      goodLab=document.getElementById('raGoodLab'), goodTxt=document.getElementById('raGoodTxt'),
+      badLab=document.getElementById('raBadLab'), badTxt=document.getElementById('raBadTxt'),
+      good=document.getElementById('raGood'), bad=document.getElementById('raBad');
+  function set(r){
+    var resina=(r==='resina');
+    mono.textContent=resina?'resina asfáltica':'aceite (antiguas)';
+    fill.setAttribute('fill', resina
+      ? 'color-mix(in srgb,var(--copper) 30%,transparent)'
+      : 'color-mix(in srgb,var(--spark) 22%,transparent)');
+    drip.classList.toggle('on', !resina);
+    state.textContent=resina?'sólido':'líquido';
+    if(resina){
+      goodLab.textContent='✓ Ventajas de la resina';
+      goodTxt.innerHTML='Mejor aislante sólido y mayor <b>rigidez dieléctrica</b> → más potencia de encendido. Mantiene los enrollamientos fijos (evita cortocircuitos internos). <b>Sin goteos ni explosiones</b> y funciona en <b>cualquier posición</b>, aguantando altas temperaturas.';
+      badLab.textContent='✗ Límites del aceite';
+      badTxt.innerHTML='Puede <b>gotear</b> si se monta con la salida de alta hacia abajo, y a alta temperatura el aceite <b>hierve</b> y aumenta la presión interna. No garantiza los +26.000&nbsp;V que exigen los motores modernos en todo el régimen → fallas de encendido.';
+    }else{
+      goodLab.textContent='✗ Problemas del aceite';
+      goodTxt.innerHTML='Montada con la salida de alta hacia abajo <b>puede gotear</b>. A alta temperatura el aceite <b>hierve</b> y sube la presión interna. No garantiza los <b>+26.000 V</b> que piden los motores modernos → fallas de encendido.';
+      badLab.textContent='✓ Por eso la resina la reemplazó (1974)';
+      badTxt.innerHTML='La resina asfáltica sólida da mayor <b>rigidez dieléctrica</b>, mantiene los bobinados fijos, no gotea ni explota y trabaja en <b>cualquier posición</b> a altas temperaturas.';
+    }
+    good.style.borderLeftColor=resina?'var(--signal)':'var(--bad)';
+    good.classList.toggle('tip',resina); good.classList.toggle('warn',!resina);
+    bad.style.borderLeftColor=resina?'var(--bad)':'var(--signal)';
+    bad.classList.toggle('warn',resina); bad.classList.toggle('tip',!resina);
+    seg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.r===r); });
+  }
+  seg.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ set(b.dataset.r); }; });
+  set('resina');
+})();
+
+/* ---------- 08 · Prueba de banco (excitar) ---------- */
+(function(){
+  var fire=document.getElementById('bankFire'), sb=document.getElementById('sbBank');
+  fire.onclick=function(){
+    sb.classList.remove('on'); void sb.getBBox(); sb.classList.add('on');
+    setTimeout(function(){ sb.classList.remove('on'); },900);
+  };
+})();
+</script>
+</body>
+</html>

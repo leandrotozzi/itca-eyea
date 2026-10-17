@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Electricidad Básica · Guía Visual ITCA</title>
+<link rel="stylesheet" href="guia.css">
+<style>
+/* --- estilos específicos de esta página --- */
+.bignum{font-family:ui-monospace,Menlo,monospace;font-size:2.3rem;font-weight:800;line-height:1.05;color:var(--spark)}
+.bignum small{font-size:.95rem;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.bignum.sig{color:var(--signal)}
+.formula{font-family:ui-monospace,Menlo,monospace;font-size:.9rem;color:var(--muted);margin-top:2px}
+.chargebar{height:28px;border-radius:9px;background:var(--bg2);border:1px solid var(--line);overflow:hidden;position:relative}
+.chargebar>i{display:block;height:100%;width:100%;transition:width .18s ease,background .18s ease;border-radius:8px 0 0 8px}
+.fuseSw{display:inline-block;width:16px;height:16px;border-radius:4px;border:1px solid var(--line2);vertical-align:-3px;margin-right:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+.orbit{fill:none;stroke:var(--line2);stroke-width:1.4;stroke-dasharray:3 6}
+.pdot{fill:var(--bad);stroke:var(--panel);stroke-width:1.2}
+.ndot{fill:var(--wire);stroke:var(--panel);stroke-width:1.2}
+.edot{fill:var(--signal);stroke:var(--panel);stroke-width:1.5}
+.ionpill{font-family:ui-monospace,Menlo,monospace;font-weight:800;font-size:1.05rem;padding:5px 14px;border-radius:9px;
+  border:1px solid var(--line2);background:var(--panel);transition:color .2s,border-color .2s,background .2s}
+.ionpill.pos{color:var(--bad);border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--panel))}
+.ionpill.neg{color:var(--signal);border-color:var(--signal);background:color-mix(in srgb,var(--signal) 12%,var(--panel))}
+.ionpill.neu{color:var(--muted)}
+.blocked{opacity:.22;transition:opacity .25s}
+.memgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:620px){.memgrid{grid-template-columns:1fr}}
+.memcard{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--spark);border-radius:0 12px 12px 0;
+  padding:13px 16px;box-shadow:var(--shadow)}
+.memcard b{color:var(--spark)}
+.memcard.cu{border-left-color:var(--copper)}.memcard.cu b{color:var(--copper)}
+.memcard.sig{border-left-color:var(--signal)}.memcard.sig b{color:var(--signal)}
+.memcard p{margin:.2em 0 0;font-size:.92rem;color:var(--muted)}
+.memcard .lab{font-family:ui-monospace,Menlo,monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+</style>
+</head>
+<body>
+<div class="readbar" id="readbar"></div>
+
+<header class="site">
+  <div class="hbar">
+    <a class="logo" href="index.html" aria-label="Inicio"><img src="logo.png" alt="ITCA"></a>
+    <div class="brand"><b>Electricidad <span class="spark">básica</span></b><span>Guía visual · 1ª parte</span></div>
+    <div class="grow"></div>
+    <a class="navlink" href="index.html">← Índice</a>
+    <a class="navlink" href="../test-electricidad.html">Test ⚡</a>
+    <button class="iconbtn" onclick="toggleTheme()" aria-label="Cambiar tema"><span id="themeIcon">🌙</span></button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero reveal">
+    <span class="eyebrow"><span class="dot"></span> Átomo · Ley de Ohm · Batería · Semiconductores</span>
+    <h1 class="big display">Los <span class="spark">fundamentos</span> antes de todo lo demás</h1>
+    <p class="sub">De qué está hecha la electricidad, cómo se mide y cómo se comporta en un circuito. Magnitudes, leyes de Ohm y Kirchhoff, magnetismo, instrumentos, baterías, relés y semiconductores — con esquemas que podés tocar.</p>
+    <div class="metastrip">
+      <span class="chip">⚛️ Del <b>átomo</b> al circuito</span>
+      <span class="chip">🧮 Ley de <b>Ohm</b> en vivo</span>
+      <span class="chip">🕹️ <b>6</b> esquemas interactivos</span>
+    </div>
+  </section>
+
+  <!-- 01 · ESTRUCTURA DE LA MATERIA -->
+  <section class="block reveal" id="materia">
+    <div class="kicker"><span class="num">01</span><span class="rule"></span></div>
+    <h2 class="sec display">Estructura de la materia: del átomo al <span class="spark">ion</span></h2>
+    <p class="lead">La materia se forma de <b>moléculas</b> y éstas de <b>átomos</b>: un núcleo con <b>protones (+)</b> y <b>neutrones</b>, rodeado de <b>electrones (–)</b>. Cuando el átomo pierde o gana electrones queda desequilibrado: es un <b>ion</b>. La corriente eléctrica es justamente el flujo de electrones del <b>(–)</b> hacia el <b>(+)</b>.</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Átomo e ionización</b><span class="mono" id="atomMono">átomo neutro</span></div>
+      <div class="body">
+        <div class="grid g2" style="align-items:center">
+          <svg viewBox="0 0 300 220" role="img" aria-label="Átomo con núcleo y electrones que se pueden quitar o agregar">
+            <circle class="orbit" cx="150" cy="110" r="78"/>
+            <!-- núcleo -->
+            <circle cx="150" cy="110" r="27" fill="color-mix(in srgb,var(--copper) 18%,var(--panel))" stroke="var(--line2)" stroke-width="1.4"/>
+            <circle class="pdot" cx="150" cy="100" r="6.5"/>
+            <circle class="pdot" cx="162" cy="112" r="6.5"/>
+            <circle class="pdot" cx="138" cy="112" r="6.5"/>
+            <circle class="pdot" cx="150" cy="122" r="6.5"/>
+            <circle class="ndot" cx="143" cy="105" r="6"/>
+            <circle class="ndot" cx="157" cy="105" r="6"/>
+            <circle class="ndot" cx="150" cy="117" r="6"/>
+            <!-- electrones (dibujados por JS) -->
+            <g id="electrons"></g>
+            <text x="150" y="205" text-anchor="middle" class="lbl">4 protones (+) · núcleo fijo</text>
+          </svg>
+          <div>
+            <div class="seg" id="ionSeg">
+              <button data-a="rm">− Quitar electrón</button>
+              <button data-a="add">+ Agregar electrón</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;margin:16px 0 6px">
+              <span class="ionpill neu" id="ionPill">neutro</span>
+              <span class="readout">e⁻: <b id="eCount">4</b> · carga <b id="chargeVal">0</b></span>
+            </div>
+            <div class="callout" id="ionExpl" style="margin-top:12px"><span class="lab">Qué pasó</span>
+              <p id="ionTxt"><b>4 electrones = 4 protones</b>: el átomo está equilibrado, es <b>neutro</b>.</p></div>
+            <p class="lbl" style="margin-top:8px">🔵 electrón (–) · 🔴 protón (+) · ⚪ neutrón</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card"><span class="ic">⚛️</span><span class="tag">partícula base</span><h4>Átomo</h4><p>Protones (+), electrones (–) y neutrones. El núcleo concentra casi toda la masa.</p></div>
+      <div class="card"><span class="ic">🔀</span><span class="tag">desequilibrado</span><h4>Ion</h4><p>Positivo si le sobran protones (perdió electrones); negativo si le sobran electrones.</p></div>
+      <div class="card"><span class="ic">➡️</span><span class="tag">flujo</span><h4>Corriente</h4><p>Circulación de electrones desde el potencial negativo (–) hacia el positivo (+).</p></div>
+    </div>
+  </section>
+
+  <!-- 02 · MAGNITUDES Y TIPOS DE CORRIENTE -->
+  <section class="block reveal" id="magnitudes">
+    <div class="kicker"><span class="num">02</span><span class="rule"></span></div>
+    <h2 class="sec display">Magnitudes y tipos de corriente</h2>
+    <p class="lead">Tres magnitudes gobiernan todo circuito: la <b>intensidad (I)</b>, la <b>tensión (V)</b> y la <b>resistencia (R)</b>. Y la corriente puede fluir siempre en el mismo sentido (<b>continua</b>) u oscilar cambiando de sentido (<b>alterna</b>).</p>
+
+    <div class="tblscroll" style="margin-top:18px">
+      <table class="tbl">
+        <thead><tr><th>Magnitud</th><th>Símbolo</th><th>Unidad</th><th>Qué es</th></tr></thead>
+        <tbody>
+          <tr><td><b>Intensidad</b></td><td class="mono">I</td><td class="mono">Amperio (A)</td><td>Cantidad de electrones que pasan por un conductor en 1 segundo.</td></tr>
+          <tr><td><b>Tensión / d.d.p.</b></td><td class="mono">V · E · U</td><td class="mono">Voltio (V)</td><td>Fuerza que impulsa la circulación de la corriente.</td></tr>
+          <tr><td><b>Resistencia</b></td><td class="mono">R</td><td class="mono">Ohm (Ω)</td><td>Oposición que oponen los cuerpos al paso de la corriente.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Continua (CC) vs. alterna (CA)</b><span class="mono" id="waveMono">CC · continua</span></div>
+      <div class="body">
+        <div class="grid g2" style="align-items:center">
+          <svg viewBox="0 0 320 170" role="img" aria-label="Gráfica de corriente continua o alterna en el tiempo">
+            <!-- ejes -->
+            <line x1="26" y1="12" x2="26" y2="150" class="wire" stroke-width="1.4"/>
+            <line x1="26" y1="88" x2="306" y2="88" class="wire" stroke-width="1.4"/>
+            <text x="14" y="20" class="lbl">V</text>
+            <text x="300" y="104" class="lbl">t</text>
+            <path id="wavePath" d="M26 50 H300" fill="none" stroke="var(--signal)" stroke-width="2.8" stroke-linecap="round"/>
+            <text x="166" y="164" text-anchor="middle" class="lbl" id="waveCap">valor fijo, un solo sentido</text>
+          </svg>
+          <div>
+            <div class="seg" id="waveSeg">
+              <button class="on" data-w="cc">Continua (CC)</button>
+              <button data-w="ca">Alterna (CA)</button>
+            </div>
+            <div class="callout" id="waveExpl" style="margin-top:14px"><span class="lab">Qué muestra</span>
+              <p id="waveTxt"><b>CC</b>: flujo en una sola dirección y de valor fijo (ej. la <b>batería</b>). En la gráfica V-t es una <b>línea recta</b>.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub3">Resistividad — ¿qué tan buen conductor?</h3>
+    <p>Resistencia de un material de 1&nbsp;m de largo y 1&nbsp;mm² de sección (a 15&nbsp;°C). <b>Menor valor = mejor conductor.</b> La resistencia <b>aumenta con la longitud</b> y <b>disminuye con la sección</b>.</p>
+    <div class="tblscroll" style="margin-top:8px">
+      <table class="tbl">
+        <thead><tr><th>Material</th><th>Resistividad (Ω·mm²/m)</th><th>Conductor</th></tr></thead>
+        <tbody>
+          <tr><td>Plata</td><td class="num">0,016</td><td class="val sig">mejor</td></tr>
+          <tr><td>Cobre</td><td class="num">0,017</td><td>muy bueno</td></tr>
+          <tr><td>Hierro</td><td class="num">0,13</td><td>medio</td></tr>
+          <tr><td>Aluminio</td><td class="num">0,27</td><td>bueno / liviano</td></tr>
+          <tr><td>Nicrom</td><td class="num">1,2</td><td>resistivo (calefactor)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="callout tip"><span class="lab">Coeficiente de temperatura</span>
+        <p><b>PTC (+)</b>: sube la temperatura → sube la resistencia (metales). <b>NTC (–)</b>: sube la temperatura → baja la resistencia (aislantes/semiconductores).</p></div>
+      <div class="callout"><span class="lab">Múltiplos</span>
+        <p><b class="mono">M</b> mega = 1.000.000 · <b class="mono">K</b> kilo = 1.000 · <b class="mono">m</b> mili = 0,001 · <b class="mono">µ</b> micro = 0,000001.</p></div>
+    </div>
+  </section>
+
+  <!-- 03 · LEY DE OHM + ASOCIACIÓN -->
+  <section class="block reveal" id="ohm">
+    <div class="kicker"><span class="num">03</span><span class="rule"></span></div>
+    <h2 class="sec display">Ley de Ohm y asociación de resistencias</h2>
+    <p class="lead">«La intensidad es <b>directamente proporcional</b> a la tensión e <b>inversamente proporcional</b> a la resistencia»: <b class="mono">I = V / R</b>. Movés la tensión y la resistencia, y mirás cómo responden la corriente y la potencia.</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Calculadora de Ley de Ohm</b><span class="mono" id="ohmMono">I = V / R</span></div>
+      <div class="body">
+        <div class="grid g2">
+          <div>
+            <div class="readout" style="margin-bottom:6px">Tensión: <b id="vVal">12</b> V</div>
+            <input class="slider" id="vSl" type="range" min="1" max="24" step="1" value="12">
+            <div style="display:flex;justify-content:space-between" class="lbl"><span>1 V</span><span>24 V</span></div>
+            <div class="readout" style="margin:18px 0 6px">Resistencia: <b id="rVal">4</b> Ω</div>
+            <input class="slider" id="rSl" type="range" min="1" max="60" step="1" value="4">
+            <div style="display:flex;justify-content:space-between" class="lbl"><span>1 Ω</span><span>60 Ω</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;justify-content:center;gap:18px">
+            <div>
+              <div class="bignum sig"><span id="iOut">3,00</span> <small>A</small></div>
+              <div class="formula">I = V / R = <span id="iForm">12 / 4</span></div>
+            </div>
+            <div>
+              <div class="bignum"><span id="pOut">36</span> <small>W</small></div>
+              <div class="formula">P = V × I = <span id="pForm">12 × 3,00</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="callout tip" style="margin-top:14px"><span class="lab">💡 Potencia</span>
+      <p><b class="mono">P = V × I</b> (watts). Ejemplo real: un motor de arranque de <b>12 V × 150 A = 1800 W</b>. Conversión útil: <b>1 HP = 746 W</b>.</p></div>
+
+    <h3 class="sub3">Serie o paralelo</h3>
+    <p>Dos resistencias, <b class="mono">R1 = 4 Ω</b> y <b class="mono">R2 = 6 Ω</b>. Cambiá la conexión y mirá cómo cambia la resistencia total.</p>
+    <div class="schematic" style="margin-top:14px">
+      <div class="cap"><span class="led"></span><b>Asociación de resistencias</b><span class="mono" id="assocMono">en serie</span></div>
+      <div class="body">
+        <div class="seg" id="assocSeg" style="margin-bottom:16px">
+          <button class="on" data-c="serie">Serie</button>
+          <button data-c="paralelo">Paralelo</button>
+        </div>
+        <div class="grid g2" style="align-items:center">
+          <svg viewBox="0 0 340 200" role="img" aria-label="Resistencias en serie o en paralelo">
+            <!-- batería -->
+            <rect x="18" y="82" width="20" height="36" rx="4" class="node"/>
+            <text x="28" y="103" text-anchor="middle" class="lbl-strong" font-size="10">12V</text>
+            <!-- SERIE -->
+            <g id="gSerie">
+              <path class="wire flow" d="M38 90 H86"/>
+              <rect x="86" y="80" width="60" height="20" rx="4" fill="color-mix(in srgb,var(--copper) 18%,var(--panel))" stroke="var(--copper)" stroke-width="1.6"/>
+              <text x="116" y="94" text-anchor="middle" class="lbl">R1 4Ω</text>
+              <path class="wire flow" d="M146 90 H176"/>
+              <rect x="176" y="80" width="60" height="20" rx="4" fill="color-mix(in srgb,var(--copper) 18%,var(--panel))" stroke="var(--copper)" stroke-width="1.6"/>
+              <text x="206" y="94" text-anchor="middle" class="lbl">R2 6Ω</text>
+              <path class="wire flow" d="M236 90 H300 V150 H28 V118"/>
+            </g>
+            <!-- PARALELO -->
+            <g id="gParalelo" style="display:none">
+              <path class="wire flow" d="M38 100 H96"/>
+              <path class="wire" d="M96 100 V60 H128"/>
+              <path class="wire" d="M96 100 V140 H128"/>
+              <rect x="128" y="50" width="60" height="20" rx="4" fill="color-mix(in srgb,var(--copper) 18%,var(--panel))" stroke="var(--copper)" stroke-width="1.6"/>
+              <text x="158" y="64" text-anchor="middle" class="lbl">R1 4Ω</text>
+              <rect x="128" y="130" width="60" height="20" rx="4" fill="color-mix(in srgb,var(--copper) 18%,var(--panel))" stroke="var(--copper)" stroke-width="1.6"/>
+              <text x="158" y="144" text-anchor="middle" class="lbl">R2 6Ω</text>
+              <path class="wire" d="M188 60 H220 V100"/>
+              <path class="wire" d="M188 140 H220 V100"/>
+              <path class="wire flow" d="M220 100 H300 V170 H28 V118"/>
+            </g>
+          </svg>
+          <div>
+            <div class="bignum">Rt = <span id="rtOut">10</span> <small>Ω</small></div>
+            <div class="formula" id="rtForm" style="margin-top:4px">Rt = R1 + R2 = 4 + 6</div>
+            <div class="callout" id="assocExpl" style="margin-top:14px"><span class="lab">Regla</span>
+              <p id="assocTxt"><b>Serie</b>: misma corriente por todas; la resistencia total es la <b>suma</b>.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="callout mem" style="margin-top:14px"><span class="lab">Para memorizar</span>
+      <p>En <b>paralelo</b> la resistencia total es <b>siempre menor que la más chica</b>, y si un ramal falla los demás siguen funcionando. La <b>mixta</b> se resuelve por equivalencias parciales hasta reducir el circuito.</p></div>
+  </section>
+
+  <!-- 04 · KIRCHHOFF -->
+  <section class="block reveal" id="kirchhoff">
+    <div class="kicker"><span class="num">04</span><span class="rule"></span></div>
+    <h2 class="sec display">Leyes de Kirchhoff</h2>
+    <p class="lead">Dos reglas para resolver circuitos: qué pasa en un <b>nudo</b> (donde se juntan cables) y qué pasa en una <b>malla</b> (un lazo cerrado en serie).</p>
+    <div class="grid g2" style="margin-top:20px">
+      <div class="schematic">
+        <div class="cap"><span class="led"></span><b>1ª ley · nudos</b><span class="mono">ΣI</span></div>
+        <div class="body">
+          <svg viewBox="0 0 300 180" role="img" aria-label="Nudo con una corriente entrante y dos salientes">
+            <circle cx="150" cy="90" r="6" class="hot"/>
+            <path class="wire flow" d="M30 90 H144"/>
+            <text x="80" y="80" text-anchor="middle" class="lbl">I1 (entra)</text>
+            <path class="wire flow" d="M156 88 L268 40"/>
+            <text x="238" y="35" text-anchor="middle" class="lbl">I2</text>
+            <path class="wire flow" d="M156 92 L268 140"/>
+            <text x="238" y="158" text-anchor="middle" class="lbl">I3</text>
+          </svg>
+          <div class="callout" style="margin:6px 0 0"><span class="lab">Regla</span>
+            <p>La suma de corrientes <b>entrantes</b> = suma de corrientes <b>salientes</b>. <b class="mono">I1 = I2 + I3</b>.</p></div>
+        </div>
+      </div>
+      <div class="schematic">
+        <div class="cap"><span class="led"></span><b>2ª ley · mallas</b><span class="mono">ΣE</span></div>
+        <div class="body">
+          <svg viewBox="0 0 300 180" role="img" aria-label="Malla en serie con tres caídas de tensión">
+            <rect x="24" y="72" width="18" height="34" rx="4" class="node"/>
+            <text x="33" y="122" text-anchor="middle" class="lbl">E 12V</text>
+            <path class="wire flow" d="M42 80 H70"/>
+            <rect x="70" y="30" width="46" height="18" rx="4" fill="color-mix(in srgb,var(--copper) 18%,var(--panel))" stroke="var(--copper)" stroke-width="1.5" transform="translate(0,42)"/>
+            <text x="93" y="86" text-anchor="middle" class="lbl">E1</text>
+            <path class="wire flow" d="M116 80 H140"/>
+            <rect x="140" y="72" width="46" height="18" rx="4" fill="color-mix(in srgb,var(--copper) 18%,var(--panel))" stroke="var(--copper)" stroke-width="1.5"/>
+            <text x="163" y="86" text-anchor="middle" class="lbl">E2</text>
+            <path class="wire flow" d="M186 80 H210"/>
+            <rect x="210" y="72" width="46" height="18" rx="4" fill="color-mix(in srgb,var(--copper) 18%,var(--panel))" stroke="var(--copper)" stroke-width="1.5"/>
+            <text x="233" y="86" text-anchor="middle" class="lbl">E3</text>
+            <path class="wire flow" d="M256 90 V150 H33 V106"/>
+          </svg>
+          <div class="callout" style="margin:6px 0 0"><span class="lab">Regla</span>
+            <p>La suma de las <b>caídas de tensión</b> parciales en serie = la tensión aplicada. <b class="mono">E = E1 + E2 + E3</b>.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · MAGNETISMO -->
+  <section class="block reveal" id="magnetismo">
+    <div class="kicker"><span class="num">05</span><span class="rule"></span></div>
+    <h2 class="sec display">Magnetismo y electromagnetismo</h2>
+    <p class="lead">Toda corriente crea un campo magnético, y todo movimiento de un conductor dentro de un campo genera tensión. Ese ida y vuelta es la base de <b>bobinas</b>, <b>relés</b>, <b>arranque</b> y <b>alternador</b>.</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Campo magnético · líneas de flujo</b><span class="mono">N → S</span></div>
+      <div class="body">
+        <svg viewBox="0 0 420 200" role="img" aria-label="Imán con líneas de flujo del polo norte al sur">
+          <rect x="150" y="82" width="60" height="36" rx="5" fill="color-mix(in srgb,var(--bad) 22%,var(--panel))" stroke="var(--bad)" stroke-width="1.5"/>
+          <text x="180" y="105" text-anchor="middle" class="lbl-strong" font-size="13">N</text>
+          <rect x="210" y="82" width="60" height="36" rx="5" fill="color-mix(in srgb,var(--navy2) 22%,var(--panel))" stroke="var(--navy2)" stroke-width="1.5"/>
+          <text x="240" y="105" text-anchor="middle" class="lbl-strong" font-size="13">S</text>
+          <path class="wire-sig" d="M205 82 C205 30 320 30 300 100 C320 170 205 170 205 118" fill="none"/>
+          <path class="wire-sig" d="M200 82 C200 46 275 46 262 100 C275 154 200 154 200 118" fill="none"/>
+          <path class="wire-sig" d="M215 82 C215 20 360 24 340 100 C360 176 215 180 215 118" fill="none"/>
+          <text x="330" y="100" text-anchor="middle" class="lbl">líneas de flujo</text>
+          <text x="100" y="100" text-anchor="middle" class="lbl">no se cortan</text>
+        </svg>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card"><span class="ic">🧲</span><span class="tag">atrae / repele</span><h4>Polaridad</h4><p>Polos iguales se repelen (N-N, S-S); opuestos se atraen (N-S).</p></div>
+      <div class="card"><span class="ic">🌀</span><span class="tag">regla del tirabuzón</span><h4>Campo por corriente</h4><p>Toda corriente en un conductor crea un campo magnético a su alrededor.</p></div>
+      <div class="card"><span class="ic">⚙️</span><span class="tag">núcleo + bobina</span><h4>Electroimán</h4><p>Se magnetiza al pasar corriente. Base de bobinas de encendido, solenoides y relés.</p></div>
+    </div>
+    <div class="callout tip" style="margin-top:16px"><span class="lab">Inducción electromagnética</span>
+      <p>El <b>movimiento relativo</b> entre un conductor y un campo magnético induce una d.d.p. Es el principio del <b>alternador</b>.</p></div>
+  </section>
+
+  <!-- 06 · INSTRUMENTOS -->
+  <section class="block reveal" id="instrumentos">
+    <div class="kicker"><span class="num">06</span><span class="rule"></span></div>
+    <h2 class="sec display">Instrumentos de medición</h2>
+    <p class="lead">La clave es cómo se conectan: el <b>voltímetro en paralelo</b> (alta resistencia, no consume) y el <b>amperímetro en serie</b> (baja resistencia, la corriente pasa por él).</p>
+    <div class="tblscroll" style="margin-top:18px">
+      <table class="tbl">
+        <thead><tr><th>Instrumento</th><th>Mide</th><th>Conexión</th><th>Característica</th></tr></thead>
+        <tbody>
+          <tr><td><b>Óhmetro</b></td><td>Resistencia (Ω)</td><td>Paralelo (sin tensión)</td><td>Aplica un voltaje conocido y mide la corriente. Precisión con 4 terminales (Kelvin).</td></tr>
+          <tr><td><b>Voltímetro</b></td><td>Tensión (V)</td><td class="val sig">Paralelo</td><td>Alta resistencia interna (hilo fino, muchas espiras) para no consumir.</td></tr>
+          <tr><td><b>Amperímetro</b></td><td>Corriente (A)</td><td class="val">Serie</td><td>Baja resistencia interna (hilo grueso, pocas espiras). Usa <b>shunt</b> para corrientes altas.</td></tr>
+          <tr><td><b>Capacímetro</b></td><td>Capacidad (F)</td><td>—</td><td>Mide condensadores (pF a µF); detecta electrolíticos fallados.</td></tr>
+          <tr><td><b>Pinza amperométrica</b></td><td>Corriente (A)</td><td>Abraza el cable</td><td>Mide sin abrir el circuito, por el campo magnético. Segura y práctica.</td></tr>
+          <tr><td><b>Analizador de baterías</b></td><td>Estado de batería</td><td>Paralelo</td><td>Simula el consumo de arranque y mide la caída de tensión.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 07 · BATERÍAS -->
+  <section class="block reveal" id="baterias">
+    <div class="kicker"><span class="num">07</span><span class="rule"></span></div>
+    <h2 class="sec display">Baterías: acumulador de plomo-ácido</h2>
+    <p class="lead">La batería es un <b>reservorio</b> para el arranque y los picos de consumo. Al <b>descargarse</b> el ácido reacciona con las placas y el electrolito se debilita (baja la densidad); al <b>cargarse</b>, el proceso se invierte. Por eso la densidad del electrolito revela el estado de carga.</p>
+
+    <div class="grid g2" style="margin-top:20px">
+      <div class="card"><span class="ic">🟫</span><span class="tag">PbO₂</span><h4>Placa positiva</h4><p>Peróxido de plomo, color café oscuro.</p></div>
+      <div class="card"><span class="ic">⬜</span><span class="tag">Pb</span><h4>Placa negativa</h4><p>Plomo esponjoso.</p></div>
+      <div class="card"><span class="ic">🧪</span><span class="tag">SO₄H₂ + H₂O</span><h4>Electrolito</h4><p>~35% ácido sulfúrico. Densidad <b>1,265 gr/cm³</b> a plena carga.</p></div>
+      <div class="card"><span class="ic">🔢</span><span class="tag">6 celdas</span><h4>2,1 V por celda</h4><p>12 V = 6 celdas · 6 V = 3 celdas.</p></div>
+    </div>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Densímetro · estado de carga</b><span class="mono" id="densMono">100%</span></div>
+      <div class="body">
+        <div class="grid g2" style="align-items:center">
+          <div>
+            <div class="readout" style="margin-bottom:6px">Densidad del electrolito: <b id="densVal">1,265</b> gr/cm³</div>
+            <input class="slider" id="densSl" type="range" min="1120" max="1265" step="1" value="1265">
+            <div style="display:flex;justify-content:space-between" class="lbl"><span>1,120 (descargada)</span><span>1,265 (plena)</span></div>
+            <div style="margin-top:18px" class="chargebar"><i id="chgFill"></i></div>
+            <div style="display:flex;align-items:baseline;gap:10px;margin-top:12px">
+              <span class="bignum"><span id="chgPct">100</span><small> %</small></span>
+              <span class="readout" id="chgState">plena carga</span>
+            </div>
+          </div>
+          <div>
+            <div class="tblscroll">
+              <table class="tbl" id="densTable">
+                <thead><tr><th>Densidad</th><th>Carga</th></tr></thead>
+                <tbody>
+                  <tr data-d="1265"><td class="num">1,265</td><td>100%</td></tr>
+                  <tr data-d="1225"><td class="num">1,225</td><td>75%</td></tr>
+                  <tr data-d="1190"><td class="num">1,190</td><td>50%</td></tr>
+                  <tr data-d="1155"><td class="num">1,155</td><td>25%</td></tr>
+                  <tr data-d="1120"><td class="num">1,120</td><td>Descargada</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="callout warn"><span class="lab">⚠️ Al cargar</span>
+        <p>Se desprenden <b>hidrógeno y oxígeno</b> (mezcla explosiva): evitar chispas y llamas cerca de la batería.</p></div>
+      <div class="callout"><span class="lab">Especificaciones</span>
+        <p><b>12 V</b> nominal (~12,8 V real) · <b>Ah</b>: 60 Ah = 6 A × 10 h · <b>CCA</b>: corriente instantánea de arranque (ej. 650 A hasta 10,5 V).</p></div>
+    </div>
+    <div class="callout mem" style="margin-top:8px"><span class="lab">Corrección + carga</span>
+      <p>Corrección por temperatura: <b>±0,004 gr/cm³</b> por cada 5,5 °C respecto a 25 °C. Intensidad de carga = capacidad nominal ÷ 20. La <b>carga insuficiente</b> sulfata las placas de forma irreversible.</p></div>
+  </section>
+
+  <!-- 08 · RELÉS -->
+  <section class="block reveal" id="reles">
+    <div class="kicker"><span class="num">08</span><span class="rule"></span></div>
+    <h2 class="sec display">Relés</h2>
+    <p class="lead">Un relé es un <b>interruptor electromecánico</b>: un circuito de <b>baja potencia</b> (la bobina) acciona un electroimán que cierra los contactos de un circuito de <b>alta potencia</b>. Así se manejan luces, claxon o electroventilador con cables finos y sin riesgo.</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Relé · bobina de control y contactos</b><span class="mono" id="relayMono">en reposo</span></div>
+      <div class="body">
+        <div class="grid g2" style="align-items:center">
+          <svg viewBox="0 0 320 200" role="img" aria-label="Relé con bobina de control y contactos de potencia">
+            <!-- circuito control -->
+            <text x="70" y="24" text-anchor="middle" class="lbl">control (85 · 86)</text>
+            <rect x="40" y="60" width="60" height="46" rx="6" fill="none" stroke="var(--line2)" stroke-width="1.4" stroke-dasharray="4 4"/>
+            <path id="relCoil" d="M50 70 q10 -6 0 -12 M50 84 q10 -6 0 -12 M50 98 q10 -6 0 -12" transform="translate(18,4)" fill="none" stroke="var(--wire)" stroke-width="3"/>
+            <text x="70" y="122" text-anchor="middle" class="lbl">bobina</text>
+            <path id="relCtrlWire" class="wire" d="M40 130 H24 V83"/>
+            <path class="wire" d="M100 130 H120"/>
+            <!-- campo -->
+            <g id="relField" class="blocked">
+              <ellipse cx="70" cy="83" rx="40" ry="26" fill="none" stroke="var(--signal)" stroke-width="1.3" stroke-dasharray="3 5"/>
+            </g>
+            <!-- circuito potencia -->
+            <text x="240" y="24" text-anchor="middle" class="lbl">potencia (30 · 87)</text>
+            <rect x="176" y="70" width="18" height="30" rx="4" class="node"/>
+            <text x="185" y="116" text-anchor="middle" class="lbl">30 · batería</text>
+            <circle cx="200" cy="72" r="4" class="node"/>
+            <!-- armadura móvil -->
+            <line id="relArm" x1="200" y1="72" x2="252" y2="56" class="wire" style="transition:transform .25s;transform-origin:200px 72px"/>
+            <circle cx="256" cy="54" r="4" class="node"/>
+            <path id="relLoad" class="wire blocked" d="M258 54 H290 V150 H70 V150"/>
+            <!-- lámpara de carga -->
+            <circle id="relLamp" cx="290" cy="150" r="14" fill="var(--panel)" stroke="var(--line2)" stroke-width="1.6"/>
+            <text x="290" y="180" text-anchor="middle" class="lbl">87 · carga</text>
+          </svg>
+          <div>
+            <div class="seg" id="relaySeg">
+              <button class="on" data-r="off">Bobina sin corriente</button>
+              <button data-r="on">Bobina activada</button>
+            </div>
+            <div class="callout" id="relayExpl" style="margin-top:14px"><span class="lab">Qué pasa</span>
+              <p id="relayTxt"><b>En reposo</b>: sin corriente en la bobina, el contacto <b>N.A. (87)</b> está abierto → la carga no recibe potencia.</p></div>
+            <div class="tblscroll" style="margin-top:14px">
+              <table class="tbl">
+                <thead><tr><th>Terminal</th><th>Función</th></tr></thead>
+                <tbody>
+                  <tr><td class="num">30</td><td>Positivo directo (batería)</td></tr>
+                  <tr><td class="num">87 / 87a</td><td>Salida de positivo (carga)</td></tr>
+                  <tr><td class="num">85 / 86</td><td>Bobina (+ / –)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card"><span class="tag" style="color:var(--ok)">N.A.</span><h4>Normal abierto</h4><p>Conecta al activarse el relé.</p></div>
+      <div class="card"><span class="tag" style="color:var(--bad)">N.C.</span><h4>Normal cerrado</h4><p>Desconecta al activarse.</p></div>
+      <div class="card"><span class="tag" style="color:var(--copper)">inversor</span><h4>Conmutado</h4><p>Un N.A. + un N.C. con terminal común.</p></div>
+    </div>
+    <div class="callout tip" style="margin-top:8px"><span class="lab">Ventaja clave</span>
+      <p><b>Separación eléctrica total</b> entre el circuito de control (bobina) y el circuito controlado (contactos). Funciona como <b>amplificador</b> de potencia. Inventado por Joseph Henry (1835).</p></div>
+  </section>
+
+  <!-- 09 · CONDUCTORES / AISLANTES / FUSIBLES -->
+  <section class="block reveal" id="conductores">
+    <div class="kicker"><span class="num">09</span><span class="rule"></span></div>
+    <h2 class="sec display">Conductores, aislantes y fusibles</h2>
+    <p class="lead">Los <b>conductores</b> tienen 1–3 electrones en la última órbita (cobre, aluminio); los <b>aislantes</b>, 5–7 fuertemente ligados (plásticos, porcelana, mica). Los <b>fusibles</b> se funden a un valor predeterminado para proteger el circuito.</p>
+    <div class="grid g2" style="margin-top:20px">
+      <div class="callout tip"><span class="lab">Conductores · calibres</span>
+        <p>Del N° <b>0</b> (más grueso) al N° <b>20</b> (más fino): mayor diámetro = más corriente. Batería 12 V → calibre 4–6 · Luces → calibre 16–18. Cables unifilares o multifilares (hilos trenzados).</p></div>
+      <div class="callout"><span class="lab">Aislantes · empalmes</span>
+        <p>Aire, porcelana, mica, ebonita, plásticos. Empalmes con terminales, <b>soldadura de estaño con núcleo de resina</b> (nunca de ácido, es corrosivo) y tubo termocontraíble.</p></div>
+    </div>
+
+    <h3 class="sub3">Identificación de fusibles por color</h3>
+    <div class="tblscroll" style="margin-top:8px">
+      <table class="tbl">
+        <thead><tr><th>Color</th><th>Amperes</th><th>Color</th><th>Amperes</th></tr></thead>
+        <tbody>
+          <tr><td><span class="fuseSw" style="background:#7c3fb0"></span>Violeta</td><td class="num">3</td><td><span class="fuseSw" style="background:#2f6fd6"></span>Azul</td><td class="num">15</td></tr>
+          <tr><td><span class="fuseSw" style="background:#f48fb1"></span>Rosa</td><td class="num">4</td><td><span class="fuseSw" style="background:#f2c200"></span>Amarillo</td><td class="num">20</td></tr>
+          <tr><td><span class="fuseSw" style="background:#9aa0a6"></span>Ceniza</td><td class="num">5</td><td><span class="fuseSw" style="background:#f4f4f4"></span>Blanco</td><td class="num">25</td></tr>
+          <tr><td><span class="fuseSw" style="background:#8a5a2b"></span>Marrón</td><td class="num">7,5</td><td><span class="fuseSw" style="background:#2fa14e"></span>Verde</td><td class="num">30</td></tr>
+          <tr><td><span class="fuseSw" style="background:#d63a3a"></span>Rojo</td><td class="num">10</td><td><span class="fuseSw" style="background:#e58a2a"></span>Naranja</td><td class="num">40</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 10 · SEMICONDUCTORES -->
+  <section class="block reveal" id="semiconductores">
+    <div class="kicker"><span class="num">10</span><span class="rule"></span></div>
+    <h2 class="sec display">Semiconductores</h2>
+    <p class="lead">Materiales entre conductor y aislante (silicio, germanio, selenio): permiten la corriente en un sentido y la bloquean en el otro. Se «dopan» en tipo <b>N</b> (exceso de electrones) o tipo <b>P</b> (exceso de huecos). De acá salen el <b>diodo</b>, el <b>condensador</b> y el <b>transistor</b>.</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Diodo · polarización directa e inversa</b><span class="mono" id="diodeMono">directa · conduce</span></div>
+      <div class="body">
+        <div class="grid g2" style="align-items:center">
+          <svg viewBox="0 0 320 160" role="img" aria-label="Diodo conduciendo en directa o bloqueando en inversa">
+            <!-- fuente -->
+            <rect x="20" y="64" width="20" height="34" rx="4" class="node"/>
+            <text id="srcPlus" x="30" y="58" text-anchor="middle" class="lbl-strong" font-size="12">+</text>
+            <text id="srcMinus" x="30" y="116" text-anchor="middle" class="lbl-strong" font-size="12">–</text>
+            <path id="diodeWireIn" class="wire flow" d="M40 80 H132"/>
+            <!-- símbolo diodo: triángulo + barra -->
+            <path d="M132 62 V98 L170 80 Z" fill="color-mix(in srgb,var(--copper) 25%,var(--panel))" stroke="var(--copper)" stroke-width="1.8"/>
+            <line x1="170" y1="60" x2="170" y2="100" stroke="var(--copper)" stroke-width="3"/>
+            <text x="146" y="120" text-anchor="middle" class="lbl">ánodo → cátodo</text>
+            <path id="diodeWireOut" class="wire flow" d="M170 80 H250"/>
+            <!-- carga -->
+            <circle id="diodeLamp" cx="270" cy="80" r="16" fill="var(--panel)" stroke="var(--line2)" stroke-width="1.6"/>
+            <text id="blockMark" x="200" y="50" text-anchor="middle" class="lbl blocked" fill="var(--bad)">✕ bloqueado</text>
+          </svg>
+          <div>
+            <div class="seg" id="diodeSeg">
+              <button class="on" data-d="fwd">Directa (+ al ánodo)</button>
+              <button data-d="rev">Inversa</button>
+            </div>
+            <div class="callout" id="diodeExpl" style="margin-top:14px"><span class="lab">Qué pasa</span>
+              <p id="diodeTxt"><b>Directa</b>: positivo al ánodo, negativo al cátodo. El diodo <b>conduce</b> con una caída de <span class="val cu">~0,6–0,7 V</span>.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="callout tip" style="margin-top:14px"><span class="lab">Uso estrella</span>
+      <p>Rectificar CA en CC: el <b>alternador</b> usa mínimo <b>6 diodos</b> (3 positivos + 3 negativos) para rectificación de onda completa. También protegen componentes y bloquean sobretensiones.</p></div>
+
+    <div class="grid g2" style="margin-top:18px">
+      <div class="card"><span class="ic">🔋</span><span class="tag">almacena carga · Faradio</span><h4>Condensador</h4><p>Dos armaduras separadas por un <b>dieléctrico</b>. La capacidad <b>aumenta con la superficie</b> de placas y <b>disminuye con la distancia</b>. Tipos: papel, mica, cerámico, poliéster y <b>electrolíticos</b> (polarizados, gran capacidad).</p></div>
+      <div class="card"><span class="ic">🔺</span><span class="tag">3 terminales · B-C-E</span><h4>Transistor</h4><p>Base, colector y emisor: funciona como <b>amplificador</b> o <b>interruptor</b>. Una corriente chica en la base controla una mayor. Bipolares (NPN/PNP) y de efecto de campo (JFET, MOSFET). La flecha del emisor apunta al material N.</p></div>
+    </div>
+    <div class="callout mem" style="margin-top:8px"><span class="lab">Prueba del transistor bipolar (multímetro en «diodo»)</span>
+      <p>Equivale a <b>dos diodos enfrentados</b>: <b>base-emisor</b> conduce · <b>base-colector</b> conduce · <b>colector-emisor</b> NO conduce (en ningún sentido). Primer transistor: germanio, 1947 (Bell Labs).</p></div>
+  </section>
+
+  <!-- 11 · P&R -->
+  <section class="block reveal" id="pr">
+    <div class="kicker"><span class="num">11</span><span class="rule"></span></div>
+    <h2 class="sec display">Preguntas que más se traban</h2>
+    <p class="lead">La explicación profunda del resumen, acá mismo.</p>
+    <div class="acc qacc" style="margin-top:18px">
+      <details open>
+        <summary><span class="idx">P8</span><span class="qq">Una densidad de electrolito de 1,120 gr/cm³, ¿qué batería indica?</span><span class="chev">›</span></summary>
+        <div class="inner">
+          <p class="ansline"><span class="k">Respuesta corta</span>Una batería <b>descargada</b>. La densidad del electrolito es un termómetro del estado de carga, y 1,120 es el piso de la escala.</p>
+          <p>El electrolito es ácido sulfúrico + agua. <b>Al descargarse</b>, el ácido reacciona con las placas y se transforma en <b>sulfato de plomo</b> (queda en las placas): el electrolito se queda con más agua → baja la densidad. <b>Al cargarse</b>, el sulfato devuelve el ácido → sube la densidad.</p>
+          <div class="tblscroll" style="margin:14px 0">
+            <table class="tbl">
+              <thead><tr><th>Densidad (gr/cm³)</th><th>Estado de carga</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">1,265</td><td>100% (plena carga)</td></tr>
+                <tr><td class="mono">1,225</td><td>75%</td></tr>
+                <tr><td class="mono">1,190</td><td>50%</td></tr>
+                <tr><td class="mono">1,155</td><td>25%</td></tr>
+                <tr><td class="mono">1,120</td><td><b>Descargada</b></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="grid g2" style="gap:12px;margin:14px 0">
+            <div class="callout" style="margin:0"><span class="lab">Corrección por temperatura</span><p>±0,004 gr/cm³ por cada 5,5 °C respecto a 25 °C.</p></div>
+            <div class="callout warn" style="margin:0"><span class="lab">Peligro descargada</span><p>El electrolito "aguado" puede <b>congelarse</b> con frío; si queda así, la sulfatación se vuelve <b>irreversible</b>.</p></div>
+          </div>
+          <div class="callout mem"><span class="lab">Para memorizar</span><p>Más ácido = más densidad = más carga. 1,265 → llena · 1,120 → vacía.</p></div>
+          <a class="jump" href="#baterias">🕹️ Probalo en el densímetro interactivo ↑</a>
+        </div>
+      </details>
+    </div>
+    <p class="lbl" style="margin-top:16px">Preguntas de encendido (P2–P9) → en <a class="jump" href="encendido.html#pr" style="display:inline">Sistema de encendido</a> · arranque (P1, P5) → en <a class="jump" href="arranque-alternador.html#pr" style="display:inline">Arranque y alternador</a>.</p>
+  </section>
+
+  <!-- 12 · PARA MEMORIZAR -->
+  <section class="block reveal" id="memorizar">
+    <div class="kicker"><span class="num">12</span><span class="rule"></span></div>
+    <h2 class="sec display">Para memorizar</h2>
+    <p class="lead">Las reglas cortas que más rinden en el test.</p>
+    <div class="memgrid" style="margin-top:18px">
+      <div class="memcard"><span class="lab">Ley de Ohm</span><p><b>I = V / R</b> · V = I × R · R = V / I. Potencia <b>P = V × I</b>. 1 HP = 746 W.</p></div>
+      <div class="memcard cu"><span class="lab">Corriente</span><p>Flujo de electrones del <b>(–) hacia el (+)</b>. Ion positivo = perdió electrones.</p></div>
+      <div class="memcard sig"><span class="lab">Medición</span><p>Voltímetro <b>en paralelo</b> (alta R) · Amperímetro <b>en serie</b> (baja R).</p></div>
+      <div class="memcard"><span class="lab">Resistencias</span><p>Serie = <b>suma</b>. Paralelo = <b>menor que la más chica</b>.</p></div>
+      <div class="memcard cu"><span class="lab">Batería</span><p>Plena carga <b>1,265 gr/cm³</b> · celda cargada <b>2,1 V</b> · 12 V = 6 celdas.</p></div>
+      <div class="memcard sig"><span class="lab">Diodo</span><p>Conduce en <b>directa</b> (~0,6–0,7 V), bloquea en inversa. Alternador: 6 diodos.</p></div>
+      <div class="memcard"><span class="lab">Relé</span><p>Terminales <b>30</b> batería · <b>87</b> salida · <b>85/86</b> bobina. Amplifica potencia.</p></div>
+      <div class="memcard cu"><span class="lab">Kirchhoff</span><p>Nudos: <b>I1 = I2 + I3</b> · Mallas: <b>E = E1 + E2 + E3</b>.</p></div>
+    </div>
+    <div class="qa" style="margin-top:22px">
+      <a href="../test-electricidad.html"><span class="pn">⚡</span><span class="qt">Poné a prueba todo esto en el test interactivo</span><span class="ar">→</span></a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site"><div class="wrap" style="padding-bottom:0">
+  <div class="footrow">
+    <span>ITCA · Electricidad Automotriz — material de estudio. Español rioplatense.</span>
+    <a class="navlink" href="../test-electricidad.html">Practicar en el test ⚡</a>
+  </div>
+</div></footer>
+
+<script src="guia.js"></script>
+<script>
+var SVGNS='http://www.w3.org/2000/svg';
+
+/* ---------- 01 · Átomo / ion ---------- */
+(function(){
+  var PROT=4, e=4, g=document.getElementById('electrons'),
+      seg=document.getElementById('ionSeg'), pill=document.getElementById('ionPill'),
+      eCount=document.getElementById('eCount'), chargeVal=document.getElementById('chargeVal'),
+      mono=document.getElementById('atomMono'), txt=document.getElementById('ionTxt');
+  function render(){
+    while(g.firstChild) g.removeChild(g.firstChild);
+    var cx=150, cy=110, R=78;
+    for(var i=0;i<e;i++){
+      var ang=(i/e)*2*Math.PI - Math.PI/2;
+      var x=cx+R*Math.cos(ang), y=cy+R*Math.sin(ang);
+      var c=document.createElementNS(SVGNS,'circle');
+      c.setAttribute('cx',x.toFixed(1)); c.setAttribute('cy',y.toFixed(1)); c.setAttribute('r','7.5');
+      c.setAttribute('class','edot'); g.appendChild(c);
+      var t=document.createElementNS(SVGNS,'text');
+      t.setAttribute('x',x.toFixed(1)); t.setAttribute('y',(y+3.3).toFixed(1));
+      t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','10');
+      t.setAttribute('fill','var(--panel)'); t.setAttribute('font-weight','700'); t.textContent='–';
+      g.appendChild(t);
+    }
+    var ch=PROT-e;
+    eCount.textContent=e; chargeVal.textContent=(ch>0?'+':'')+ch;
+    pill.classList.remove('pos','neg','neu');
+    if(ch>0){ pill.classList.add('pos'); pill.textContent='ion positivo (+)'; mono.textContent='ion positivo';
+      txt.innerHTML='Perdió electrones: quedan <b>'+e+' e⁻ contra 4 protones</b> → le sobra carga positiva. Es un <b>ion positivo (catión)</b>.'; }
+    else if(ch<0){ pill.classList.add('neg'); pill.textContent='ion negativo (–)'; mono.textContent='ion negativo';
+      txt.innerHTML='Ganó electrones: hay <b>'+e+' e⁻ contra 4 protones</b> → le sobra carga negativa. Es un <b>ion negativo (anión)</b>.'; }
+    else{ pill.classList.add('neu'); pill.textContent='neutro'; mono.textContent='átomo neutro';
+      txt.innerHTML='<b>4 electrones = 4 protones</b>: el átomo está equilibrado, es <b>neutro</b>.'; }
+  }
+  seg.querySelectorAll('button').forEach(function(b){
+    b.onclick=function(){
+      if(b.dataset.a==='rm' && e>1) e--;
+      else if(b.dataset.a==='add' && e<8) e++;
+      render();
+    };
+  });
+  render();
+})();
+
+/* ---------- 02 · Onda CC vs CA ---------- */
+(function(){
+  var seg=document.getElementById('waveSeg'), path=document.getElementById('wavePath'),
+      mono=document.getElementById('waveMono'), cap=document.getElementById('waveCap'),
+      txt=document.getElementById('waveTxt');
+  function sine(){
+    var d='M26 88', x, y;
+    for(x=26;x<=300;x+=3){
+      y=88-46*Math.sin((x-26)/274*4*Math.PI);
+      d+=' L'+x+' '+y.toFixed(1);
+    }
+    return d;
+  }
+  function set(kind){
+    if(kind==='cc'){
+      path.setAttribute('d','M26 50 H300');
+      mono.textContent='CC · continua'; cap.textContent='valor fijo, un solo sentido';
+      txt.innerHTML='<b>CC</b>: flujo en una sola dirección y de valor fijo (ej. la <b>batería</b>). En la gráfica V-t es una <b>línea recta</b>.';
+    } else {
+      path.setAttribute('d',sine());
+      mono.textContent='CA · alterna'; cap.textContent='onda senoidal: amplitud · frecuencia · período';
+      txt.innerHTML='<b>CA</b>: los electrones <b>oscilan cambiando de sentido</b>. Onda senoidal caracterizada por <b>amplitud, frecuencia y período</b>.';
+    }
+    seg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.w===kind); });
+  }
+  seg.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ set(b.dataset.w); }; });
+  set('cc');
+})();
+
+/* ---------- 03a · Ley de Ohm ---------- */
+(function(){
+  var v=document.getElementById('vSl'), r=document.getElementById('rSl'),
+      vVal=document.getElementById('vVal'), rVal=document.getElementById('rVal'),
+      iOut=document.getElementById('iOut'), pOut=document.getElementById('pOut'),
+      iForm=document.getElementById('iForm'), pForm=document.getElementById('pForm');
+  function fmt(n){ return n.toFixed(2).replace('.',','); }
+  function upd(){
+    var V=+v.value, R=+r.value, I=V/R, P=V*I;
+    vVal.textContent=V; rVal.textContent=R;
+    iOut.textContent=fmt(I); iForm.textContent=V+' / '+R;
+    pOut.textContent=fmt(P); pForm.textContent=V+' × '+fmt(I);
+  }
+  v.addEventListener('input',upd); r.addEventListener('input',upd); upd();
+})();
+
+/* ---------- 03b · Serie vs Paralelo ---------- */
+(function(){
+  var seg=document.getElementById('assocSeg'), gS=document.getElementById('gSerie'), gP=document.getElementById('gParalelo'),
+      mono=document.getElementById('assocMono'), rt=document.getElementById('rtOut'), form=document.getElementById('rtForm'),
+      txt=document.getElementById('assocTxt');
+  function set(kind){
+    var serie=(kind==='serie');
+    gS.style.display=serie?'':'none';
+    gP.style.display=serie?'none':'';
+    mono.textContent=serie?'en serie':'en paralelo';
+    if(serie){
+      rt.textContent='10'; form.textContent='Rt = R1 + R2 = 4 + 6';
+      txt.innerHTML='<b>Serie</b>: misma corriente por todas; la resistencia total es la <b>suma</b> (10 Ω).';
+    } else {
+      rt.textContent='2,4'; form.textContent='Rt = (R1·R2)/(R1+R2) = 24/10';
+      txt.innerHTML='<b>Paralelo</b>: varios caminos; la total (2,4 Ω) es <b>menor que la más chica</b> (4 Ω).';
+    }
+    seg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.c===kind); });
+  }
+  seg.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ set(b.dataset.c); }; });
+  set('serie');
+})();
+
+/* ---------- 07 · Densímetro ---------- */
+(function(){
+  var sl=document.getElementById('densSl'), val=document.getElementById('densVal'),
+      pct=document.getElementById('chgPct'), fill=document.getElementById('chgFill'),
+      state=document.getElementById('chgState'), mono=document.getElementById('densMono'),
+      rows=document.querySelectorAll('#densTable tbody tr');
+  var pts=[[1120,0],[1155,25],[1190,50],[1225,75],[1265,100]];
+  function interp(d){
+    if(d<=pts[0][0]) return 0;
+    if(d>=pts[pts.length-1][0]) return 100;
+    for(var i=0;i<pts.length-1;i++){
+      if(d>=pts[i][0] && d<=pts[i+1][0]){
+        var t=(d-pts[i][0])/(pts[i+1][0]-pts[i][0]);
+        return pts[i][1]+t*(pts[i+1][1]-pts[i][1]);
+      }
+    }
+    return 0;
+  }
+  function upd(){
+    var d=+sl.value, p=Math.round(interp(d));
+    val.textContent=(d/1000).toFixed(3).replace('.',',');
+    pct.textContent=p; mono.textContent=p+'%';
+    fill.style.width=p+'%';
+    var col = p>=70 ? 'var(--ok)' : p>=35 ? 'var(--spark)' : 'var(--bad)';
+    fill.style.background=col;
+    state.textContent = p>=100?'plena carga' : p>=70?'carga buena' : p>=35?'media carga' : p>=15?'baja — recargar' : 'descargada';
+    // resaltar fila más cercana
+    var best=0, bd=1e9;
+    rows.forEach(function(rw,idx){ var dd=Math.abs((+rw.dataset.d)-d); if(dd<bd){bd=dd;best=idx;} });
+    rows.forEach(function(rw,idx){ rw.style.background = idx===best ? 'color-mix(in srgb,var(--spark) 14%,transparent)' : ''; });
+  }
+  sl.addEventListener('input',upd); upd();
+})();
+
+/* ---------- 08 · Relé ---------- */
+(function(){
+  var seg=document.getElementById('relaySeg'), field=document.getElementById('relField'),
+      arm=document.getElementById('relArm'), load=document.getElementById('relLoad'),
+      lamp=document.getElementById('relLamp'), coil=document.getElementById('relCoil'),
+      mono=document.getElementById('relayMono'), txt=document.getElementById('relayTxt');
+  function set(st){
+    var on=(st==='on');
+    field.classList.toggle('blocked',!on);
+    coil.setAttribute('stroke', on?'var(--signal)':'var(--wire)');
+    arm.style.transform = on?'rotate(9deg)':'none';
+    load.classList.toggle('blocked',!on);
+    load.classList.toggle('wire-hi',on);
+    load.classList.toggle('wire',!on);
+    lamp.setAttribute('fill', on?'var(--spark)':'var(--panel)');
+    lamp.setAttribute('stroke', on?'var(--spark)':'var(--line2)');
+    mono.textContent = on?'activado':'en reposo';
+    txt.innerHTML = on
+      ? '<b>Activada</b>: la corriente por la bobina crea un <b>campo magnético</b> que atrae la armadura y <b>cierra el N.A. (87)</b> → la carga recibe toda la potencia por el terminal 30.'
+      : '<b>En reposo</b>: sin corriente en la bobina, el contacto <b>N.A. (87)</b> está abierto → la carga no recibe potencia.';
+    seg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.r===st); });
+  }
+  seg.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ set(b.dataset.r); }; });
+  set('off');
+})();
+
+/* ---------- 10 · Diodo directa/inversa ---------- */
+(function(){
+  var seg=document.getElementById('diodeSeg'), wIn=document.getElementById('diodeWireIn'),
+      wOut=document.getElementById('diodeWireOut'), lamp=document.getElementById('diodeLamp'),
+      block=document.getElementById('blockMark'), plus=document.getElementById('srcPlus'),
+      minus=document.getElementById('srcMinus'), mono=document.getElementById('diodeMono'),
+      txt=document.getElementById('diodeTxt');
+  function set(mode){
+    var fwd=(mode==='fwd');
+    plus.textContent=fwd?'+':'–'; minus.textContent=fwd?'–':'+';
+    wIn.classList.toggle('flow',fwd); wOut.classList.toggle('flow',fwd);
+    wIn.classList.toggle('blocked',!fwd); wOut.classList.toggle('blocked',!fwd);
+    block.classList.toggle('blocked',fwd); // oculto en directa
+    lamp.setAttribute('fill', fwd?'var(--spark)':'var(--panel)');
+    lamp.setAttribute('stroke', fwd?'var(--spark)':'var(--line2)');
+    mono.textContent=fwd?'directa · conduce':'inversa · bloquea';
+    txt.innerHTML=fwd
+      ? '<b>Directa</b>: positivo al ánodo, negativo al cátodo. El diodo <b>conduce</b> con una caída de <span class="val cu">~0,6–0,7 V</span>.'
+      : '<b>Inversa</b>: positivo al cátodo. El diodo <b>bloquea</b> la corriente: la carga queda apagada.';
+    seg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.d===mode); });
+  }
+  seg.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ set(b.dataset.d); }; });
+  set('fwd');
+})();
+</script>
+</body>
+</html>

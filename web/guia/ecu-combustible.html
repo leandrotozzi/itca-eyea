@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ECU y sistema de combustible · Guía Visual ITCA</title>
+<link rel="stylesheet" href="guia.css">
+<style>
+.sim{margin-top:18px}
+.sim .body{padding:14px 14px 18px}
+.simgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:center}
+@media(max-width:760px){.simgrid{grid-template-columns:1fr}}
+.simgrid>*{min-width:0}
+.ro{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px}
+.ro span{font-family:ui-monospace,Menlo,monospace;font-size:.82rem;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:6px 10px;color:var(--muted)}
+.ro b{color:var(--spark);font-size:1rem}
+.ro b.sig{color:var(--signal)}
+.ro b.bad{color:var(--bad)}
+.ro b.ok{color:var(--ok)}
+.ctl{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin:10px 0}
+.ctl label{font-size:.85rem;font-weight:700;color:var(--muted);white-space:nowrap}
+.ctl output{font-family:ui-monospace,Menlo,monospace;font-weight:800;color:var(--spark);min-width:70px;text-align:right}
+.scopebox{background:#06101c;border:1px solid #1d2c44;border-radius:12px;padding:6px}
+.scg{stroke:#17304a;stroke-width:1}
+.sct{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;fill:#6f8bb0}
+.lbl2{font-family:ui-monospace,Menlo,monospace;font-size:11px;fill:var(--muted)}
+.lblb{font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:800;fill:var(--ink)}
+.box{fill:var(--panel);stroke:var(--line2);stroke-width:1.6}
+.boxh{fill:color-mix(in srgb,var(--spark) 10%,var(--panel));stroke:var(--spark);stroke-width:1.8}
+.boxn{fill:color-mix(in srgb,var(--navy2) 10%,var(--panel));stroke:var(--navy2);stroke-width:1.8}
+.boxs{fill:color-mix(in srgb,var(--signal) 10%,var(--panel));stroke:var(--signal);stroke-width:1.8}
+.boxc{fill:color-mix(in srgb,var(--copper) 10%,var(--panel));stroke:var(--copper);stroke-width:1.8}
+.boxb{fill:color-mix(in srgb,var(--bad) 10%,var(--panel));stroke:var(--bad);stroke-width:1.8}
+.manref{border:1px dashed var(--line2);border-radius:14px;padding:12px 16px;margin:16px 0 4px;background:var(--panel)}
+.manref .lab{font-family:ui-monospace,Menlo,monospace;font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--navy-ink)}
+.manref ul{margin:.4em 0 0;padding-left:1.2em;font-size:.92rem;color:var(--muted)}
+.manref li{margin:.25em 0}
+.manref li b{color:var(--ink)}
+blockquote.mq{margin:14px 0;padding:10px 16px;border-left:3px solid var(--navy2);background:color-mix(in srgb,var(--navy2) 7%,var(--panel));border-radius:0 12px 12px 0;color:var(--muted);font-style:italic}
+blockquote.mq cite{display:block;font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:.72rem;color:var(--navy-ink);margin-top:4px}
+.tblscroll.wrapc .tbl td{white-space:normal;min-width:130px;vertical-align:top}
+.dg{font-family:ui-monospace,Menlo,monospace;font-size:.68rem;letter-spacing:.06em;color:var(--copper);border:1px solid var(--line2);border-radius:6px;padding:0 5px}
+.fx{font-family:ui-monospace,Menlo,monospace;font-size:.68rem;letter-spacing:.06em;color:var(--signal);border:1px solid var(--line2);border-radius:6px;padding:0 5px}
+.btn.sm{padding:8px 13px;font-size:.88rem}
+.btn.act{border-color:var(--spark);background:color-mix(in srgb,var(--spark) 14%,var(--panel))}
+/* ECU por dentro */
+.blk{cursor:pointer}
+.blk rect{transition:stroke .15s,stroke-width .15s}
+.blk:hover rect.bx,.blk.sel rect.bx{stroke:var(--spark);stroke-width:3}
+.blk:focus{outline:none}
+.blk:focus-visible rect.bx{stroke:var(--spark);stroke-width:3}
+.memv{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;fill:var(--ink)}
+.memv.gone{fill:var(--faint)}
+.memv.f{fill:var(--bad)}
+@keyframes wipe{0%{opacity:1}30%{opacity:.1}60%{opacity:.9}100%{opacity:1}}
+.wipe{animation:wipe .7s ease}
+.info{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-top:12px;min-height:96px}
+.info h4{margin:0 0 .2em;font-size:1rem}
+.info p{margin:.2em 0;color:var(--muted);font-size:.93rem}
+.info .pg{font-family:ui-monospace,Menlo,monospace;font-size:.72rem;color:var(--navy-ink)}
+/* Sistemas Bosch */
+.cmp{transition:opacity .25s}
+.cmp.off{opacity:.13}
+/* 720° */
+.st0{fill:color-mix(in srgb,var(--signal) 26%,var(--panel))}
+.st1{fill:color-mix(in srgb,var(--navy2) 28%,var(--panel))}
+.st2{fill:color-mix(in srgb,var(--spark) 34%,var(--panel))}
+.st3{fill:color-mix(in srgb,var(--wire) 26%,var(--panel))}
+.stt{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;font-weight:700;fill:var(--ink)}
+.pul{fill:var(--copper);stroke:color-mix(in srgb,var(--copper) 60%,var(--ink));stroke-width:1}
+.pul.open{fill:var(--bad)}
+.lane{fill:var(--bg2)}
+/* combustible */
+.pipe{fill:none;stroke:color-mix(in srgb,var(--copper) 35%,var(--line2));stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
+.fuel{fill:none;stroke:var(--copper);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:6 9}
+.fuel.go{animation:flow .8s linear infinite}
+.fuel.hot{stroke:var(--bad)}
+.fuel.idle{opacity:.35}
+.vap{fill:none;stroke:var(--signal);stroke-width:2.4;stroke-dasharray:3 5;stroke-linecap:round}
+.vap.go{animation:flow 1.4s linear infinite}
+.elw{fill:none;stroke:var(--wire);stroke-width:2;stroke-linejoin:round}
+.elw.live{stroke:var(--spark)}
+.spray{fill:color-mix(in srgb,var(--copper) 55%,transparent);transition:opacity .15s}
+@media (prefers-reduced-motion:reduce){.fuel.go,.vap.go{animation:none}}
+</style>
+</head>
+<body>
+<div class="readbar" id="readbar"></div>
+
+<header class="site">
+  <div class="hbar">
+    <a class="logo" href="index.html" aria-label="Inicio"><img src="logo.png" alt="ITCA"></a>
+    <div class="brand"><b>ECU y <span class="spark">combustible</span></b><span>Guía visual · 2ª parte</span></div>
+    <div class="grow"></div>
+    <button class="iconbtn" onclick="toggleTheme()" aria-label="Cambiar tema"><span id="themeIcon">🌙</span></button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero reveal">
+    <span class="eyebrow"><span class="dot"></span> Inyección nafta · ECU · Combustible</span>
+    <h1 class="big display">ECU y <span class="spark">sistema de combustible</span></h1>
+    <p class="sub">La ECU es el cerebro que lee los sensores y decide <b>cuánta nafta</b> y <b>cuándo</b>. El sistema de combustible es el que le asegura que, cuando abra un inyector, del otro lado haya nafta <b>limpia</b> y a la <b>presión justa</b>. Acá los ves por dentro y los podés manejar: desconectá la batería, tapá el retorno, chocá el auto y saturá un inyector.</p>
+    <div class="metastrip">
+      <span class="chip">🧪 <b>5</b> simuladores</span>
+      <span class="chip">📝 con notas propias</span>
+      <a class="chip" href="sensores-funcionamiento.html" style="text-decoration:none">🔎 los sensores → <b>Cómo funcionan</b></a>
+    </div>
+  </section>
+
+  <!-- 01 · MAPA -->
+  <section class="block reveal" id="mapa">
+    <div class="kicker"><span class="num">01</span><span class="rule"></span></div>
+    <h2 class="sec display">El mapa del capítulo: <span class="spark">medir, decidir, inyectar</span></h2>
+    <p class="lead">Toda inyección electrónica repite el mismo lazo: los <b>sensores</b> miden, la <b>ECU</b> calcula y las <b>etapas de potencia</b> mueven los actuadores. El inyector abre y la nafta sale porque del otro lado hay presión: la bomba, el filtro y el regulador trabajan para que esa presión sea siempre la misma.</p>
+    <blockquote class="mq">"Los inyectores se abren no solo por la presión del combustible que está en las líneas de distribución, sino también por los solenoides accionados por una unidad electrónica de control."<cite>manual p. 60</cite></blockquote>
+    <div class="schematic" style="margin-top:16px">
+      <div class="cap"><span class="led"></span><b>Lazo cerrado de la inyección</b><span class="mono">diagrama en bloques</span></div>
+      <div class="body">
+        <svg viewBox="0 0 720 230" role="img" aria-label="Sensores a ECU, ECU a inyectores, motor, sonda lambda vuelve a la ECU; sistema de combustible alimenta los inyectores">
+          <rect class="boxs" x="10" y="20" width="150" height="120" rx="12"/>
+          <text class="lblb" x="85" y="44" text-anchor="middle">SENSORES</text>
+          <text class="lbl2" x="24" y="70">aire (VAF/MAP)</text><text class="lbl2" x="24" y="90">RPM · TPS</text><text class="lbl2" x="24" y="110">temperaturas</text><text class="lbl2" x="24" y="130">sonda λ</text>
+          <rect class="boxn" x="210" y="20" width="150" height="120" rx="12"/>
+          <text class="lblb" x="285" y="56" text-anchor="middle">ECU</text>
+          <text class="lbl2" x="285" y="82" text-anchor="middle">calcula el</text><text class="lbl2" x="285" y="100" text-anchor="middle">tiempo de</text><text class="lbl2" x="285" y="118" text-anchor="middle">inyección (TI)</text>
+          <rect class="boxh" x="410" y="20" width="130" height="120" rx="12"/>
+          <text class="lblb" x="475" y="56" text-anchor="middle">INYECTORES</text>
+          <text class="lbl2" x="475" y="82" text-anchor="middle">abren TI ms</text><text class="lbl2" x="475" y="100" text-anchor="middle">bobinas, ralentí,</text><text class="lbl2" x="475" y="118" text-anchor="middle">relé de bomba…</text>
+          <rect class="box" x="590" y="20" width="120" height="120" rx="12"/>
+          <text class="lblb" x="650" y="76" text-anchor="middle">MOTOR</text><text class="lbl2" x="650" y="100" text-anchor="middle">y escape</text>
+          <path class="wire-sig flow" d="M160 80 H210"/><path class="wire-hi flow" d="M360 80 H410"/><path class="wire-hi flow" d="M540 80 H590"/>
+          <path class="wire-sig flow" d="M650 140 V170 H85 V140" opacity=".8"/>
+          <text class="lbl2" x="250" y="164">la sonda λ mide el resultado y corrige (lazo cerrado)</text>
+          <rect class="boxc" x="380" y="185" width="190" height="38" rx="10"/>
+          <text class="lblb" x="475" y="209" text-anchor="middle">nafta a presión fija</text>
+          <path class="wire" d="M475 185 V140"/>
+        </svg>
+      </div>
+    </div>
+    <h3 class="sub3">De la mecha al microprocesador</h3>
+    <div class="steps">
+      <div class="step"><div><h4>Carburador (1875 → …)</h4><p>Maybach convierte un motor a gas para nafta con una mecha; después llegan el flotador y el carburador con rociador (1892), base de todos los siguientes. <span class="pg mono">manual p. 54, 58</span></p></div></div>
+      <div class="step"><div><h4>Inyección mecánica y en aviación</h4><p>El avión de los Wright (1903) ya inyectaba. En la aviación ganó porque el carburador se congela y derrama en vuelo. El <b>K-Jetronic</b> de Bosch es mecánico y de flujo <b>continuo</b> (dosificador y plato sonda). <span class="pg mono">manual p. 54–55, 71</span></p></div></div>
+      <div class="step"><div><h4>Primera electrónica: Bendix Electrojector y D-Jetronic</h4><p>Bendix presenta la inyección electrónica en 1957 (patente de 1961): inyectores con <b>solenoide</b> en lugar de "presión contra resorte". Bosch compra las patentes y en 1968 sale el <b>D-Jetronic</b> (VW tipo 3). Cadillac lanza su sistema digital en 1980. <span class="pg mono">manual p. 56, 59–60</span></p></div></div>
+      <div class="step"><div><h4>LE-Jetronic → Motronic → Mono-Motronic</h4><p>Los tres sistemas Bosch que pide el curso: el LE es <b>analógico</b> y solo maneja nafta; el Motronic es <b>digital</b> y maneja también el encendido; el Mono-Motronic hace lo mismo con <b>un solo inyector</b>. Los comparás en la sección 03. <span class="pg mono">manual p. 62–64</span></p></div></div>
+    </div>
+    <div class="callout mem"><span class="lab">Por qué se pasó a la electrónica</span><p>El manual lo resume así: el problema era "obtener un dispositivo mecánico que actuase del mismo modo a todas las velocidades del motor" <span class="mono" style="font-size:.75rem">(p. 60)</span>. Con un solenoide, la cantidad depende solo de <b>cuánto tiempo</b> está abierto, y el tiempo lo calcula una computadora. Menos partes móviles, sin maquinado ultra preciso, y la ECU puede manejar además el encendido y las emisiones.</p></div>
+  </section>
+
+  <!-- 02 · ECU POR DENTRO -->
+  <section class="block reveal" id="ecu">
+    <div class="kicker"><span class="num">02</span><span class="rule"></span></div>
+    <h2 class="sec display">La <span class="spark">ECU</span> por dentro</h2>
+    <p class="lead">ECU, ECM, centralita, computadora: es lo mismo. Recibe señales, las pasa a números, las compara con lo que tiene grabado y manda <b>órdenes de potencia</b> a los actuadores. Tocá cada bloque para ver qué hace.</p>
+    <blockquote class="mq">"La computadora es un micro procesador matemático, y no entiende de voltaje variable, tal es entonces que dentro de la computadora encontramos un transformador de analógico a digital."<cite>manual p. 70</cite></blockquote>
+    <div class="schematic sim">
+      <div class="cap"><span class="led"></span><b>Simulador: bloques y memorias de la ECU</b><span class="mono">tocá un bloque</span></div>
+      <div class="body">
+        <svg viewBox="0 0 720 342" role="img" aria-label="Diagrama en bloques de la ECU: entradas, conversor A/D, microprocesador, memorias, drivers y actuadores" id="ecuSvg">
+          <!-- buses -->
+          <path class="wire-sig" d="M140 60 H170"/>
+          <path class="wire-sig" d="M140 150 H285 V140 H300"/>
+          <path class="wire-sig" d="M270 60 H300"/>
+          <path class="wire-hi" d="M440 100 H470"/>
+          <path class="wire-hi" d="M570 100 H600"/>
+          <path class="wire" d="M370 180 V205"/><path class="wire" d="M230 205 H640"/>
+          <path class="wire" d="M230 205 V220"/><path class="wire" d="M360 205 V220"/><path class="wire" d="M495 205 V220"/><path class="wire" d="M640 205 V220"/>
+          <path class="wire" d="M75 220 V200 H300 V170" stroke-dasharray="5 5"/>
+          <g class="blk" data-k="ana" tabindex="0" role="button" aria-label="Entradas analógicas"><rect class="boxs bx" x="10" y="20" width="130" height="80" rx="10"/><text class="lblb" x="75" y="44" text-anchor="middle">ENTRADAS</text><text class="lblb" x="75" y="60" text-anchor="middle">analógicas</text><text class="lbl2" x="75" y="80" text-anchor="middle">NTC·TPS·MAP·λ</text></g>
+          <g class="blk" data-k="dig" tabindex="0" role="button" aria-label="Entradas digitales"><rect class="boxs bx" x="10" y="110" width="130" height="70" rx="10"/><text class="lblb" x="75" y="134" text-anchor="middle">ENTRADAS</text><text class="lblb" x="75" y="150" text-anchor="middle">digitales</text><text class="lbl2" x="75" y="168" text-anchor="middle">Hall·interruptores</text></g>
+          <g class="blk" data-k="ad" tabindex="0" role="button" aria-label="Conversor A/D"><rect class="box bx" x="170" y="20" width="100" height="80" rx="10"/><text class="lblb" x="220" y="54" text-anchor="middle">A/D</text><text class="lbl2" x="220" y="74" text-anchor="middle">V → binario</text></g>
+          <g class="blk" data-k="mic" tabindex="0" role="button" aria-label="Microprocesador"><rect class="boxn bx" x="300" y="20" width="140" height="160" rx="12"/><text class="lblb" x="370" y="84" text-anchor="middle">MICRO-</text><text class="lblb" x="370" y="100" text-anchor="middle">PROCESADOR</text><text class="lbl2" x="370" y="124" text-anchor="middle">calcula y</text><text class="lbl2" x="370" y="140" text-anchor="middle">compara</text></g>
+          <g class="blk" data-k="drv" tabindex="0" role="button" aria-label="Drivers o etapas de potencia"><rect class="boxh bx" x="470" y="20" width="100" height="160" rx="10"/><text class="lblb" x="520" y="84" text-anchor="middle">DRIVERS</text><text class="lbl2" x="520" y="104" text-anchor="middle">etapas de</text><text class="lbl2" x="520" y="120" text-anchor="middle">potencia</text><text class="lbl2" x="520" y="140" text-anchor="middle">(cierran</text><text class="lbl2" x="520" y="156" text-anchor="middle">a masa)</text></g>
+          <g class="blk" data-k="act" tabindex="0" role="button" aria-label="Actuadores"><rect class="box bx" x="600" y="20" width="110" height="160" rx="10"/><text class="lblb" x="655" y="44" text-anchor="middle">ACTUADORES</text><text class="lbl2" x="612" y="72">inyectores</text><text class="lbl2" x="612" y="94">bobinas</text><text class="lbl2" x="612" y="116">ralentí</text><text class="lbl2" x="612" y="138">relé bomba</text><text class="lbl2" x="612" y="160">canister</text></g>
+          <g class="blk" data-k="net" tabindex="0" role="button" aria-label="Otras ECU"><rect class="box bx" x="10" y="220" width="130" height="112" rx="10"/><text class="lblb" x="75" y="246" text-anchor="middle">OTRAS ECU</text><text class="lbl2" x="75" y="270" text-anchor="middle">ABS</text><text class="lbl2" x="75" y="288" text-anchor="middle">caja automática</text><text class="lbl2" x="75" y="306" text-anchor="middle">suspensión</text></g>
+          <g class="blk" data-k="rom" tabindex="0" role="button" aria-label="Memoria ROM"><rect class="box bx" x="170" y="220" width="120" height="112" rx="10"/><text class="lblb" x="230" y="242" text-anchor="middle">ROM</text><text class="memv" x="180" y="266">programa</text><text class="memv" x="180" y="284">mapas de fábrica</text><text class="lbl2" x="180" y="322">solo lectura</text></g>
+          <g class="blk" data-k="ram" tabindex="0" role="button" aria-label="Memoria RAM"><rect class="box bx" x="300" y="220" width="120" height="112" rx="10"/><text class="lblb" x="360" y="242" text-anchor="middle">RAM</text><g id="ramV"></g><text class="lbl2" x="310" y="322">volátil (llave)</text></g>
+          <g class="blk" data-k="sb" tabindex="0" role="button" aria-label="RAM stand-by"><rect class="boxc bx" x="430" y="220" width="130" height="112" rx="10"/><text class="lblb" x="495" y="242" text-anchor="middle">RAM STAND-BY</text><g id="sbV"></g><text class="lbl2" x="440" y="322">necesita batería</text></g>
+          <g class="blk" data-k="ee" tabindex="0" role="button" aria-label="Memoria EEPROM"><rect class="boxb bx" x="570" y="220" width="140" height="112" rx="10"/><text class="lblb" x="640" y="242" text-anchor="middle">EEPROM</text><g id="eeV"></g><text class="lbl2" x="580" y="322">borrado: scanner</text></g>
+        </svg>
+        <div class="ctrls" style="margin-top:12px">
+          <button class="btn ghost sm" id="eKey">🔑 Llave a STOP</button>
+          <button class="btn ghost sm" id="eBat">🔌 Desconectar batería</button>
+          <button class="btn ghost sm" id="eDrive">🚗 Andar 20 min (re-aprende)</button>
+          <button class="btn ghost sm" id="eScan">🧰 Borrar con scanner</button>
+        </div>
+        <div class="ro"><span>Batería <b id="eBatS" class="ok">conectada</b></span><span>Llave <b id="eKeyS">IGN</b></span><span>Ralentí <b id="eIdle" class="ok">estable</b></span></div>
+        <div class="info" id="ecuInfo" aria-live="polite"></div>
+        <p class="readout" style="margin:.6em 0 0">Los valores aprendidos y las fallas son <b style="font-size:.86rem">ejemplos</b> para ver qué memoria guarda qué; no son datos del manual.</p>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="callout mem"><span class="lab">Por qué el ralentí queda raro después de desconectar la batería</span><p>En la <b>RAM stand-by</b> la ECU guarda lo que fue <b>aprendiendo</b> de <i>ese</i> motor: cuánto abre el actuador de ralentí, dónde está la mariposa cerrada y el factor de corrección que sacó de la sonda λ. Sin batería eso "se pone a cero" (manual p. 66) y la ECU vuelve a los valores de fábrica de la ROM: el ralentí puede quedar alto, bajo o inestable <b>hasta que re-aprende</b> andando normalmente.</p></div>
+      <div class="callout warn"><span class="lab">Trampa clásica</span><p>"Desconecto la batería y se borran las fallas": <b>no siempre</b>. Las fallas confirmadas pasan a la <b>EEPROM</b>, que no se borra sola; para borrarlas "es necesario utilizar en la mayoría de los casos un SCANNER" (manual p. 66). Lo que sí perdés al desconectar son las <b>adaptaciones</b>.</p></div>
+    </div>
+    <div class="manref"><span class="lab">📝 Notas</span><ul><li>Partes: <b>adquisición y codificación de datos</b> (conversores A/D), <b>microprocesador</b> ("interrogar a las memorias, comparar los datos en elaboración con los datos preestablecidos y gestionar los circuitos de mando"), memorias <b>ROM, RAM, EEPROM</b> y <b>drivers</b>.</li><li><b>ROM</b>: programa y datos grabados de fábrica; si se desconecta la batería "las lecturas permanecen en la memoria sin modificación alguna".</li><li><b>RAM</b>: una parte <b>volátil</b> que "se activa con el conmutador de arranque en posición IGN y se borra en posición STOP", y una <b>no volátil (stand-by)</b> con las correcciones de ralentí, mariposa cerrada y el factor de corrección por sonda λ. Se pone a cero al sacar batería, fusible, relé o conector de la ECU.</li><li><b>EEPROM</b>: recibe de la RAM stand-by las anomalías y las transmite por la toma de diagnosis al <b>scanner</b>.</li><li><b>Drivers</b>: alimentan inyectores, motor de marcha mínima, relé de bomba y electroválvulas.</li><li>Cuatro funciones de toda computadora: <b>entrada, procesamiento, almacenamiento y salida</b>. Por la salida también habla con la ECU de la caja automática, del ABS y de la suspensión; el TPS, por ejemplo, informa a la del motor, la del freno y la de la caja (p. 68–69).</li></ul></div>
+  </section>
+
+  <!-- 03 · BOSCH -->
+  <section class="block reveal" id="bosch">
+    <div class="kicker"><span class="num">03</span><span class="rule"></span></div>
+    <h2 class="sec display">Bosch: <span class="spark">LE-Jetronic, Motronic y Mono-Motronic</span></h2>
+    <p class="lead">Son tres generaciones de la misma idea. Elegí un sistema: lo que no tiene se apaga en el esquema. Fijate qué aparece al pasar de LE a Motronic (encendido, sonda λ, sensor de RPM, canister) y qué cambia en el Mono (un solo inyector en el cuerpo de mariposa).</p>
+    <div class="schematic sim">
+      <div class="cap"><span class="led"></span><b>Simulador: qué componentes tiene cada sistema</b><span class="mono">elegí el sistema</span></div>
+      <div class="body">
+        <div class="seg" id="bSys" style="flex-wrap:wrap"><button class="on" data-s="le">LE-Jetronic</button><button data-s="mo">Motronic</button><button data-s="mm">Mono-Motronic</button></div>
+        <svg viewBox="0 0 760 380" role="img" aria-label="Esquema de un sistema de inyección con sus componentes" style="margin-top:12px">
+          <!-- aire -->
+          <path d="M10 85 H430" stroke="var(--line2)" stroke-width="26" stroke-linecap="round" opacity=".5"/>
+          <text class="lbl2" x="12" y="62">aire →</text>
+          <g class="cmp" data-s="le mo"><rect class="boxs" x="60" y="52" width="120" height="66" rx="10"/><text class="lblb" x="120" y="80" text-anchor="middle">VAF</text><text class="lbl2" x="120" y="100" text-anchor="middle">caudalímetro</text></g>
+          <g class="cmp" data-s="le mo mm"><rect class="box" x="200" y="45" width="150" height="80" rx="10"/><text class="lblb" x="262" y="80" text-anchor="middle">cuerpo de</text><text class="lblb" x="262" y="96" text-anchor="middle">mariposa</text><rect x="321" y="58" width="8" height="54" rx="3" fill="var(--wire)" transform="rotate(25 325 85)" opacity=".55"/></g>
+          <g class="cmp" data-s="mm"><path d="M262 10 h26 v14 l-8 18 h-10 l-8 -18z" fill="var(--copper)"/><text class="lblb" x="300" y="24">1 inyector</text><text class="lbl2" x="300" y="40">+ regulador + IAT</text></g>
+          <g class="cmp" data-s="le mo mm"><rect class="boxs" x="200" y="135" width="150" height="38" rx="9"/><text class="lbl2" x="275" y="159" text-anchor="middle" id="bTps">interruptor mariposa</text></g>
+          <g class="cmp" data-s="le mo mm"><rect class="boxh" x="200" y="181" width="150" height="38" rx="9"/><text class="lbl2" x="275" y="205" text-anchor="middle">actuador de ralentí</text></g>
+          <!-- motor -->
+          <rect class="box" x="440" y="55" width="180" height="56" rx="10"/><text class="lbl2" x="530" y="78" text-anchor="middle">múltiple de admisión</text>
+          <g class="cmp" data-s="le mo"><g fill="var(--copper)"><path d="M455 92 h16 l-4 22 h-8z"/><path d="M497 92 h16 l-4 22 h-8z"/><path d="M539 92 h16 l-4 22 h-8z"/><path d="M581 92 h16 l-4 22 h-8z"/></g><text class="lblb" x="530" y="132" text-anchor="middle">4 inyectores</text></g>
+          <rect class="box" x="440" y="140" width="180" height="110" rx="10"/>
+          <g fill="none" stroke="var(--line2)" stroke-width="2"><circle cx="472" cy="185" r="17"/><circle cx="514" cy="185" r="17"/><circle cx="556" cy="185" r="17"/><circle cx="598" cy="185" r="17"/></g>
+          <text class="lbl2" x="530" y="236" text-anchor="middle">motor</text>
+          <g class="cmp" data-s="le mo mm"><rect class="boxs" x="450" y="212" width="46" height="26" rx="6"/><text class="lbl2" x="473" y="229" text-anchor="middle">ECT</text></g>
+          <g class="cmp" data-s="mo mm"><rect class="boxs" x="440" y="262" width="180" height="32" rx="8"/><text class="lbl2" x="530" y="283" text-anchor="middle">sensor RPM (volante)</text></g>
+          <!-- escape y encendido -->
+          <path d="M620 220 H750" stroke="var(--line2)" stroke-width="18" stroke-linecap="round" opacity=".5"/>
+          <text class="lbl2" x="700" y="250" text-anchor="middle">escape</text>
+          <g class="cmp" data-s="mo mm"><rect class="boxs" x="650" y="160" width="90" height="34" rx="8"/><text class="lbl2" x="695" y="182" text-anchor="middle">sonda λ</text><path d="M695 194 V212" stroke="var(--signal)" stroke-width="3"/></g>
+          <g class="cmp" data-s="mo mm" id="bIgn"><rect class="boxh" x="640" y="52" width="110" height="60" rx="10"/><text class="lblb" x="695" y="78" text-anchor="middle">encendido</text><text class="lbl2" x="695" y="98" text-anchor="middle">bobina + bujías</text></g>
+          <!-- ECU -->
+          <rect class="boxn" x="210" y="250" width="200" height="70" rx="12"/><text class="lblb" x="310" y="278" text-anchor="middle">ECU</text><text class="lbl2" x="310" y="300" text-anchor="middle" id="bEcu">analógica · solo nafta</text>
+          <path class="wire" d="M275 219 V250" stroke-dasharray="4 4"/>
+          <g class="cmp" data-s="mo mm"><circle cx="460" cy="330" r="16" fill="var(--bad)" opacity=".85"/><text x="460" y="336" text-anchor="middle" font-size="15">⚠</text><text class="lbl2" x="484" y="334">luz de falla</text></g>
+          <g class="cmp" data-s="mo mm"><rect class="boxs" x="600" y="300" width="150" height="40" rx="9"/><text class="lbl2" x="675" y="325" text-anchor="middle">canister + válvula</text></g>
+          <!-- combustible -->
+          <rect class="boxc" x="10" y="300" width="170" height="64" rx="10"/><text class="lblb" x="95" y="326" text-anchor="middle">tanque · bomba</text><text class="lbl2" x="95" y="346" text-anchor="middle">filtro · relé bomba</text>
+          <g class="cmp" data-s="le mo"><rect class="boxc" x="10" y="230" width="170" height="44" rx="9"/><text class="lbl2" x="95" y="250" text-anchor="middle">regulador de presión</text><text class="lbl2" x="95" y="266" text-anchor="middle">(en la rampa)</text></g>
+          <path class="wire" d="M95 300 V274" stroke="var(--copper)"/>
+        </svg>
+        <p class="readout" id="bNote" style="margin:.6em 0 0"></p>
+      </div>
+    </div>
+    <div class="tblscroll wrapc" style="margin:14px 0"><table class="tbl">
+      <thead><tr><th>Característica</th><th>LE-Jetronic</th><th>Motronic</th><th>Mono-Motronic</th></tr></thead>
+      <tbody>
+        <tr><td><b>Electrónica</b></td><td>Analógica</td><td>Digital</td><td>Digital (funciona como el Motronic)</td></tr>
+        <tr><td><b>Inyectores</b></td><td>Uno por cilindro (multipunto), en el múltiple</td><td>Uno por cilindro (multipunto)</td><td><b>Uno solo</b>, en el cuerpo de mariposa</td></tr>
+        <tr><td><b>Cómo inyecta</b></td><td>Todos a la vez (simultánea)</td><td>Según el sistema (sección 04)</td><td>Un inyector para todos los cilindros</td></tr>
+        <tr><td><b>Encendido</b></td><td>No: la ECU solo maneja la nafta</td><td>Sí, integrado en la ECU; sensor de RPM en el volante si no hay distribuidor</td><td>Sí, lo controla la ECU</td></tr>
+        <tr><td><b>Sonda λ</b></td><td>No figura</td><td>Sí, en el escape</td><td>Sí</td></tr>
+        <tr><td><b>Memoria</b></td><td>No guarda averías; sin luz en el tablero</td><td>Memoria de adaptación + luz de averías</td><td>Como el Motronic</td></tr>
+        <tr><td><b>Aire</b></td><td>VAF (caudalímetro)</td><td>VAF (caudalímetro)</td><td>No lleva caudalímetro en la figura; IAT en el cuerpo</td></tr>
+        <tr><td><b>Canister</b></td><td>No figura</td><td>Válvula de canister</td><td>Válvula de canister</td></tr>
+      </tbody></table></div>
+    <div class="callout tip"><span class="lab">La idea clave</span><p>LE → Motronic es el salto de <b>analógico a digital</b>: con números la ECU puede <b>guardar</b> (adaptaciones y fallas), prender la <b>luz</b> y sumar el <b>encendido</b>, la <b>sonda λ</b> y el <b>canister</b>. Motronic → Mono no cambia el cerebro, cambia el <b>reparto</b>: un solo inyector "parecido a un carburador" en lugar de uno por cilindro. Más barato, pero la nafta recorre todo el múltiple y se reparte peor.</p></div>
+    <div class="manref"><span class="lab">📝 Notas</span><ul><li><b>LE-Jetronic</b>: "las válvulas de inyección pulverizan el combustible simultáneamente"; "la unidad de comando controla solamente el sistema de combustible"; "es analógico. Por esa característica no posee memoria para guardar posibles averías"; tampoco indicación en el tablero. Componentes: bomba, filtro, regulador, inyector, VAF, sensor de temperatura, control de marcha mínima, interruptor de mariposa, ECU, relé de bomba, bujía.</li><li><b>Motronic</b>: multipunto, con el encendido en la unidad de comando, sonda lambda en el escape, "digital, posee memoria de adaptación e indicación de averías en el tablero", sensor de revolución en el volante y válvula de canister.</li><li><b>Mono-Motronic</b>: "una sola válvula para todos los cilindros", instalada en el cuerpo de mariposa, que integra actuador de marcha lenta, potenciómetro de mariposa, regulador, sensor de temperatura de aire. El encendido también lo controla la ECU.</li></ul></div>
+  </section>
+
+  <!-- 04 · CLASIFICACIÓN -->
+  <section class="block reveal" id="clasif">
+    <div class="kicker"><span class="num">04</span><span class="rule"></span></div>
+    <h2 class="sec display">Simultánea, agrupada o <span class="spark">secuencial</span></h2>
+    <p class="lead">En un motor de 4 tiempos cada cilindro hace un ciclo completo en <b>720°</b> (dos vueltas). La pregunta es <b>cuándo</b> abre cada inyector respecto de la <b>válvula de admisión</b> de su cilindro. La nafta que se inyecta con la válvula cerrada queda esperando en la lumbrera; cuanto más espera, más se condensa en las paredes.</p>
+    <div class="schematic sim">
+      <div class="cap"><span class="led"></span><b>Simulador: 720° de un 4 cilindros, orden 1-3-4-2</b><span class="mono">elegí el modo</span></div>
+      <div class="body">
+        <div class="seg" id="iMode" style="flex-wrap:wrap"><button data-m="sim">Simultánea</button><button data-m="grp">Agrupada</button><button class="on" data-m="seq">Secuencial</button></div>
+        <label class="readout" style="display:inline-flex;gap:6px;align-items:center;margin-left:10px"><input type="checkbox" id="iNoCmp"> sin sensor de fase (CMP)</label>
+        <svg id="iChart" viewBox="0 0 760 320" role="img" aria-label="Diagrama de 720 grados con los tiempos de cada cilindro y los pulsos de inyección" style="margin-top:12px"></svg>
+        <div class="ro" id="iWait"></div>
+        <p class="readout" id="iNote" style="margin:.5em 0 0"></p>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:14px">
+      <div class="card"><span class="ic">🟰</span><span class="tag">Simultánea · ≈1980–1995</span><h4>Todos juntos, un solo circuito</h4><p>La ECU manda un pulso por <b>un solo circuito</b> y abren los cuatro a la vez. Es simple y no necesita saber en qué tiempo está cada cilindro, pero en algunos la nafta llega con la válvula cerrada y "el motor tiene que esperar" → condensación en las lumbreras.</p></div>
+      <div class="card"><span class="ic">👯</span><span class="tag">Agrupada</span><h4>De a pares: 1-4 y 2-3</h4><p>Dos circuitos: uno para los inyectores 1 y 4, otro para 2 y 3. Los pistones de cada par suben y bajan juntos, así que con el <b>sensor de cigüeñal</b> alcanza para ubicarlos. A uno de cada par le llega a tiempo; al otro, con una vuelta de anticipación.</p></div>
+      <div class="card"><span class="ic">🎯</span><span class="tag">Secuencial</span><h4>Uno por uno, en orden 1-3-4-2</h4><p>Un circuito <b>independiente</b> por inyector. Cada uno inyecta justo antes de que abra su válvula de admisión: mejor rendimiento, más economía, menos emisiones. Necesita el <b>sensor de fase</b> para saber qué cilindro está en admisión.</p></div>
+    </div>
+    <div class="callout warn"><span class="lab">¿Por qué hace falta el sensor de fase?</span><p>El cigüeñal da <b>dos vueltas</b> por ciclo. El CKP le dice a la ECU "los pistones 1 y 4 están arriba", pero uno está terminando la compresión y el otro el escape: la rueda fónica se ve igual en las dos vueltas (360° de ambigüedad). El <b>CMP</b> está en el árbol de levas, que gira a <b>media vuelta</b> por cada vuelta del cigüeñal, y da un pulso por ciclo: con eso la ECU sabe cuál es cuál. Marcá "sin sensor de fase" en el simulador: la secuencial ya no es posible y la ECU tiene que inyectar agrupado <span class="dg">dato general de taller</span>.</p></div>
+    <div class="grid g2">
+      <div class="card"><span class="ic">🚪</span><span class="tag">Indirecta (en puerto)</span><h4>En el múltiple, antes de la válvula</h4><p>El inyector tira la nafta en la lumbrera, "detrás de la válvula de admisión" (vista desde el cilindro). Es la de todos los sistemas de esta página. Trabaja con presión baja <span class="dg">dato general de taller: ≈3 bar</span>.</p></div>
+      <div class="card"><span class="ic">💉</span><span class="tag">Directa</span><h4>Dentro de la cámara de combustión</h4><p>El inyector va en la cámara, como en un diésel. Para optimizar rendimiento, emisiones y consumo. El manual marca las diferencias: otra <b>presión de combustible</b>, <b>más sensores</b> y otro <b>tipo de bomba</b> <span class="dg">dato general de taller: bomba mecánica de alta, decenas a cientos de bar</span>.</p></div>
+    </div>
+    <div class="manref"><span class="lab">📝 Notas</span><ul><li>Clasifica en simultánea, agrupada, secuencial, directa y alternada.</li><li><b>Simultánea</b>: "no es uno de los más efectivos, ya que el motor tiene que esperar el ciclo de apertura de la válvula de admisión", con "condensación de combustible en las lumbreras". Vehículos de los años 80 hasta ≈95; un solo circuito de pulsos y los inyectores alimentados con 12 V desde el relé de inyección o un fusible.</li><li><b>Agrupada</b>: por pares de cilindros; un circuito para los inyectores 1 y 4, otro para 2 y 3.</li><li><b>Secuencial</b>: por el orden de encendido (1-3-4-2) con un circuito independiente por inyector; se la identifica "si cuenta con el sensor de fase".</li><li><b>Directa</b>: "directamente en la cámara de combustión", circuitos independientes. La <b>indirecta</b> inyecta en el múltiple. Cambian la presión, algunos sensores y el tipo de bomba.</li><li>El <b>K-Jetronic</b> es inyección mecánica <b>continua</b> (dosificador y plato sonda).</li></ul></div>
+  </section>
+
+  <!-- 05 · COMBUSTIBLE -->
+  <section class="block reveal" id="combustible">
+    <div class="kicker"><span class="num">05</span><span class="rule"></span></div>
+    <h2 class="sec display">El circuito de <span class="spark">combustible</span></h2>
+    <p class="lead">La bomba manda <b>más nafta de la que el motor necesita</b>; el regulador deja pasar al retorno lo que sobra y así fija la presión en la rampa. La ECU no mide la presión de nafta: <b>confía</b> en que sea la correcta y solo decide cuánto tiempo abre cada inyector.</p>
+    <div class="schematic sim">
+      <div class="cap"><span class="led"></span><b>Simulador: bomba, rampa, regulador y retorno</b><span class="mono">dale contacto</span></div>
+      <div class="body">
+        <svg viewBox="0 0 760 430" role="img" aria-label="Circuito de combustible: tanque, bomba, filtro, rampa, inyectores, regulador con toma de vacío, retorno, canister, llave inercial y relé de bomba">
+          <!-- eléctrico -->
+          <text class="lbl2" x="20" y="22">+12 V batería</text>
+          <path class="elw" id="fW1" d="M75 28 V40"/>
+          <rect class="box" x="20" y="40" width="115" height="54" rx="9"/>
+          <text class="lblb" x="77" y="58" text-anchor="middle">llave inercial</text>
+          <circle id="fBall" cx="55" cy="78" r="7" fill="var(--wire)"/>
+          <rect x="72" y="72" width="22" height="12" rx="3" fill="var(--line2)"/>
+          <text class="lbl2" x="98" y="83" id="fInT">N.C.</text>
+          <path class="elw" id="fW2" d="M135 67 H155"/>
+          <rect class="box" x="155" y="40" width="110" height="54" rx="9"/>
+          <text class="lblb" x="210" y="58" text-anchor="middle">relé bomba</text>
+          <text class="lbl2" x="210" y="80" text-anchor="middle" id="fRel">abierto</text>
+          <rect class="boxn" x="20" y="112" width="115" height="44" rx="9"/>
+          <text class="lblb" x="77" y="132" text-anchor="middle">ECU</text><text class="lbl2" x="77" y="148" text-anchor="middle">masa del relé</text>
+          <path class="elw" id="fW4" d="M135 134 H210 V94" stroke-dasharray="5 4"/>
+          <path class="elw" id="fW3" d="M265 67 H292 V318"/>
+          <!-- tanque -->
+          <rect class="boxc" x="20" y="305" width="180" height="85" rx="12"/>
+          <path d="M24 345 H196" stroke="var(--copper)" stroke-width="1.5" opacity=".6"/>
+          <rect x="22" y="346" width="176" height="42" rx="10" fill="color-mix(in srgb,var(--copper) 22%,transparent)"/>
+          <text class="lblb" x="110" y="330" text-anchor="middle">TANQUE</text>
+          <!-- caños base -->
+          <path class="pipe" d="M200 365 H250"/>
+          <path class="pipe" d="M335 365 H355"/>
+          <path class="pipe" d="M415 365 H425 V96 H440"/>
+          <path class="pipe" d="M440 96 H660"/>
+          <path class="pipe" d="M745 96 H752 V410 H110 V390"/>
+          <path class="pipe" d="M265 392 V400 H170 V390" style="stroke-width:6"/>
+          <!-- flujo -->
+          <path class="fuel" id="fS1" d="M200 365 H250"/>
+          <path class="fuel" id="fS2" d="M335 365 H355"/>
+          <path class="fuel" id="fS3" d="M415 365 H425 V96 H440"/>
+          <path class="fuel" id="fS4" d="M440 96 H660"/>
+          <path class="fuel" id="fRet" d="M745 96 H752 V410 H110 V390"/>
+          <path class="fuel" id="fRel2" d="M265 392 V400 H170 V390"/>
+          <!-- bomba -->
+          <rect class="boxh" x="250" y="318" width="85" height="74" rx="10"/>
+          <circle cx="280" cy="355" r="18" fill="none" stroke="var(--spark)" stroke-width="2"/>
+          <g id="fRot"><circle cx="280" cy="341" r="4" fill="var(--spark)"/><circle cx="280" cy="369" r="4" fill="var(--spark)"/><circle cx="266" cy="355" r="4" fill="var(--spark)"/><circle cx="294" cy="355" r="4" fill="var(--spark)"/></g>
+          <path d="M318 358 l10 7 l-10 7z" fill="var(--signal)"/>
+          <text class="lbl2" x="292" y="312" text-anchor="middle">bomba</text>
+          <text class="lbl2" x="215" y="424" id="fRelT">alivio cerrado</text>
+          <!-- filtro -->
+          <rect class="box" x="355" y="340" width="60" height="50" rx="8"/>
+          <path d="M365 346 v38 M375 346 v38 M385 346 v38 M395 346 v38 M405 346 v38" stroke="var(--line2)" stroke-width="2"/>
+          <text class="lbl2" x="385" y="334" text-anchor="middle">filtro</text>
+          <!-- presión -->
+          <text class="lbl2" x="440" y="22">presión en la rampa</text>
+          <text class="lblb" x="440" y="46" id="fPbig" style="font-size:20px">0,0 bar</text>
+          <rect x="560" y="30" width="180" height="12" rx="6" fill="var(--bg2)" stroke="var(--line)"/>
+          <rect id="fPbar" x="560" y="30" width="0" height="12" rx="6" fill="var(--copper)"/>
+          <line x1="560" y1="27" x2="560" y2="46" stroke="var(--muted)"/><line x1="740" y1="27" x2="740" y2="46" stroke="var(--muted)"/>
+          <text class="lbl2" x="560" y="60">0</text><text class="lbl2" x="740" y="60" text-anchor="end">7 bar</text>
+          <!-- rampa e inyectores -->
+          <rect class="boxc" x="440" y="84" width="220" height="24" rx="8" style="fill-opacity:.35"/>
+          <text class="lbl2" x="550" y="78" text-anchor="middle">rampa (galería)</text>
+          <g id="fInj">
+            <g><rect x="464" y="108" width="16" height="30" rx="3" fill="var(--copper)"/><path class="spray" d="M472 140 l-10 26 h20z"/></g>
+            <g><rect x="514" y="108" width="16" height="30" rx="3" fill="var(--copper)"/><path class="spray" d="M522 140 l-10 26 h20z"/></g>
+            <g><rect x="564" y="108" width="16" height="30" rx="3" fill="var(--copper)"/><path class="spray" d="M572 140 l-10 26 h20z"/></g>
+            <g><rect x="614" y="108" width="16" height="30" rx="3" fill="var(--copper)"/><path class="spray" d="M622 140 l-10 26 h20z"/></g>
+          </g>
+          <rect class="box" x="440" y="168" width="230" height="44" rx="9"/>
+          <text class="lbl2" x="555" y="194" text-anchor="middle" id="fMan">múltiple: 1,01 bar abs</text>
+          <!-- regulador -->
+          <rect class="boxh" x="660" y="70" width="85" height="58" rx="10"/>
+          <path id="fMem" d="M664 100 Q702 100 741 100" fill="none" stroke="var(--spark)" stroke-width="2.4"/>
+          <text class="lbl2" x="702" y="86" text-anchor="middle">regulador</text>
+          <path class="wire" d="M702 128 V150 H690 V168" stroke-dasharray="4 4"/>
+          <text class="lbl2" x="708" y="160">vacío</text>
+          <text class="lbl2" x="600" y="403" id="fRetT">retorno →</text>
+          <!-- canister -->
+          <path class="vap" id="fVap1" d="M60 305 V285 H470"/>
+          <path class="vap" id="fVap2" d="M560 285 H600 V245"/>
+          <path class="vap" id="fVap3" d="M600 225 V212"/>
+          <rect class="boxs" x="470" y="265" width="90" height="40" rx="9"/><text class="lbl2" x="515" y="290" text-anchor="middle">canister</text>
+          <rect class="box" x="565" y="225" width="70" height="20" rx="5" id="fPurgeB"/><text class="lbl2" x="600" y="239" text-anchor="middle">purga</text><text class="lbl2" x="555" y="239" text-anchor="end" id="fPurgeT">cerrada (NC)</text>
+          <text class="lbl2" x="80" y="278">vapores</text>
+        </svg>
+        <div class="ctrls" style="margin-top:10px">
+          <button class="btn primary sm" id="fKey">🔑 Contacto ON</button>
+          <label class="readout"><input type="checkbox" id="fRun"> motor girando</label>
+          <label class="readout"><input type="checkbox" id="fPurge"> ECU abre la purga</label>
+        </div>
+        <div class="ctl"><label for="fVac">Vacío del múltiple</label><input class="slider" type="range" id="fVac" min="0" max="0.6" step="0.05" value="0.5"><output id="fVaco">0,50 bar</output></div>
+        <p class="readout" style="margin:-4px 0 6px">← plena carga (mariposa abierta) · ralentí (≈0,5 bar de vacío, manual p. 78) →</p>
+        <div class="ctrls">
+          <button class="btn ghost sm" id="fBlock">🚧 Retorno obstruido</button>
+          <button class="btn ghost sm" id="fCrash">💥 Choque</button>
+          <button class="btn ghost sm" id="fReset">↺ Reset llave inercial</button>
+        </div>
+        <div class="ro"><span>Bomba <b id="fPump">OFF</b></span><span>Rampa <b id="fP">0,0 bar</b></span><span>Diferencial en el inyector <b class="sig" id="fDp">—</b></span></div>
+        <p class="readout" id="fNote" style="margin:.4em 0 0"></p>
+        <p class="readout" style="margin:.4em 0 0;font-size:.78rem">Presión base del regulador ≈3 bar <span class="dg">dato general de taller</span> (el manual no da el valor). Del manual: la caída de 0,5 bar en ralentí, el alivio a 6–7 bar y el cebado de "algunos segundos" (acá 2 s).</p>
+      </div>
+    </div>
+    <div class="callout mem"><span class="lab">Por qué el regulador tiene una manguera de vacío</span><p>Lo que empuja la nafta a través del inyector es la <b>diferencia</b> de presión entre la rampa y el múltiple. En ralentí el múltiple está en vacío y "chupa": si la rampa siguiera igual, saldría <b>más</b> nafta en el mismo tiempo. El regulador siente ese vacío y baja la presión de la rampa lo mismo (0,5 bar en ralentí). Resultado: el <b>diferencial queda constante</b>, y la cantidad de nafta depende <b>solo del tiempo de apertura</b>, que es lo único que maneja la ECU. Movés el slider: la rampa sube y baja, el diferencial no se mueve.</p></div>
+    <div class="grid g2">
+      <div class="callout warn"><span class="lab">Retorno obstruido</span><p>Sin salida, la nafta no tiene a dónde ir y la presión sube hasta que se abre la <b>válvula de alivio</b> de la bomba (6–7 bar, 64–85 psi) y descarga al tanque. El manual da tres causas: regulador obstruido, retorno obstruido o filtro obstruido. Con la rampa alta el motor anda <b>rico</b> (más diferencial → más nafta por ms).</p></div>
+      <div class="callout tip"><span class="lab">Choque y cebado</span><p>Con un golpe fuerte la bola de acero se suelta del imán y abre el contacto N.C. de la <b>llave inercial</b>: la bomba se para aunque el motor siga girando. Se rearma <b>apretando el pulsador</b>. Al dar contacto, el relé arranca la bomba "por algunos segundos" para presurizar; si la ECU no ve giro del cigüeñal, la corta.</p></div>
+    </div>
+    <h3 class="sub3">Componente por componente</h3>
+    <div class="grid g3">
+      <div class="card"><span class="ic">🌀</span><span class="tag">Bomba de rodillos</span><h4>Motor y bomba bañados en nafta</h4><p>Un disco almenado excéntrico con <b>rodillos</b> que forman cámaras que crecen (chupan) y se achican (empujan). La nafta la <b>refrigera y lubrica</b>. Trae <b>válvula de alivio</b> (6–7 bar) y <b>antirretorno</b>, que deja presión residual para que no se formen burbujas de vapor y arranque bien en caliente. Va afuera del tanque, muy cerca. <span class="mono" style="font-size:.72rem">p. 74–76</span></p></div>
+      <div class="card"><span class="ic">🧻</span><span class="tag">Filtro</span><h4>10 micras · ≈2 m² · 50.000 km</h4><p>Después de la bomba. Papel con estructura textil, poro de <b>10 µm</b> y superficie de ≈2 m². Cambiar normalmente cada <b>50.000 km</b> (o lo que diga el fabricante); tapado hace caer el caudal. Se monta respetando la <b>flecha</b>. <span class="mono" style="font-size:.72rem">p. 76</span></p></div>
+      <div class="card"><span class="ic">🛤️</span><span class="tag">Rampa</span><h4>Un pulmón de presión</h4><p>Tiene volumen suficiente para que, cuando abre un inyector, la presión no caiga en los otros. La nafta <b>baña y refrigera</b> los inyectores. Eléctricamente, los cuatro van en <b>paralelo</b> a un conector común. <span class="mono" style="font-size:.72rem">p. 76</span></p></div>
+      <div class="card"><span class="ic">💧</span><span class="tag">Inyector</span><h4>Solenoide normalmente cerrado</h4><p>Por dentro: sellos de goma, <b>filtro fino</b> arriba, conector, <b>bobina</b> y <b>aguja</b>. La ECU energiza la bobina, la aguja se levanta y sale nafta por un orificio <b>calibrado</b>. Como el orificio es fijo y la presión está regulada, el caudal depende solo del <b>tiempo</b> que está abierto. <span class="mono" style="font-size:.72rem">p. 77</span></p></div>
+      <div class="card"><span class="ic">⚖️</span><span class="tag">Regulador</span><h4>Membrana, resorte y vacío</h4><p>Dos cámaras separadas por una membrana. Abajo, la nafta; arriba, un <b>resorte tarado</b> y la toma de <b>vacío</b> del múltiple. Cuando la nafta vence al resorte, abre el retorno. El vacío "ayuda" a abrir: por eso en ralentí baja la presión. <span class="mono" style="font-size:.72rem">p. 78</span></p></div>
+      <div class="card"><span class="ic">🫧</span><span class="tag">Canister</span><h4>Carbón activo + purga N.C.</h4><p>Junta los vapores del tanque para que no salgan al aire. La <b>electroválvula de purga</b> está <b>normalmente cerrada</b>, entre el canister y el múltiple: cuando la ECU la abre, el vacío se lleva los vapores al motor y se queman. <span class="mono" style="font-size:.72rem">p. 80</span></p></div>
+    </div>
+    <div class="manref"><span class="lab">📝 Notas</span><ul><li>Partes: tanque, bomba, filtro de alta presión, rampa, inyectores, regulador, interruptor de inercia, relé de bomba, canister y sensor de presión diferencial (OBD II). La ECU recibe la señal del <b>sensor de cigüeñal</b> para activar el relé de bomba.</li><li>Alivio: la presión "alcanza de 6 – 7 Bar o 64 – 85 psi" y la válvula descarga al depósito.</li><li>Regulador: "Cuando la presión en el mismo es de 0.5 bar (régimen de ralentí), la presión de trabajo desciende en 0.5 bar".</li><li>Inercia: esfera en un alojamiento cónico sostenida por un <b>imán permanente</b>; contacto N.C.; para rearmar "hay que presionar el interruptor hasta que se oiga el ruido de activación". Va en el habitáculo o en el vano motor.</li><li>Relé: energizado "por algunos segundos" al dar contacto; con el motor andando queda activado; la ECU lo controla con una salida "de 12 voltios negativo" (o sea, le da masa).</li></ul></div>
+  </section>
+
+  <!-- 06 · INYECTOR -->
+  <section class="block reveal" id="inyector">
+    <div class="kicker"><span class="num">06</span><span class="rule"></span></div>
+    <h2 class="sec display">El inyector: <span class="spark">ancho de pulso</span> y ciclo de trabajo</h2>
+    <p class="lead">El inyector tiene 12 V permanentes del relé; la ECU <b>cierra a masa</b> el otro cable durante un tiempo. Ese tiempo es el <b>ancho de pulso</b> (tiempo de inyección, TI) y se mide en <b>milisegundos</b>. Más ms → más nafta. Pero el tiempo disponible es finito: un ciclo (720°) dura menos cuanto más rápido gira el motor.</p>
+    <div class="schematic sim">
+      <div class="cap"><span class="led"></span><b>Simulador: osciloscopio en el cable de comando del inyector</b><span class="mono">acelerá y alargá el pulso</span></div>
+      <div class="body">
+        <div class="ctl"><label for="pwR">RPM</label><input class="slider" type="range" id="pwR" min="600" max="6500" step="50" value="800"><output id="pwRo">800</output></div>
+        <div class="ctl"><label for="pwT">Ancho de pulso</label><input class="slider" type="range" id="pwT" min="1" max="20" step="0.1" value="3"><output id="pwTo">3,0 ms</output></div>
+        <div class="ro"><span>Ciclo (720°) <b id="pwPer">—</b></span><span>Pulsos por inyector <b id="pwHz">—</b></span><span>Pulso en grados <b id="pwDeg">—</b></span><span>Ciclo de trabajo <b class="sig" id="pwDuty">—</b></span></div>
+        <div class="scopebox" style="margin-top:10px"><svg id="pwPlot" viewBox="0 0 600 200"></svg></div>
+        <p class="readout" id="pwNote" style="margin:.5em 0 0"></p>
+        <p class="readout" style="margin:.4em 0 0;font-size:.78rem"><span class="fx">fórmula</span> ciclo = 120.000 / RPM ms (dos vueltas) · ciclo de trabajo = ancho de pulso / ciclo, para un pulso por ciclo (secuencial). <span class="dg">dato general de taller</span> 12 V de alimentación y el pico inductivo al cerrar (aquí dibujado en 60 V; varía con el inyector).</p>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="callout mem"><span class="lab">Ancho de pulso y ciclo de trabajo (manual p. 49)</span><p><b>Ancho de pulso</b>: "la duración de tiempo […] en que un actuador es energizado"; en el inyector se cuenta en <b>milisegundos</b>. <b>Ciclo de trabajo</b>: la relación entre el tiempo que circula corriente y el que no, en <b>porcentaje</b>. En el osciloscopio el pulso es la zona <b>baja</b> de la onda (la ECU puso masa) y el pico al final es la bobina del inyector devolviendo su energía al soltarla.</p></div>
+      <div class="callout warn"><span class="lab">Saturación: más de 100 %</span><p>Subí las RPM a 6.500 y el pulso a 20 ms: el ciclo dura ≈18,5 ms y el pulso pedido no entra. El inyector quedaría <b>abierto todo el tiempo</b> (estático) y ya no puede dar más nafta: es el límite de caudal del inyector. Por eso a altas RPM y plena carga se usan inyectores de <b>más caudal</b> o más <b>presión</b>, no pulsos más largos.</p></div>
+    </div>
+    <div class="callout tip"><span class="lab">Qué cambia el ancho de pulso</span><p>La ECU parte de un valor base según <b>aire</b> (VAF/MAP) y <b>RPM</b>, y lo corrige: más largo en frío (ECT), en el arranque y al acelerar (TPS); más corto en desaceleración (corte); y la <b>sonda λ</b> lo retoca todo el tiempo. Todo eso supone que el <b>diferencial de presión es constante</b> (sección 05): si el regulador falla, el mismo pulso da otra cantidad de nafta y la ECU no se entera hasta que lo ve la sonda.</p></div>
+  </section>
+
+  <!-- 07 · REPASO -->
+  <section class="block reveal" id="repaso">
+    <div class="kicker"><span class="num">07</span><span class="rule"></span></div>
+    <h2 class="sec display">Para <span class="spark">repasar</span></h2>
+    <div class="steps">
+      <div class="step"><div><h4>La ECU hace 4 cosas</h4><p>Entrada, procesamiento, almacenamiento y salida. Las señales analógicas pasan por el <b>conversor A/D</b> porque el micro solo entiende números.</p></div></div>
+      <div class="step"><div><h4>Cada memoria guarda algo distinto</h4><p><b>ROM</b>: programa y mapas, no se borra. <b>RAM</b>: datos del momento, se borra con la llave en STOP. <b>RAM stand-by</b>: adaptaciones, se borran sin batería. <b>EEPROM</b>: fallas, se leen y borran con scanner.</p></div></div>
+      <div class="step"><div><h4>Los drivers ponen masa</h4><p>La ECU comanda inyectores, ralentí, relé de bomba y electroválvulas con etapas de potencia que cierran el circuito a masa.</p></div></div>
+      <div class="step"><div><h4>LE-Jetronic vs Motronic</h4><p>LE: analógico, solo nafta, simultánea, sin memoria de fallas ni luz, con VAF. Motronic: digital, nafta + encendido, sonda λ, memoria de adaptación, luz de falla, sensor de RPM en el volante, canister. Mono: un solo inyector en el cuerpo de mariposa.</p></div></div>
+      <div class="step"><div><h4>Simultánea, agrupada, secuencial</h4><p>1 circuito para todos · 2 circuitos (1-4 y 2-3) · 1 circuito por inyector en orden 1-3-4-2, con sensor de fase.</p></div></div>
+      <div class="step"><div><h4>El regulador mantiene el diferencial</h4><p>Con la toma de vacío, la presión de rampa baja 0,5 bar en ralentí para que la diferencia rampa–múltiple sea constante y la cantidad dependa solo del tiempo de inyección.</p></div></div>
+      <div class="step"><div><h4>Bomba protegida</h4><p>Alivio a 6–7 bar si no hay retorno; antirretorno para dejar presión residual; llave inercial que la corta en un choque; relé que la ceba unos segundos y la mantiene solo con el motor girando.</p></div></div>
+      <div class="step"><div><h4>Filtro y canister</h4><p>Filtro de 10 µm, ≈2 m², cada 50.000 km y respetando la flecha. Canister de carbón activo con electroválvula de purga normalmente cerrada.</p></div></div>
+    </div>
+    <h3 class="sub3">Trampas de examen</h3>
+    <div class="grid g2">
+      <div class="callout warn"><span class="lab">"El LE-Jetronic tiene luz de falla"</span><p>Falso. Es <b>analógico</b>: no guarda averías ni las muestra en el tablero. La memoria y la luz aparecen con el <b>Motronic</b> digital.</p></div>
+      <div class="callout warn"><span class="lab">"Desconectar la batería borra las fallas"</span><p>Lo que se borra seguro son las <b>adaptaciones</b> (RAM stand-by). Las fallas confirmadas van a la <b>EEPROM</b> y en general se borran con <b>scanner</b>.</p></div>
+      <div class="callout warn"><span class="lab">"La presión de rampa es siempre la misma"</span><p>No: cambia con el vacío del múltiple (baja 0,5 bar en ralentí). Lo constante es el <b>diferencial</b> entre la rampa y el múltiple.</p></div>
+      <div class="callout warn"><span class="lab">"La válvula de alivio regula la presión"</span><p>No: la regula el <b>regulador</b> con el retorno. El alivio de la bomba es de <b>seguridad</b> y solo abre si la presión sube a 6–7 bar (retorno, regulador o filtro tapados).</p></div>
+      <div class="callout warn"><span class="lab">"La secuencial funciona solo con el CKP"</span><p>No: el CKP no distingue compresión de escape. Para inyectar uno por uno en orden hace falta el <b>sensor de fase</b>.</p></div>
+      <div class="callout warn"><span class="lab">"El Mono-Motronic no maneja el encendido"</span><p>Sí lo maneja: es como el Motronic pero con <b>un solo inyector</b>. El que no maneja el encendido es el LE-Jetronic.</p></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site"><div class="wrap" style="padding-bottom:0">
+  <div class="footrow">
+    <span>ITCA · Inyección electrónica nafta — material de estudio. Español rioplatense.</span>
+    <a class="navlink" href="sensores-funcionamiento.html">Cómo funcionan los sensores →</a>
+  </div>
+</div></footer>
+
+<script src="guia.js"></script>
+<script>
+function $(id){return document.getElementById(id)}
+function fmt(v,d){return v.toFixed(d==null?2:d).replace('.',',')}
+function seg(id,cb){var el=$(id);el.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){
+  el.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b)});cb(b.dataset)})})}
+
+/* ===== Osciloscopio genérico: series [{pts:[[x 0..1, y]], c}] ===== */
+function scope(svg,series,o){
+  var X0=46,X1=590,Y0=12,Y1=176,h='';
+  for(var i=0;i<=10;i++){var x=X0+(X1-X0)*i/10;h+='<line class="scg" x1="'+x+'" y1="'+Y0+'" x2="'+x+'" y2="'+Y1+'"/>'}
+  for(var j=0;j<=4;j++){var y=Y0+(Y1-Y0)*j/4;h+='<line class="scg" x1="'+X0+'" y1="'+y+'" x2="'+X1+'" y2="'+y+'"/>';
+    h+='<text class="sct" x="'+(X0-6)+'" y="'+(y+4)+'" text-anchor="end">'+fmt(o.ymax-(o.ymax-o.ymin)*j/4,o.yd==null?1:o.yd)+'</text>'}
+  if(o.zero!=null){var yz=Y1-(o.zero-o.ymin)/(o.ymax-o.ymin)*(Y1-Y0);h+='<line x1="'+X0+'" y1="'+yz+'" x2="'+X1+'" y2="'+yz+'" stroke="#2f4f73" stroke-width="1.4"/>'}
+  series.forEach(function(s){
+    var d=s.pts.map(function(p,k){var v=Math.max(o.ymin,Math.min(o.ymax,p[1]));
+      return (k?'L':'M')+(X0+(X1-X0)*p[0]).toFixed(1)+' '+(Y1-(v-o.ymin)/(o.ymax-o.ymin)*(Y1-Y0)).toFixed(1)}).join('');
+    h+='<path d="'+d+'" fill="none" stroke="'+s.c+'" stroke-width="'+(s.w||2)+'" stroke-linejoin="round"'+(s.dash?' stroke-dasharray="5 5"':'')+'/>';
+    if(s.label)h+='<text class="sct" x="'+(X1-4)+'" y="'+s.ly+'" text-anchor="end" style="fill:'+s.c+'">'+s.label+'</text>';});
+  (o.marks||[]).forEach(function(m){var x=X0+(X1-X0)*m[0],v=Math.max(o.ymin,Math.min(o.ymax,m[1])),y=Y1-(v-o.ymin)/(o.ymax-o.ymin)*(Y1-Y0);
+    h+='<circle cx="'+x+'" cy="'+y+'" r="6" fill="#ffc24a" stroke="#06101c" stroke-width="2"/>'});
+  h+='<text class="sct" x="'+X0+'" y="196">'+(o.xl||'')+'</text><text class="sct" x="'+X1+'" y="196" text-anchor="end">'+(o.yl||'')+'</text>';
+  svg.innerHTML=h;
+}
+var SC='#31c4ba', SC2='#ffc24a', SC3='#ff6b78';
+
+/* ===== 02 · ECU por dentro ===== */
+(function(){
+  var INFO={
+    ana:['Entradas analógicas','Sensores que entregan una tensión que varía de forma continua: NTC (ECT, IAT), TPS, MAP o VAF, sonda λ. "La comunicación entre sensores y la computadora es por medio de voltaje en forma analógica variable".','p. 68, 70'],
+    dig:['Entradas digitales','Señales de dos estados o pulsos: interruptores (A/C, freno, embrague, dirección hidráulica), Hall, llave de contacto. "Un sensor alimentador puede ser una cosa tan simple como un interruptor". En modelos nuevos algunos sensores ya mandan señal digital.','p. 47, 68, 70'],
+    ad:['Conversor A/D','La "sección de adquisición y codificación de datos": convierte las señales analógicas en digitales (código binario) para que el micro las pueda procesar matemáticamente.','p. 65, 70'],
+    mic:['Microprocesador','"Interrogar a las memorias, comparar los datos en elaboración con los datos preestablecidos y gestionar los circuitos de mando de los actuadores." Es el que calcula el tiempo de inyección y el avance.','p. 65'],
+    drv:['Drivers (etapas de potencia)','Circuitos dirigidos por el microprocesador que alimentan a los actuadores: inyectores, motor de marcha mínima, relé de bomba y electroválvulas. El micro maneja miliamperes; el driver maneja la corriente del actuador, en general cerrándolo a masa.','p. 66, 80'],
+    act:['Actuadores (salida)','"Después de procesar las señales de entrada la computadora en respuesta envía señales de voltaje de salida a varios elementos de salida o actuadores".','p. 69'],
+    net:['Otras ECU','Por la salida la ECU también se comunica con la de la caja automática, la del ABS, la de suspensión. Ejemplo del manual: el TPS manda señal a la ECU del motor, a la del freno y a la de la transmisión.','p. 69'],
+    rom:['Memoria ROM','Programa y datos "programados de modo permanente antes de ser instalada": se leen pero no se modifican. Si se desconecta la batería "las lecturas permanecen en la memoria sin modificación alguna". Es el "punto de partida" que usa la ECU cuando pierde lo aprendido.','p. 65'],
+    ram:['Memoria RAM (volátil)','Guarda provisoriamente los datos de entrada para elaborarlos. "Se activa con el conmutador de arranque en posición IGN y se borra en posición STOP." Probá "Llave a STOP".','p. 65–66'],
+    sb:['RAM stand-by (no volátil, con batería)','Memoriza las correcciones aprendidas: apertura del actuador de ralentí, posición de la mariposa completamente cerrada y un factor de corrección del tiempo de inyección sacado de la sonda λ. Necesita alimentación continua de batería: sin batería, fusible, relé o conector de la ECU, "los parámetros se ponen a cero" y se re-aprenden andando.','p. 66'],
+    ee:['EEPROM','Se borra eléctricamente y se reprograma. Recibe de la RAM stand-by las anomalías y las transmite por la toma de diagnosis al scanner. "Para borrar las anomalías confirmadas es necesario utilizar en la mayoría de los casos un SCANNER."','p. 66']
+  };
+  var sel='sb', bat=true, key=true, learned=true, faults=true, flash={};
+  function line(x,y,t,c){return '<text class="memv'+(c?' '+c:'')+'" x="'+x+'" y="'+y+'">'+t+'</text>'}
+  function upd(){
+    var on=bat&&key;
+    $('ramV').innerHTML=on?line(310,262,'RPM 820')+line(310,278,'ECT 90 °C')+line(310,294,'TI 2,9 ms'):line(310,262,'(vacía)','gone');
+    $('sbV').innerHTML=learned?line(440,262,'ralentí apr. +4 %')+line(440,278,'TPS mín. 0,52 V')+line(440,294,'corr. λ +3,1 %'):line(440,262,'ralentí apr. 0','gone')+line(440,278,'TPS mín. —','gone')+line(440,294,'corr. λ 0 %','gone');
+    $('eeV').innerHTML=faults?line(580,264,'⚠ sonda λ lenta','f')+line(580,282,'⚠ ECT intermit.','f'):line(580,264,'sin fallas','gone');
+    Object.keys(flash).forEach(function(id){var g=$(id);g.classList.remove('wipe');void g.getBBox();g.classList.add('wipe')});flash={};
+    $('eBatS').textContent=bat?'conectada':'desconectada';$('eBatS').className=bat?'ok':'bad';
+    $('eKeyS').textContent=key?'IGN':'STOP';
+    $('eKey').textContent=key?'🔑 Llave a STOP':'🔑 Llave a IGN';
+    $('eBat').textContent=bat?'🔌 Desconectar batería':'🔋 Reconectar batería';
+    $('eDrive').disabled=!(bat&&key)||learned;
+    $('eScan').disabled=!(bat&&key)||!faults;
+    var idle=$('eIdle'); if(!bat||!key){idle.textContent='motor parado';idle.className=''}
+      else if(learned){idle.textContent='estable';idle.className='ok'}
+      else{idle.textContent='inestable (sin adaptación)';idle.className='bad'}
+    document.querySelectorAll('#ecuSvg .blk').forEach(function(g){g.classList.toggle('sel',g.dataset.k===sel)});
+    var i=INFO[sel]; $('ecuInfo').innerHTML='<h4>'+i[0]+'</h4><p>'+i[1]+'</p><span class="pg">manual '+i[2]+'</span>';
+  }
+  document.querySelectorAll('#ecuSvg .blk').forEach(function(g){
+    g.addEventListener('click',function(){sel=g.dataset.k;upd()});
+    g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();sel=g.dataset.k;upd()}});
+  });
+  $('eKey').addEventListener('click',function(){key=!key;flash.ramV=1;sel='ram';upd()});
+  $('eBat').addEventListener('click',function(){bat=!bat;if(!bat){learned=false;flash.sbV=1;flash.ramV=1;sel='sb'}upd()});
+  $('eDrive').addEventListener('click',function(){learned=true;flash.sbV=1;sel='sb';upd()});
+  $('eScan').addEventListener('click',function(){faults=false;flash.eeV=1;sel='ee';upd()});
+  upd();
+})();
+
+/* ===== 03 · Sistemas Bosch ===== */
+(function(){
+  var NOTE={
+    le:'LE-Jetronic: ECU analógica que solo calcula la nafta. VAF, interruptor de mariposa (ralentí / plena carga), control de marcha mínima y 4 inyectores que abren todos juntos. Sin sonda λ, sin memoria de fallas, sin luz. El encendido existe, pero lo maneja otro sistema.',
+    mo:'Motronic: ECU digital que maneja nafta y encendido. Suma sonda λ, sensor de RPM en el volante, válvula de canister, memoria de adaptación y luz de falla. El interruptor de mariposa pasa a ser un potenciómetro.',
+    mm:'Mono-Motronic: el mismo cerebro digital del Motronic, pero con un solo inyector en el cuerpo de mariposa, que además integra el regulador, la temperatura de aire y el actuador de ralentí. En la figura del manual no aparece caudalímetro.'
+  };
+  function upd(s){
+    document.querySelectorAll('#bosch .cmp').forEach(function(g){g.classList.toggle('off',g.dataset.s.split(' ').indexOf(s)<0)});
+    $('bTps').textContent=s==='le'?'interruptor mariposa':'potenciómetro (TPS)';
+    $('bEcu').textContent=s==='le'?'analógica · solo nafta':'digital · nafta + encendido';
+    $('bNote').textContent=NOTE[s];
+  }
+  seg('bSys',function(d){upd(d.s)}); upd('le');
+})();
+
+/* ===== 04 · Clasificación 720° ===== */
+(function(){
+  var OFF={1:0,3:180,4:360,2:540}, ORDER=[1,3,4,2], X0=90, X1=745, K=(X1-X0)/720, mode='seq';
+  var ST=['ADMISIÓN','COMPRESIÓN','EXPLOSIÓN','ESCAPE'];
+  var PUL={
+    seq:function(c){return [[OFF[c]-70,60,1]]},
+    grp:function(c){return (c===1||c===4)?[[-60,60,.5],[300,60,.5]]:[[120,60,.5],[480,60,.5]]},
+    sim:function(){return [[30,60,.5],[390,60,.5]]}
+  };
+  function w(d){return ((d%720)+720)%720}
+  function spans(a,l){a=w(a);return a+l<=720?[[a,l]]:[[a,720-a],[0,a+l-720]]}
+  function upd(){
+    var noCmp=$('iNoCmp').checked, eff=(mode==='seq'&&noCmp)?'grp':mode, h='';
+    for(var d=0;d<=720;d+=90){var x=X0+d*K;h+='<line x1="'+x+'" y1="34" x2="'+x+'" y2="288" stroke="var(--line)" stroke-width="'+(d%360?1:2)+'"/>';
+      h+='<text class="lbl2" x="'+x+'" y="28" text-anchor="middle">'+d+'°</text>'}
+    h+='<text class="lbl2" x="'+(X0+180*K)+'" y="12" text-anchor="middle">1ª vuelta del cigüeñal</text><text class="lbl2" x="'+(X0+540*K)+'" y="12" text-anchor="middle">2ª vuelta</text>';
+    var waits=[];
+    ORDER.forEach(function(c,i){
+      var y=40+i*62, o=OFF[c];
+      h+='<text class="lblb" x="10" y="'+(y+19)+'">Cil '+c+'</text><text class="lbl2" x="10" y="'+(y+44)+'">inyector</text>';
+      for(var s=0;s<4;s++) spans(o+s*180,180).forEach(function(p){
+        h+='<rect class="st'+s+'" x="'+(X0+p[0]*K)+'" y="'+y+'" width="'+(p[1]*K)+'" height="26"/>';
+        if(p[1]>=90)h+='<text class="stt" x="'+(X0+(p[0]+p[1]/2)*K)+'" y="'+(y+17)+'" text-anchor="middle">'+ST[s]+'</text>';
+      });
+      h+='<rect class="lane" x="'+X0+'" y="'+(y+30)+'" width="'+(X1-X0)+'" height="20" rx="3"/>';
+      var ws=[], open=false;
+      PUL[eff](c).forEach(function(p){
+        var rel=w(p[0]-o), ov=rel<180||rel+p[1]>720; if(ov)open=true; else ws.push(w(o-(p[0]+p[1])));
+        spans(p[0],p[1]).forEach(function(q){var hh=20*p[2];
+          h+='<rect class="pul'+(ov?' open':'')+'" x="'+(X0+q[0]*K)+'" y="'+(y+50-hh)+'" width="'+(q[1]*K)+'" height="'+hh+'" rx="2"/>'});
+      });
+      if(mode==='seq'&&noCmp&&(c===1||c===4)){h+='<text class="lblb" x="'+(X0+(c===1?8:368)*K)+'" y="'+(y+46)+'" style="fill:var(--bad);font-size:15px">?</text>'}
+      waits.push('<span>Cil '+c+' <b'+(open?' class="bad"':'')+'>'+(open?'válvula abierta':'')+(open&&ws.length?' + ':'')+(ws.length?'espera '+ws.sort(function(a,b){return a-b}).join('° / ')+'°':'')+'</b></span>');
+    });
+    h+='<rect class="pul" x="'+X0+'" y="300" width="22" height="10"/><text class="lbl2" x="'+(X0+28)+'" y="309">pulso (alto = dosis completa, bajo = media dosis)</text>';
+    h+='<rect class="pul open" x="'+(X0+390)+'" y="300" width="22" height="10"/><text class="lbl2" x="'+(X0+418)+'" y="309">con la admisión abierta</text>';
+    $('iChart').innerHTML=h;
+    $('iWait').innerHTML=waits.join('');
+    var N={
+      sim:'Simultánea: un solo circuito, los 4 inyectores abren juntos una vez por vuelta con media dosis (patrón típico tipo LE, dato general de taller). A algunos cilindros la nafta les llega con la válvula abierta y a otros les toca esperar casi una vuelta: mezcla despareja y condensación.',
+      grp:'Agrupada: el par 1-4 y el par 2-3 tienen su propio circuito y abren una vez por vuelta (media dosis). Cada pulso le llega justo a uno del par; al otro, 360° antes. Alcanza con el sensor de cigüeñal: no necesita CMP.',
+      seq:'Secuencial: cada inyector abre una vez cada 720°, en el orden 1-3-4-2, terminando un poco antes de que abra su válvula de admisión (la nafta espera poco y siempre lo mismo). Requiere el sensor de fase (CMP).'
+    };
+    $('iNote').innerHTML=(mode==='seq'&&noCmp)?'<b style="color:var(--bad)">Sin CMP:</b> en 0° la ECU ve "pistones 1 y 4 arriba", pero no sabe cuál está en compresión y cuál en escape (los "?"). No puede hacer secuencial: inyecta agrupado (o simultáneo) hasta tener la fase. Muchos motores igual arrancan, pero con más consumo y emisiones.':
+      N[mode]+((mode!=='seq'&&noCmp)?' (El CMP no cambia nada en este modo.)':'');
+  }
+  seg('iMode',function(d){mode=d.m;upd()}); $('iNoCmp').addEventListener('change',upd); upd();
+})();
+
+/* ===== 05 · Circuito de combustible ===== */
+(function(){
+  var key=false, inert=true, blocked=false, primeT=0, P=0, last=performance.now(), ang=0, BASE=3.0;
+  function running(){return key&&inert&&$('fRun').checked}
+  function setFlow(id,go,hot){var e=$(id);e.classList.toggle('go',go);e.classList.toggle('idle',!go);e.classList.toggle('hot',!!hot)}
+  function frame(now){
+    var dt=Math.min(.1,(now-last)/1000); last=now;
+    var run=running(), priming=key&&inert&&now<primeT, pump=key&&inert&&(priming||run);
+    var vac=run?+$('fVac').value:0;
+    if(pump){var tgt=blocked?6.5:BASE-vac; P+=(tgt-P)*Math.min(1,dt*(blocked?.9:4));}
+    else P=Math.max(0,P-dt*.02); // antirretorno: queda presión residual
+    var relief=pump&&blocked&&P>=6;
+    $('fPbig').textContent=fmt(P,1)+' bar'; $('fP').textContent=fmt(P,1)+' bar'; $('fP').className=P>=5?'bad':'';
+    $('fPbar').setAttribute('width',(180*Math.min(1,P/7)).toFixed(1));
+    $('fPbar').setAttribute('fill',P>=5?'var(--bad)':'var(--copper)');
+    $('fDp').textContent=run?fmt(P+vac,1)+' bar':'—';
+    $('fMan').textContent='múltiple: '+fmt(1.01-vac,2)+' bar absolutos';
+    $('fMem').setAttribute('d','M664 100 Q702 '+(100-vac*30).toFixed(1)+' 741 100');
+    var ps=$('fPump'); ps.textContent=!inert?'OFF (inercial abierta)':pump?(priming&&!run?'cebando '+fmt(Math.max(0,(primeT-now)/1000),1)+' s':'ON'):'OFF'; ps.className=pump?'ok':(!inert?'bad':'');
+    $('fRel').textContent=pump?'cerrado':'abierto';
+    ['fW1','fW2'].forEach(function(id){$(id).classList.toggle('live',inert)}); $('fW3').classList.toggle('live',pump); $('fW4').classList.toggle('live',pump);
+    $('fBall').setAttribute('cx',inert?55:40); $('fBall').setAttribute('cy',inert?78:86); $('fInT').textContent=inert?'N.C.':'ABIERTA';
+    setFlow('fS1',pump);setFlow('fS2',pump);setFlow('fS3',pump,P>=5);setFlow('fS4',pump,P>=5);
+    setFlow('fRet',pump&&!blocked); setFlow('fRel2',relief,true);
+    $('fRelT').textContent=relief?'¡alivio ABIERTO!':'alivio cerrado'; $('fRelT').style.fill=relief?'var(--bad)':'';
+    $('fRetT').textContent=blocked?'retorno TAPADO ✖':'retorno →'; $('fRetT').style.fill=blocked?'var(--bad)':'';
+    var purge=run&&$('fPurge').checked; setFlow('fVap2',purge); setFlow('fVap3',purge); $('fVap1').classList.toggle('go',true);
+    $('fPurgeT').textContent=purge?'ABIERTA':'cerrada (NC)'; $('fPurgeB').setAttribute('class',purge?'boxs':'box');
+    if(pump){ang=(ang+dt*720)%360;$('fRot').setAttribute('transform','rotate('+ang.toFixed(0)+' 280 355)')}
+    var t=now/1000; document.querySelectorAll('#fInj .spray').forEach(function(s,i){s.style.opacity=(run&&P>1.5&&((t*4+i*.25)%1)<.35)?1:0});
+    var n;
+    if(!key)n='Contacto en OFF: la bomba está parada. El antirretorno mantiene la presión residual en la rampa.';
+    else if(!inert)n='La llave inercial cortó la bomba: no llega nafta y el motor se para. Rearmala con el pulsador ("Reset").';
+    else if(!$('fRun').checked&&!priming)n='Cebado terminado: como la ECU no ve giro del cigüeñal, corta el relé. Tildá "motor girando" para que la bomba siga.';
+    else if(priming&&!run)n='Al dar contacto la ECU cierra el relé unos segundos para presurizar la rampa antes de arrancar.';
+    else if(relief)n='El retorno está tapado: la presión subió hasta abrir la válvula de alivio de la bomba (6–7 bar) y la nafta vuelve al tanque por adentro de la bomba.';
+    else if(blocked)n='Retorno tapado: la presión sube sin control…';
+    else n='Motor andando: la rampa queda '+fmt(BASE,1)+' bar por encima del múltiple. Con '+fmt(vac,2)+' bar de vacío la rampa marca '+fmt(P,1)+' bar, pero el inyector sigue "viendo" '+fmt(P+vac,1)+' bar de diferencia.';
+    $('fNote').textContent=n;
+    requestAnimationFrame(frame);
+  }
+  $('fKey').addEventListener('click',function(){key=!key; if(key)primeT=performance.now()+2000; else $('fRun').checked=false;
+    this.textContent=key?'🔑 Contacto OFF':'🔑 Contacto ON'});
+  $('fRun').addEventListener('change',function(){if(!key||!inert)this.checked=false});
+  $('fVac').addEventListener('input',function(){$('fVaco').textContent=fmt(+this.value,2)+' bar'});
+  $('fBlock').addEventListener('click',function(){blocked=!blocked;this.classList.toggle('act',blocked);this.textContent=blocked?'✔ Destapar retorno':'🚧 Retorno obstruido'});
+  $('fCrash').addEventListener('click',function(){inert=false;$('fRun').checked=false});
+  $('fReset').addEventListener('click',function(){inert=true; if(key)primeT=performance.now()+2000});
+  requestAnimationFrame(frame);
+})();
+
+/* ===== 06 · Ancho de pulso ===== */
+(function(){
+  function upd(){
+    var rpm=+$('pwR').value, pw=+$('pwT').value, per=120000/rpm, duty=pw/per, W=2*per, pts=[];
+    $('pwRo').textContent=rpm; $('pwTo').textContent=fmt(pw,1)+' ms';
+    if(duty>=1){pts=[[0,12],[0.02,12],[0.02,0.5],[1,0.5]]}
+    else{
+      pts.push([0,12]);
+      for(var k=0;k<2;k++){var ts=k*per+0.1*per, te=ts+pw;
+        pts.push([ts/W,12],[ts/W,0.5],[te/W,0.5],[te/W,60]);
+        [0.1,0.25,0.5,0.9,1.5].forEach(function(d){pts.push([(te+d)/W,12+48*Math.exp(-d/0.3)])});
+      }
+      pts.push([1,12]);
+    }
+    scope($('pwPlot'),[{pts:pts,c:duty>=1?SC3:SC,w:2}],{ymin:0,ymax:80,yd:0,xl:'0 → '+fmt(W,1)+' ms (2 ciclos)',yl:'V en el cable de comando'});
+    $('pwPer').textContent=fmt(per,1)+' ms'; $('pwHz').textContent=fmt(rpm/120,1)+' /s';
+    $('pwDeg').textContent=Math.round(pw*rpm*6/1000)+'°';
+    var d=$('pwDuty'); d.textContent=Math.round(duty*100)+' %'; d.className=duty>=1?'bad':duty>=.85?'':'sig';
+    $('pwNote').innerHTML=duty>=1?'<b style="color:var(--bad)">Saturado:</b> el pulso pedido ('+fmt(pw,1)+' ms) es más largo que el ciclo ('+fmt(per,1)+' ms). El inyector queda abierto todo el tiempo: no puede dar más nafta.':
+      duty>=.85?'Cerca del límite: casi no queda tiempo con el inyector cerrado. Es la zona de plena carga a alta RPM.':
+      'La zona baja es el tiempo con la ECU dando masa (inyector abierto). Más RPM → ciclo más corto → el mismo pulso ocupa más %.';
+  }
+  $('pwR').addEventListener('input',upd); $('pwT').addEventListener('input',upd); upd();
+})();
+</script>
+</body>
+</html>

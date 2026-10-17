@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía Visual · Electricidad Automotriz · ITCA</title>
+<link rel="stylesheet" href="guia.css">
+<style>
+.hubcard{position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:200px;text-decoration:none;color:inherit}
+.hubcard .n{font-family:ui-monospace,Menlo,monospace;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--copper)}
+.hubcard h3{font-size:1.28rem;margin:.3em 0 .2em;font-weight:800}
+.hubcard p{color:var(--muted);font-size:.93rem;margin:.2em 0 0;flex:1}
+.hubcard .go{margin-top:14px;font-weight:800;color:var(--spark);display:inline-flex;gap:7px;align-items:center}
+.hubcard .art{position:absolute;right:-14px;top:-10px;opacity:.16;pointer-events:none}
+.hubcard.soon{opacity:.6}
+.hubcard.soon .go{color:var(--muted)}
+.tag2{font-family:ui-monospace,Menlo,monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:2px 7px;align-self:flex-start}
+</style>
+</head>
+<body>
+<div class="readbar" id="readbar"></div>
+
+<header class="site">
+  <div class="hbar">
+    <span class="logo"><img src="logo.png" alt="ITCA"></span>
+    <div class="brand"><b>Guía <span class="spark">Visual</span></b><span>Electricidad Automotriz · ITCA</span></div>
+    <div class="grow"></div>
+    <a class="navlink" href="../test-electricidad.html">Test ⚡</a>
+    <button class="iconbtn" onclick="toggleTheme()" aria-label="Cambiar tema"><span id="themeIcon">🌙</span></button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero reveal">
+    <span class="eyebrow"><span class="dot"></span> Material de estudio</span>
+    <h1 class="big display">Electrónica y Electricidad <span class="spark">del Automotor</span></h1>
+    <p class="sub">La teoría de Electricidad Automotriz del ITCA, contada con diagramas en bloques, esquemas SVG interactivos y las explicaciones que más cuestan. Elegí un módulo o andá directo a practicar.</p>
+    <div class="metastrip">
+      <span class="chip">📘 módulos de electricidad e inyección</span>
+      <span class="chip">🕹️ esquemas interactivos</span>
+      <span class="chip">⚡ test de práctica</span>
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <div class="kicker"><span class="num">01</span><span class="rule"></span></div>
+    <h2 class="sec display">Módulos</h2>
+    <div class="grid g2" style="margin-top:18px">
+
+      <a class="card hubcard" href="electricidad-basica.html">
+        <span class="art" style="font-size:96px">⚛️</span>
+        <span class="n">Fundamentos</span>
+        <h3>Electricidad básica</h3>
+        <p>Magnitudes, ley de Ohm y Kirchhoff, magnetismo, instrumentos, baterías, relés, conductores y semiconductores.</p>
+        <span class="go">Abrir módulo →</span>
+      </a>
+
+      <a class="card hubcard" href="encendido.html">
+        <span class="art" style="font-size:96px">🔥</span>
+        <span class="n">Prioridad de estudio</span>
+        <h3>Sistema de encendido</h3>
+        <p>Los dos circuitos, la bobina, luz de platinos ↔ dwell, avance, captor Hall y la evolución de los encendidos. Con 4 esquemas interactivos.</p>
+        <span class="go">Abrir módulo →</span>
+      </a>
+
+      <a class="card hubcard" href="arranque-alternador.html">
+        <span class="art" style="font-size:96px">🔋</span>
+        <span class="n">Generación y arranque</span>
+        <h3>Arranque y alternador</h3>
+        <p>Motor de arranque, solenoide en 3 fases, rueda libre, alternador trifásico, puente de diodos y regulación de carga.</p>
+        <span class="go">Abrir módulo →</span>
+      </a>
+
+      <a class="card hubcard" href="bobinas.html">
+        <span class="art" style="font-size:96px">🔌</span>
+        <span class="n">Componente clave</span>
+        <h3>Bobinas y módulos</h3>
+        <p>Tipos de bobinas (cartucho, chispa doble, COP), valores BERU/Bosch, diagnóstico, prueba de banco y fallas comunes.</p>
+        <span class="go">Abrir módulo →</span>
+      </a>
+
+      <a class="card hubcard" href="despiece.html">
+        <span class="art" style="font-size:96px">🔧</span>
+        <span class="n">Partes · Componentes</span>
+        <h3>Despiece interactivo</h3>
+        <p>Tocá cada pieza del motor de arranque, el alternador, el distribuidor y la bobina, y te dice qué es y qué función cumple. 4 cortes numerados.</p>
+        <span class="go">Abrir despiece →</span>
+      </a>
+
+      <a class="card hubcard" href="sensores-funcionamiento.html">
+        <span class="art" style="font-size:96px">🧪</span>
+        <span class="n">2ª parte · Principios y medición</span>
+        <h3>Sensores: cómo funcionan y cómo se miden</h3>
+        <p>NTC, MAP/TMAP vs MAF/VAF, TPS, inductivo vs Hall, lambda, detonación, acelerador electrónico, VSS y presostato: todo el tema explicado desde cero, con fundamentos, simuladores, osciloscopio, fichas de medición y repaso tipo examen en cada sensor.</p>
+        <span class="go">Abrir guía →</span>
+      </a>
+
+      <a class="card hubcard" href="sensores-motores.html">
+        <span class="art" style="font-size:96px">📟</span>
+        <span class="n">2ª parte · Competencia</span>
+        <h3>Sensores por motor</h3>
+        <p>Agile, Renault K7M, VW EA111, Fiat Fire, Peugeot TU y Ford Rocam: qué sensores tiene cada uno, dónde están, qué es cada pin y cómo se mide. Con hoja imprimible.</p>
+        <span class="go">Abrir guía →</span>
+      </a>
+
+      <a class="card hubcard" href="competencia-movil.html">
+        <span class="art" style="font-size:96px">📱</span>
+        <span class="n">2ª parte · Competencia · Celular</span>
+        <h3>Ayuda rápida</h3>
+        <p>Para tener en la mano frente al motor: elegís el motor y ves cada sensor con ubicación, pines, cómo medirlo y valores.</p>
+        <span class="go">Abrir ayuda →</span>
+      </a>
+
+      <a class="card hubcard" href="ecu-combustible.html">
+        <span class="art" style="font-size:96px">🧠</span>
+        <span class="n">2ª parte · Cerebro y nafta</span>
+        <h3>ECU y sistema de combustible</h3>
+        <p>La ECU por dentro (memorias y qué se borra al desconectar la batería), LE-Jetronic vs Motronic vs Mono-Motronic, inyección simultánea, agrupada y secuencial en 720°, y el circuito de nafta con regulador, alivio e inercia.</p>
+        <span class="go">Abrir guía →</span>
+      </a>
+
+      <a class="card hubcard" href="actuadores-emisiones.html">
+        <span class="art" style="font-size:96px">♻️</span>
+        <span class="n">2ª parte · Ralentí y escape</span>
+        <h3>Actuadores, ralentí y emisiones</h3>
+        <p>Motor paso a paso y regulador de CC, catalizador de tres vías (temperatura y ventana λ), EGR, encendido DIS de chispa perdida, y señales y multímetro.</p>
+        <span class="go">Abrir guía →</span>
+      </a>
+
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <div class="kicker"><span class="num">02</span><span class="rule"></span></div>
+    <h2 class="sec display">Practicar</h2>
+    <a class="panel pad-lg hubcard" href="../test-electricidad.html" style="margin-top:18px;min-height:auto">
+      <span class="art" style="font-size:110px">⚡</span>
+      <span class="n">Test interactivo</span>
+      <h3>Preguntas de opción múltiple</h3>
+      <p>Una a la vez, con teclado 1–4, corrección al final, review de incorrectas e historial permanente de errores por tema. Elegí 10 a 100 preguntas o todas.</p>
+      <span class="go">Ir al test →</span>
+    </a>
+  </section>
+</main>
+
+<footer class="site"><div class="wrap" style="padding-bottom:0">
+  <div class="footrow">
+    <span>Material de estudio <b>no oficial</b>, hecho por un alumno: no reemplaza los manuales ni al docente. Actualizado: oct. 2026.</span>
+    <span class="tag2">Guía visual v1</span>
+  </div>
+</div></footer>
+
+<script src="guia.js"></script>
+</body>
+</html>

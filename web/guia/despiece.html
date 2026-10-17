@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Despiece interactivo · Partes · Guía Visual ITCA</title>
+<link rel="stylesheet" href="guia.css">
+<style>
+/* --- Explorador de partes (despiece interactivo) --- */
+.explorer .body{padding:14px 12px 18px}
+.part{cursor:pointer;transition:opacity .2s}
+.part:focus{outline:none}
+.explorer.has-active .part:not(.active){opacity:.32}
+.part .hl{transition:stroke .2s,fill .2s,filter .2s}
+.part.active .hl{stroke:var(--spark);filter:drop-shadow(0 0 4px color-mix(in srgb,var(--spark) 60%,transparent))}
+.pbadge{fill:var(--panel);stroke:var(--line2);stroke-width:1.6;transition:.18s}
+.pbadge-t{fill:var(--muted);font-family:ui-monospace,Menlo,monospace;font-weight:700;font-size:13px;
+  text-anchor:middle;pointer-events:none;transition:.18s}
+.part:hover .pbadge,.part:focus .pbadge{stroke:var(--spark)}
+.part.active .pbadge{fill:var(--spark);stroke:var(--spark)}
+.part.active .pbadge-t{fill:#2a1c00}
+.plbl{font-family:ui-monospace,Menlo,monospace;font-size:11px;fill:var(--faint)}
+
+/* lista de partes (chips) */
+.plist{display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.chip-part{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);background:var(--panel);
+  border-radius:10px;padding:7px 11px 7px 8px;cursor:pointer;font:inherit;font-size:.86rem;font-weight:700;
+  color:var(--ink);transition:border-color .14s,background .14s,transform .1s;line-height:1.2;text-align:left}
+.chip-part:hover{border-color:var(--spark);transform:translateY(-1px)}
+.chip-part .cn{font-family:ui-monospace,Menlo,monospace;font-size:.72rem;background:var(--bg2);border-radius:6px;
+  padding:2px 7px;color:var(--muted);flex:0 0 auto}
+.chip-part.on{background:color-mix(in srgb,var(--spark) 12%,var(--panel));border-color:var(--spark)}
+.chip-part.on .cn{background:var(--spark);color:#2a1c00}
+
+/* panel de info */
+.xp-info{margin:0}
+.xp-info .lab{display:flex;align-items:center;gap:9px}
+.xp-num{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 6px;border-radius:7px;
+  background:var(--spark);color:#2a1c00;font-family:ui-monospace,Menlo,monospace;font-weight:800;font-size:.8rem}
+.xp-title{display:block;font-weight:800;font-size:1.06rem;margin:8px 0 4px}
+.xp-desc{margin:0;color:var(--muted);font-size:.95rem}
+
+.xp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px;align-items:start}
+@media(max-width:720px){.xp-grid{grid-template-columns:1fr}}
+
+/* piezas compartidas del dibujo */
+.metal{fill:color-mix(in srgb,var(--wire) 22%,var(--panel));stroke:var(--wire);stroke-width:1.6}
+.shell{fill:var(--panel);stroke:var(--line2);stroke-width:1.6}
+.cu{fill:color-mix(in srgb,var(--copper) 30%,var(--panel));stroke:var(--copper);stroke-width:1.6}
+.sig{fill:color-mix(in srgb,var(--signal) 22%,var(--panel));stroke:var(--signal);stroke-width:1.6}
+.gearC{fill:none;stroke:var(--wire);stroke-width:9;stroke-linecap:butt;stroke-dasharray:7 7}
+.hatchL{stroke:var(--copper);stroke-width:1.3;opacity:.7}
+.corebar{stroke:var(--wire);stroke-width:1;opacity:.55}
+.dimtxt{font-family:ui-monospace,Menlo,monospace;font-size:11px;fill:var(--faint)}
+.termt{font-family:ui-monospace,Menlo,monospace;font-size:12px;fill:var(--copper);font-weight:700}
+</style>
+</head>
+<body>
+<div class="readbar" id="readbar"></div>
+
+<header class="site">
+  <div class="hbar">
+    <a class="logo" href="index.html" aria-label="Inicio"><img src="logo.png" alt="ITCA"></a>
+    <div class="brand"><b>Despiece <span class="spark">interactivo</span></b><span>Guía visual · 1ª parte</span></div>
+    <div class="grow"></div>
+    <a class="navlink" href="index.html">← Índice</a>
+    <a class="navlink" href="arranque-alternador.html">Arranque/Alt.</a>
+    <a class="navlink" href="../test-electricidad.html">Test ⚡</a>
+    <button class="iconbtn" onclick="toggleTheme()" aria-label="Cambiar tema"><span id="themeIcon">🌙</span></button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero reveal">
+    <span class="eyebrow"><span class="dot"></span> Partes · Componentes · Función</span>
+    <h1 class="big display">Las <span class="spark">partes</span>, una por una</h1>
+    <p class="sub">Los despieces de cada componente, pero interactivos: tocá una parte del dibujo (o de la lista) y te dice <b>qué es</b> y <b>qué función cumple</b>. Motor de arranque, alternador, distribuidor y bobina de encendido — todo de la 1ª parte.</p>
+    <div class="metastrip">
+      <span class="chip">🔧 <b>4</b> componentes</span>
+      <span class="chip">🕹️ tocá cada pieza</span>
+      <span class="chip">📝 con notas propias</span>
+    </div>
+    <div class="callout tip" style="margin-top:20px"><span class="lab">Cómo se usa</span>
+      <p>Pasá el mouse o tocá cualquier <b>número</b> del esquema, o los botones de la lista. La pieza se ilumina y abajo aparece su explicación. En celular funciona con toques.</p></div>
+  </section>
+
+  <!-- 01 · MOTOR DE ARRANQUE -->
+  <section class="block reveal" id="arranque">
+    <div class="kicker"><span class="num">01</span><span class="rule"></span></div>
+    <h2 class="sec display">Motor de arranque <span class="spark">por dentro</span></h2>
+    <p class="lead">Motor eléctrico de corriente continua tipo <b>serie</b> (par máximo al arrancar). Tres conjuntos: el <b>solenoide</b> que manda, el <b>motor</b> propiamente dicho (inductor + inducido + escobillas) y el <b>impulsor/Bendix</b> que engrana con el volante.</p>
+
+    <div class="explorer" data-explorer="arranque">
+      <div class="schematic" style="margin-top:18px">
+        <div class="cap"><span class="led"></span><b>Corte del motor de arranque</b><span class="mono">despiece</span></div>
+        <div class="body">
+          <svg viewBox="0 0 840 460" role="img" aria-label="Corte esquemático del motor de arranque con sus partes numeradas">
+            <!-- ===== SOLENOIDE (arriba) ===== -->
+            <!-- 1 · carcasa del solenoide -->
+            <g class="part" data-part="solenoide" tabindex="0" role="button" aria-label="Solenoide">
+              <rect class="hl shell" x="250" y="60" width="330" height="120" rx="16"/>
+              <circle class="pbadge" cx="270" cy="80" r="14"/><text class="pbadge-t" x="270" y="85">1</text>
+            </g>
+            <text x="415" y="52" text-anchor="middle" class="plbl">SOLENOIDE (mando magnético)</text>
+            <!-- 2 · bobinas del solenoide -->
+            <g class="part" data-part="bobinas" tabindex="0" role="button" aria-label="Bobinas del solenoide">
+              <rect class="hl cu" x="278" y="78" width="150" height="20" rx="5"/>
+              <rect class="hl cu" x="278" y="102" width="150" height="20" rx="5"/>
+              <circle class="pbadge" cx="452" cy="100" r="14"/><text class="pbadge-t" x="452" y="105">2</text>
+            </g>
+            <!-- 3 · émbolo -->
+            <g class="part" data-part="embolo" tabindex="0" role="button" aria-label="Émbolo">
+              <rect class="hl metal" x="292" y="128" width="150" height="34" rx="7"/>
+              <circle class="pbadge" cx="330" cy="145" r="14"/><text class="pbadge-t" x="330" y="150">3</text>
+            </g>
+            <!-- 5 · resorte de retorno -->
+            <g class="part" data-part="resorte" tabindex="0" role="button" aria-label="Resorte de retorno">
+              <path class="hl" d="M266 145 l10 -9 l-10 -7 l10 -9 l-10 -7 l10 -8" fill="none" stroke="var(--wire)" stroke-width="2.4"/>
+              <circle class="pbadge" cx="266" cy="120" r="14"/><text class="pbadge-t" x="266" y="125">5</text>
+            </g>
+            <!-- 4 · contacto principal + bornes 30/50 -->
+            <g class="part" data-part="contacto" tabindex="0" role="button" aria-label="Contacto principal y bornes 30 y 50">
+              <rect class="hl" x="486" y="70" width="60" height="12" rx="4" fill="var(--copper)" stroke="none"/>
+              <rect x="492" y="82" width="9" height="20" rx="2" fill="var(--copper)"/>
+              <rect x="531" y="82" width="9" height="20" rx="2" fill="var(--copper)"/>
+              <circle class="pbadge" cx="560" cy="76" r="14"/><text class="pbadge-t" x="560" y="81">4</text>
+            </g>
+            <text x="470" y="70" class="termt">50</text>
+            <text x="548" y="118" class="termt">30</text>
+            <!-- terminal 50 desde la llave -->
+            <path class="wire" d="M300 60 V36 H210 V150 H250" opacity=".5"/>
+            <text x="150" y="30" class="plbl">llave · START → 50</text>
+
+            <!-- ===== MOTOR (abajo) ===== -->
+            <!-- carcasa del cuerpo (contexto, no interactivo) -->
+            <rect x="150" y="230" width="360" height="160" rx="16" fill="var(--panel2)" stroke="var(--line2)" stroke-width="1.4"/>
+            <!-- 7 · inductor (masas polares + bobinas inductoras) -->
+            <g class="part" data-part="inductor" tabindex="0" role="button" aria-label="Inductor: masas polares y bobinas inductoras">
+              <rect class="hl cu" x="170" y="242" width="320" height="30" rx="6"/>
+              <rect class="hl cu" x="170" y="348" width="320" height="30" rx="6"/>
+              <circle class="pbadge" cx="195" cy="257" r="14"/><text class="pbadge-t" x="195" y="262">7</text>
+            </g>
+            <!-- eje -->
+            <rect x="120" y="305" width="540" height="10" rx="4" class="metal"/>
+            <!-- 8 · inducido / rotor (tambor bobinado) -->
+            <g class="part" data-part="inducido" tabindex="0" role="button" aria-label="Inducido o rotor">
+              <rect class="hl metal" x="258" y="280" width="180" height="60" rx="8"/>
+              <line x1="278" y1="280" x2="278" y2="340" class="corebar"/><line x1="298" y1="280" x2="298" y2="340" class="corebar"/>
+              <line x1="318" y1="280" x2="318" y2="340" class="corebar"/><line x1="358" y1="280" x2="358" y2="340" class="corebar"/>
+              <line x1="398" y1="280" x2="398" y2="340" class="corebar"/><line x1="418" y1="280" x2="418" y2="340" class="corebar"/>
+              <circle class="pbadge" cx="348" cy="310" r="14"/><text class="pbadge-t" x="348" y="315">8</text>
+            </g>
+            <!-- 9 · colector -->
+            <g class="part" data-part="colector" tabindex="0" role="button" aria-label="Colector">
+              <rect class="hl" x="222" y="286" width="30" height="48" rx="3" fill="color-mix(in srgb,var(--copper) 40%,var(--panel))" stroke="var(--copper)" stroke-width="1.6"/>
+              <line x1="230" y1="286" x2="230" y2="334" class="corebar"/><line x1="238" y1="286" x2="238" y2="334" class="corebar"/><line x1="245" y1="286" x2="245" y2="334" class="corebar"/>
+              <circle class="pbadge" cx="212" cy="266" r="14"/><text class="pbadge-t" x="212" y="271">9</text>
+            </g>
+            <!-- 10 · escobillas + portaescobillas -->
+            <g class="part" data-part="escobillas" tabindex="0" role="button" aria-label="Escobillas y portaescobillas">
+              <rect class="hl" x="226" y="268" width="22" height="16" rx="2" fill="var(--ink)" opacity=".72"/>
+              <rect class="hl" x="226" y="336" width="22" height="16" rx="2" fill="var(--ink)" opacity=".72"/>
+              <rect x="150" y="264" width="20" height="76" rx="6" class="shell"/>
+              <circle class="pbadge" cx="176" cy="380" r="14"/><text class="pbadge-t" x="176" y="385">10</text>
+            </g>
+            <text x="176" y="410" text-anchor="middle" class="plbl">tapa / portaescobillas</text>
+
+            <!-- 6 · horquilla -->
+            <g class="part" data-part="horquilla" tabindex="0" role="button" aria-label="Horquilla">
+              <path class="hl" d="M430 150 L512 210 L610 292" fill="none" stroke="var(--wire)" stroke-width="6" stroke-linecap="round"/>
+              <circle cx="512" cy="210" r="5" class="node"/>
+              <circle class="pbadge" cx="540" cy="232" r="14"/><text class="pbadge-t" x="540" y="237">6</text>
+            </g>
+            <text x="548" y="205" class="plbl">pivote</text>
+
+            <!-- 12 · rueda libre (embrague) -->
+            <g class="part" data-part="ruedalibre" tabindex="0" role="button" aria-label="Rueda libre">
+              <rect class="hl metal" x="548" y="292" width="54" height="30" rx="6"/>
+              <circle class="pbadge" cx="575" cy="276" r="14"/><text class="pbadge-t" x="575" y="281">12</text>
+            </g>
+            <!-- 11 · impulsor / piñón (Bendix) -->
+            <g class="part" data-part="impulsor" tabindex="0" role="button" aria-label="Impulsor o piñón Bendix">
+              <circle class="hl gearC" cx="632" cy="307" r="30"/>
+              <circle cx="632" cy="307" r="15" class="metal"/>
+              <circle cx="632" cy="307" r="4" class="node"/>
+              <circle class="pbadge" cx="632" cy="358" r="14"/><text class="pbadge-t" x="632" y="363">11</text>
+            </g>
+            <text x="700" y="311" class="plbl">→ corona del volante</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="xp-grid">
+        <div class="plist" aria-label="Lista de partes"></div>
+        <div class="callout xp-info"><span class="lab"><span class="xp-num">·</span> <span style="font-family:ui-monospace,Menlo,monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">parte</span></span>
+          <b class="xp-title">Tocá una parte</b>
+          <p class="xp-desc">Elegí una parte del diagrama o de la lista para ver qué es y qué función cumple.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout mem" style="margin-top:16px"><span class="lab">Para memorizar</span>
+      <p><b>Solenoide</b> = manda (engrana el piñón + cierra el contacto de 400 A). <b>Inductor</b> (fijo) crea el campo; <b>inducido</b> (gira) da el par; las <b>escobillas</b> le llevan corriente por el <b>colector</b>. El <b>Bendix</b> con su <b>rueda libre</b> engrana, multiplica la fuerza y se desacopla al arrancar el motor.</p></div>
+  </section>
+
+  <!-- 02 · ALTERNADOR -->
+  <section class="block reveal" id="alternador">
+    <div class="kicker"><span class="num">02</span><span class="rule"></span></div>
+    <h2 class="sec display">Alternador <span class="spark">por dentro</span></h2>
+    <p class="lead">Genera la corriente de todo el auto y recarga la batería. A diferencia del dínamo, acá <b>el campo gira</b> (rotor) y los conductores quedan fijos (estator): sale <b>CA trifásica</b> que el puente de diodos rectifica a continua.</p>
+
+    <div class="explorer" data-explorer="alternador">
+      <div class="schematic" style="margin-top:18px">
+        <div class="cap"><span class="led"></span><b>Corte del alternador</b><span class="mono">despiece</span></div>
+        <div class="body">
+          <svg viewBox="0 0 840 400" role="img" aria-label="Corte esquemático del alternador con sus partes numeradas">
+            <!-- eje -->
+            <rect x="95" y="196" width="520" height="10" rx="4" class="metal"/>
+            <!-- 1 · polea -->
+            <g class="part" data-part="polea" tabindex="0" role="button" aria-label="Polea de arrastre">
+              <rect class="hl metal" x="70" y="150" width="34" height="102" rx="6"/>
+              <line x1="70" y1="168" x2="104" y2="168" class="corebar"/><line x1="70" y1="184" x2="104" y2="184" class="corebar"/>
+              <line x1="70" y1="216" x2="104" y2="216" class="corebar"/><line x1="70" y1="232" x2="104" y2="232" class="corebar"/>
+              <circle class="pbadge" cx="87" cy="132" r="14"/><text class="pbadge-t" x="87" y="137">1</text>
+            </g>
+            <text x="87" y="272" text-anchor="middle" class="plbl">correa</text>
+            <!-- 2 · ventilador -->
+            <g class="part" data-part="ventilador" tabindex="0" role="button" aria-label="Ventilador">
+              <g class="hl" fill="none" stroke="var(--wire)" stroke-width="3">
+                <path d="M140 165 q22 8 0 34"/><path d="M120 178 q22 8 22 34" transform="translate(20,-10)"/>
+                <circle cx="140" cy="201" r="26"/>
+              </g>
+              <circle class="pbadge" cx="140" cy="132" r="14"/><text class="pbadge-t" x="140" y="137">2</text>
+            </g>
+            <!-- 3 · semi-carcasas (tapas) -->
+            <g class="part" data-part="carcasas" tabindex="0" role="button" aria-label="Semi-carcasas">
+              <rect class="hl shell" x="180" y="120" width="34" height="162" rx="8"/>
+              <rect class="hl shell" x="556" y="120" width="34" height="162" rx="8"/>
+              <circle class="pbadge" cx="197" cy="104" r="14"/><text class="pbadge-t" x="197" y="109">3</text>
+            </g>
+            <!-- 6 · estator (arriba y abajo del rotor) -->
+            <g class="part" data-part="estator" tabindex="0" role="button" aria-label="Estator">
+              <rect class="hl cu" x="238" y="132" width="240" height="26" rx="6"/>
+              <rect class="hl cu" x="238" y="244" width="240" height="26" rx="6"/>
+              <circle class="pbadge" cx="460" cy="120" r="14"/><text class="pbadge-t" x="460" y="125">6</text>
+            </g>
+            <!-- 4 · rotor -->
+            <g class="part" data-part="rotor" tabindex="0" role="button" aria-label="Rotor">
+              <rect class="hl metal" x="248" y="164" width="220" height="72" rx="10"/>
+              <path d="M262 164 l16 0 l-8 18 z M298 164 l16 0 l-8 18 z M334 164 l16 0 l-8 18 z M370 164 l16 0 l-8 18 z M406 164 l16 0 l-8 18 z M442 164 l16 0 l-8 18 z" fill="color-mix(in srgb,var(--bad) 30%,transparent)"/>
+              <circle class="pbadge" cx="358" cy="200" r="14"/><text class="pbadge-t" x="358" y="205">4</text>
+            </g>
+            <!-- 5 · anillos rozantes -->
+            <g class="part" data-part="anillos" tabindex="0" role="button" aria-label="Anillos rozantes">
+              <rect class="hl" x="486" y="188" width="12" height="26" rx="2" fill="var(--copper)"/>
+              <rect class="hl" x="502" y="188" width="12" height="26" rx="2" fill="var(--copper)"/>
+              <circle class="pbadge" cx="500" cy="168" r="14"/><text class="pbadge-t" x="500" y="173">5</text>
+            </g>
+            <!-- 10 · escobillas del alternador -->
+            <g class="part" data-part="escobillas" tabindex="0" role="button" aria-label="Escobillas">
+              <rect class="hl" x="490" y="222" width="24" height="16" rx="2" fill="var(--ink)" opacity=".72"/>
+              <circle class="pbadge" cx="500" cy="256" r="14"/><text class="pbadge-t" x="500" y="261">10</text>
+            </g>
+            <!-- 7 · puente rectificador (6 diodos) -->
+            <g class="part" data-part="rectificador" tabindex="0" role="button" aria-label="Puente rectificador">
+              <rect class="hl shell" x="612" y="132" width="70" height="96" rx="8"/>
+              <path d="M628 146 l16 0 l-8 13 z M652 146 l16 0 l-8 13 z M628 172 l16 0 l-8 13 z M652 172 l16 0 l-8 13 z M628 198 l16 0 l-8 13 z M652 198 l16 0 l-8 13 z" fill="var(--signal)"/>
+              <circle class="pbadge" cx="647" cy="118" r="14"/><text class="pbadge-t" x="647" y="123">7</text>
+            </g>
+            <!-- 8 · diodos de excitación (trío) -->
+            <g class="part" data-part="excitacion" tabindex="0" role="button" aria-label="Diodos de excitación">
+              <rect class="hl shell" x="612" y="244" width="70" height="36" rx="6"/>
+              <path d="M626 250 l14 0 l-7 12 z M645 250 l14 0 l-7 12 z M664 250 l14 0 l-7 12 z" fill="var(--copper)"/>
+              <circle class="pbadge" cx="647" cy="296" r="14"/><text class="pbadge-t" x="647" y="301">8</text>
+            </g>
+            <!-- 9 · regulador de tensión + portaescobillas -->
+            <g class="part" data-part="regulador" tabindex="0" role="button" aria-label="Regulador de tensión">
+              <rect class="hl sig" x="700" y="150" width="86" height="74" rx="9"/>
+              <text x="743" y="192" text-anchor="middle" class="dimtxt" fill="var(--signal)">~14 V</text>
+              <circle class="pbadge" cx="743" cy="136" r="14"/><text class="pbadge-t" x="743" y="141">9</text>
+            </g>
+            <!-- 11 · rodamientos -->
+            <g class="part" data-part="rodamientos" tabindex="0" role="button" aria-label="Rodamientos">
+              <circle class="hl" cx="197" cy="201" r="12" fill="none" stroke="var(--wire)" stroke-width="3" stroke-dasharray="3 4"/>
+              <circle class="hl" cx="573" cy="201" r="12" fill="none" stroke="var(--wire)" stroke-width="3" stroke-dasharray="3 4"/>
+              <circle class="pbadge" cx="197" cy="310" r="14"/><text class="pbadge-t" x="197" y="315">11</text>
+            </g>
+            <line x1="197" y1="213" x2="197" y2="296" class="wire" opacity=".4"/>
+            <!-- 12 · bornes B+ / D+ -->
+            <g class="part" data-part="bornes" tabindex="0" role="button" aria-label="Bornes B+ y D+">
+              <circle class="hl" cx="804" cy="150" r="9" fill="var(--spark)" stroke="none"/>
+              <circle class="hl" cx="804" cy="196" r="7" fill="var(--signal)" stroke="none"/>
+              <circle class="pbadge" cx="808" cy="120" r="14"/><text class="pbadge-t" x="808" y="125">12</text>
+            </g>
+            <text x="822" y="154" class="termt">B+</text>
+            <text x="822" y="200" class="termt" fill="var(--signal)">D+</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="xp-grid">
+        <div class="plist" aria-label="Lista de partes"></div>
+        <div class="callout xp-info"><span class="lab"><span class="xp-num">·</span> <span style="font-family:ui-monospace,Menlo,monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">parte</span></span>
+          <b class="xp-title">Tocá una parte</b>
+          <p class="xp-desc">Elegí una parte del diagrama o de la lista para ver qué es y qué función cumple.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout mem" style="margin-top:16px"><span class="lab">Para memorizar</span>
+      <p><b>Rotor</b> (campo que gira, 12 polos) recibe excitación por los <b>anillos rozantes</b> → induce <b>CA trifásica</b> en el <b>estator</b> → los <b>6 diodos</b> del puente la rectifican a CC (borne <b>B+</b>). El <b>regulador</b> la clava en ~14 V; el <b>trío</b> de diodos realimenta el rotor (<b>D+</b>).</p></div>
+  </section>
+
+  <!-- 03 · DISTRIBUIDOR -->
+  <section class="block reveal" id="distribuidor">
+    <div class="kicker"><span class="num">03</span><span class="rule"></span></div>
+    <h2 class="sec display">Distribuidor de encendido <span class="spark">por dentro</span></h2>
+    <p class="lead">El "delco": hace <b>dos trabajos</b>. Abajo, con la <b>leva</b> y los <b>platinos</b>, interrumpe el primario de la bobina para generar la chispa; arriba, con <b>tapa</b> y <b>rotor</b>, reparte la alta tensión a cada bujía. Suma dos avances automáticos (centrífugo y por vacío).</p>
+
+    <div class="explorer" data-explorer="distribuidor">
+      <div class="schematic" style="margin-top:18px">
+        <div class="cap"><span class="led"></span><b>Corte del distribuidor</b><span class="mono">despiece</span></div>
+        <div class="body">
+          <svg viewBox="0 0 480 480" role="img" aria-label="Corte esquemático del distribuidor con sus partes numeradas">
+            <!-- eje central -->
+            <!-- 9 · eje -->
+            <g class="part" data-part="eje" tabindex="0" role="button" aria-label="Eje">
+              <rect class="hl metal" x="234" y="150" width="14" height="260" rx="6"/>
+              <circle class="pbadge" cx="241" cy="392" r="14"/><text class="pbadge-t" x="241" y="397">9</text>
+            </g>
+            <!-- 1 · tapa del distribuidor -->
+            <g class="part" data-part="tapa" tabindex="0" role="button" aria-label="Tapa del distribuidor">
+              <path class="hl shell" d="M120 128 a121 78 0 0 1 242 0 z"/>
+              <rect x="234" y="42" width="14" height="20" rx="3" class="cu"/>
+              <rect x="140" y="66" width="10" height="16" rx="2" class="cu"/>
+              <rect x="182" y="52" width="10" height="16" rx="2" class="cu"/>
+              <rect x="290" y="52" width="10" height="16" rx="2" class="cu"/>
+              <rect x="332" y="66" width="10" height="16" rx="2" class="cu"/>
+              <circle class="pbadge" cx="150" cy="118" r="14"/><text class="pbadge-t" x="150" y="123">1</text>
+            </g>
+            <text x="241" y="36" text-anchor="middle" class="termt">AT central</text>
+            <!-- 2 · rotor (dedo distribuidor) -->
+            <g class="part" data-part="rotor" tabindex="0" role="button" aria-label="Rotor o dedo distribuidor">
+              <path class="hl" d="M232 150 h16 v-8 h70 v14 h-70 v-8" fill="color-mix(in srgb,var(--copper) 30%,var(--panel))" stroke="var(--copper)" stroke-width="1.6"/>
+              <circle class="pbadge" cx="300" cy="132" r="14"/><text class="pbadge-t" x="300" y="137">2</text>
+            </g>
+            <!-- cuerpo del distribuidor -->
+            <rect x="150" y="158" width="182" height="212" rx="14" fill="var(--panel2)" stroke="var(--line2)" stroke-width="1.4"/>
+            <!-- 6 · placa ruptora -->
+            <g class="part" data-part="placa" tabindex="0" role="button" aria-label="Placa ruptora">
+              <ellipse class="hl metal" cx="241" cy="250" rx="82" ry="14"/>
+              <circle class="pbadge" cx="180" cy="250" r="14"/><text class="pbadge-t" x="180" y="255">6</text>
+            </g>
+            <!-- 3 · leva -->
+            <g class="part" data-part="leva" tabindex="0" role="button" aria-label="Leva">
+              <path class="hl" d="M241 196 q22 6 16 24 q18 8 0 26 q-6 20 -32 12 q-20 8 -24 -14 q-16 -12 4 -26 q6 -22 36 -22 z" fill="color-mix(in srgb,var(--wire) 30%,var(--panel))" stroke="var(--wire)" stroke-width="1.6"/>
+              <circle class="pbadge" cx="241" cy="222" r="14"/><text class="pbadge-t" x="241" y="227">3</text>
+            </g>
+            <!-- 4 · platinos -->
+            <g class="part" data-part="platinos" tabindex="0" role="button" aria-label="Platinos">
+              <line class="hl" x1="286" y1="214" x2="308" y2="214" stroke="var(--ink)" stroke-width="4"/>
+              <line class="hl" x1="286" y1="230" x2="308" y2="230" stroke="var(--ink)" stroke-width="4"/>
+              <circle cx="300" cy="214" r="3" fill="var(--spark)"/><circle cx="300" cy="230" r="3" fill="var(--spark)"/>
+              <circle class="pbadge" cx="330" cy="214" r="14"/><text class="pbadge-t" x="330" y="219">4</text>
+            </g>
+            <!-- 5 · condensador -->
+            <g class="part" data-part="condensador" tabindex="0" role="button" aria-label="Condensador">
+              <rect class="hl metal" x="352" y="196" width="58" height="26" rx="8"/>
+              <line x1="332" y1="222" x2="352" y2="214" class="wire"/>
+              <circle class="pbadge" cx="381" cy="180" r="14"/><text class="pbadge-t" x="381" y="185">5</text>
+            </g>
+            <!-- 8 · cápsula de avance por vacío -->
+            <g class="part" data-part="vacio" tabindex="0" role="button" aria-label="Cápsula de avance por vacío">
+              <ellipse class="hl shell" cx="86" cy="250" rx="42" ry="30"/>
+              <line x1="86" y1="234" x2="86" y2="266" class="corebar"/>
+              <line class="wire" x1="128" y1="250" x2="159" y2="250"/>
+              <path class="wire" d="M44 250 q-16 0 -16 16" opacity=".6"/>
+              <circle class="pbadge" cx="86" cy="212" r="14"/><text class="pbadge-t" x="86" y="217">8</text>
+            </g>
+            <text x="86" y="292" text-anchor="middle" class="plbl">→ al múltiple</text>
+            <!-- 7 · avance centrífugo -->
+            <g class="part" data-part="centrifugo" tabindex="0" role="button" aria-label="Avance centrífugo">
+              <path class="hl" d="M198 316 a34 34 0 0 1 34 -14" fill="none" stroke="var(--wire)" stroke-width="6" stroke-linecap="round"/>
+              <path class="hl" d="M284 316 a34 34 0 0 0 -34 -14" fill="none" stroke="var(--wire)" stroke-width="6" stroke-linecap="round"/>
+              <circle cx="198" cy="316" r="9" class="metal"/><circle cx="284" cy="316" r="9" class="metal"/>
+              <path d="M232 302 q-8 6 -18 8 M250 302 q8 6 18 8" fill="none" stroke="var(--copper)" stroke-width="1.6"/>
+              <circle class="pbadge" cx="241" cy="340" r="14"/><text class="pbadge-t" x="241" y="345">7</text>
+            </g>
+            <text x="241" y="368" text-anchor="middle" class="plbl">contrapesos + resortes</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="xp-grid">
+        <div class="plist" aria-label="Lista de partes"></div>
+        <div class="callout xp-info"><span class="lab"><span class="xp-num">·</span> <span style="font-family:ui-monospace,Menlo,monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">parte</span></span>
+          <b class="xp-title">Tocá una parte</b>
+          <p class="xp-desc">Elegí una parte del diagrama o de la lista para ver qué es y qué función cumple.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout mem" style="margin-top:16px"><span class="lab">Para memorizar</span>
+      <p>La <b>leva</b> (tantos vértices como cilindros) abre los <b>platinos</b> → se corta el primario y nace la chispa; el <b>condensador</b> evita que los contactos se quemen. El <b>rotor</b> bajo la <b>tapa</b> reparte la alta a cada bujía. <b>Avance centrífugo</b> = por RPM; <b>avance por vacío</b> = por carga.</p></div>
+  </section>
+
+  <!-- 04 · BOBINA DE IGNICIÓN -->
+  <section class="block reveal" id="bobina">
+    <div class="kicker"><span class="num">04</span><span class="rule"></span></div>
+    <h2 class="sec display">Bobina de ignición <span class="spark">por dentro</span></h2>
+    <p class="lead">Es un <b>autotransformador</b>: convierte los 12 V de la batería en los <b>15.000–25.000 V</b> que necesita la bujía. Pocas vueltas gruesas en el primario, muchísimas finas en el secundario, sobre un núcleo de hierro laminado.</p>
+
+    <div class="explorer" data-explorer="bobina">
+      <div class="schematic" style="margin-top:18px">
+        <div class="cap"><span class="led"></span><b>Corte de la bobina</b><span class="mono">≈ 1:100</span></div>
+        <div class="body">
+          <svg viewBox="0 0 360 380" role="img" aria-label="Corte esquemático de la bobina de encendido con sus partes numeradas">
+            <!-- 5 · carcasa / baño de aceite (fondo) -->
+            <g class="part" data-part="bano" tabindex="0" role="button" aria-label="Baño de aceite o resina">
+              <rect class="hl shell" x="96" y="74" width="150" height="272" rx="16"/>
+              <circle class="pbadge" cx="118" cy="322" r="14"/><text class="pbadge-t" x="118" y="327">5</text>
+            </g>
+            <!-- 3 · núcleo laminado -->
+            <g class="part" data-part="nucleo" tabindex="0" role="button" aria-label="Núcleo de hierro laminado">
+              <rect class="hl metal" x="161" y="104" width="20" height="216" rx="4"/>
+              <line x1="166" y1="104" x2="166" y2="320" class="corebar"/><line x1="171" y1="104" x2="171" y2="320" class="corebar"/><line x1="176" y1="104" x2="176" y2="320" class="corebar"/>
+              <circle class="pbadge" cx="171" cy="338" r="14"/><text class="pbadge-t" x="171" y="343">3</text>
+            </g>
+            <!-- 2 · secundario (muchas vueltas finas) -->
+            <g class="part" data-part="secundario" tabindex="0" role="button" aria-label="Bobinado secundario">
+              <rect class="hl cu" x="126" y="112" width="30" height="200" rx="5"/>
+              <g class="hatchL"><line x1="126" y1="120" x2="156" y2="120"/><line x1="126" y1="128" x2="156" y2="128"/><line x1="126" y1="136" x2="156" y2="136"/><line x1="126" y1="144" x2="156" y2="144"/><line x1="126" y1="152" x2="156" y2="152"/><line x1="126" y1="160" x2="156" y2="160"/><line x1="126" y1="168" x2="156" y2="168"/><line x1="126" y1="176" x2="156" y2="176"/><line x1="126" y1="184" x2="156" y2="184"/><line x1="126" y1="192" x2="156" y2="192"/><line x1="126" y1="200" x2="156" y2="200"/><line x1="126" y1="208" x2="156" y2="208"/><line x1="126" y1="216" x2="156" y2="216"/><line x1="126" y1="224" x2="156" y2="224"/><line x1="126" y1="232" x2="156" y2="232"/><line x1="126" y1="240" x2="156" y2="240"/><line x1="126" y1="248" x2="156" y2="248"/><line x1="126" y1="256" x2="156" y2="256"/><line x1="126" y1="264" x2="156" y2="264"/><line x1="126" y1="272" x2="156" y2="272"/><line x1="126" y1="280" x2="156" y2="280"/><line x1="126" y1="288" x2="156" y2="288"/><line x1="126" y1="296" x2="156" y2="296"/><line x1="126" y1="304" x2="156" y2="304"/></g>
+              <circle class="pbadge" cx="118" cy="150" r="14"/><text class="pbadge-t" x="118" y="155">2</text>
+            </g>
+            <!-- 1 · primario (pocas vueltas gruesas) -->
+            <g class="part" data-part="primario" tabindex="0" role="button" aria-label="Bobinado primario">
+              <rect class="hl" x="186" y="130" width="34" height="164" rx="6" fill="color-mix(in srgb,var(--spark) 20%,var(--panel))" stroke="var(--spark)" stroke-width="1.6"/>
+              <g stroke="var(--spark)" stroke-width="3" opacity=".8"><line x1="186" y1="146" x2="220" y2="146"/><line x1="186" y1="170" x2="220" y2="170"/><line x1="186" y1="194" x2="220" y2="194"/><line x1="186" y1="218" x2="220" y2="218"/><line x1="186" y1="242" x2="220" y2="242"/><line x1="186" y1="266" x2="220" y2="266"/></g>
+              <circle class="pbadge" cx="228" cy="150" r="14"/><text class="pbadge-t" x="228" y="155">1</text>
+            </g>
+            <!-- 4 · borne de alta tensión -->
+            <g class="part" data-part="at" tabindex="0" role="button" aria-label="Borne de alta tensión">
+              <rect class="hl cu" x="163" y="48" width="16" height="30" rx="4"/>
+              <circle class="pbadge" cx="200" cy="56" r="14"/><text class="pbadge-t" x="200" y="61">4</text>
+            </g>
+            <!-- bornes de baja: 15 (+) y 1 (-) -->
+            <rect x="120" y="60" width="12" height="18" rx="3" class="metal"/>
+            <rect x="210" y="60" width="12" height="18" rx="3" class="metal"/>
+            <text x="126" y="52" text-anchor="middle" class="termt">15</text>
+            <text x="216" y="52" text-anchor="middle" class="termt">1</text>
+            <text x="171" y="44" text-anchor="middle" class="termt">AT →</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="xp-grid">
+        <div class="plist" aria-label="Lista de partes"></div>
+        <div class="callout xp-info"><span class="lab"><span class="xp-num">·</span> <span style="font-family:ui-monospace,Menlo,monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">parte</span></span>
+          <b class="xp-title">Tocá una parte</b>
+          <p class="xp-desc">Elegí una parte del diagrama o de la lista para ver qué es y qué función cumple.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout mem" style="margin-top:16px"><span class="lab">Para memorizar</span>
+      <p><b>Primario</b>: pocas vueltas gruesas (150–250) → crea el campo. Al cortarse, el campo colapsa e induce en el <b>secundario</b> (15.000–25.000 vueltas finas) la alta tensión que sale por el <b>borne AT</b>. El <b>núcleo laminado</b> evita corrientes parásitas; el <b>baño de aceite/resina</b> aísla y refrigera.</p></div>
+  </section>
+
+  <section class="block reveal">
+    <div class="kicker"><span class="num">05</span><span class="rule"></span></div>
+    <h2 class="sec display">Seguir estudiando</h2>
+    <div class="qa" style="margin-top:16px">
+      <a href="arranque-alternador.html"><span class="pn">→</span><span class="qt">Arranque y alternador · cómo funciona (solenoide en 3 fases, trifásica, rectificación)</span><span class="ar">↗</span></a>
+      <a href="encendido.html"><span class="pn">→</span><span class="qt">Sistema de encendido · los dos circuitos, dwell y avance</span><span class="ar">↗</span></a>
+      <a href="../test-electricidad.html"><span class="pn">⚡</span><span class="qt">Practicar en el test las partes y valores</span><span class="ar">↗</span></a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site"><div class="wrap" style="padding-bottom:0">
+  <div class="footrow">
+    <span>ITCA · Electricidad Automotriz — material de estudio. Español rioplatense.</span>
+    <a class="navlink" href="../test-electricidad.html">Practicar en el test ⚡</a>
+  </div>
+</div></footer>
+
+<script src="guia.js"></script>
+<script>
+/* ===== Datos de las partes (notas propias) ===== */
+var PARTS = {
+  arranque: {
+    solenoide:{n:1,name:"Solenoide (mando magnético)",desc:"Hace <b>dos trabajos a la vez</b>: empuja el piñón para que engrane con la corona y cierra el <b>contacto principal</b> que deja pasar los 120–400 A al motor. Es un electroimán con dos bobinas sobre un mismo núcleo."},
+    bobinas:{n:2,name:"Bobinas de activación y retención",desc:"La de <b>activación (llamado)</b> es fuerte y atrae el émbolo desde cero; la de <b>retención</b> es más débil y solo lo mantiene adentro. Al arrancar tiran las dos; con el contacto cerrado queda solo la de retención (menos corriente y calor)."},
+    embolo:{n:3,name:"Émbolo (núcleo móvil)",desc:"Es el núcleo que las bobinas atraen. Al desplazarse mueve la horquilla (que empuja el piñón) y cierra el contacto principal. Un resorte lo devuelve al soltar la llave."},
+    contacto:{n:4,name:"Contacto principal · bornes 30 y 50",desc:"La corriente de mando entra por el <b>terminal 50</b> (llave en START). Al cerrarse, el contacto une el <b>borne 30</b> (positivo de batería) con el motor y habilita la corriente fuerte."},
+    resorte:{n:5,name:"Resorte de retorno",desc:"Cuando se cancela la fuerza magnética (llave a IGN), empuja el émbolo de vuelta: abre el contacto principal y retrae el piñón."},
+    horquilla:{n:6,name:"Horquilla",desc:"Palanca que une el émbolo del solenoide con el impulsor. Traduce el movimiento del émbolo en el empuje del piñón hacia la corona (y su retroceso)."},
+    inductor:{n:7,name:"Inductor (bobinas inductoras + masas polares)",desc:"Parte <b>fija</b> que crea el campo magnético, por excitación eléctrica o por imanes permanentes. Al ser un motor <b>serie</b>, da par máximo justo al arrancar, cuando el inducido está casi quieto."},
+    inducido:{n:8,name:"Inducido / rotor",desc:"Parte <b>giratoria</b>: bobinado sobre el eje que, dentro del campo, gira y entrega el par. Puede alcanzar hasta <b>30.000 rpm</b>."},
+    colector:{n:9,name:"Colector",desc:"Anillo de <b>delgas de cobre</b> sobre el eje del inducido. Conmuta la corriente en cada vuelta para que el par no se invierta y el giro no se detenga."},
+    escobillas:{n:10,name:"Escobillas y portaescobillas",desc:"De polvo <b>sinterizado</b> (carbono + cobre). Rozan el colector y le llevan la corriente al inducido. Gastadas → el arranque no gira."},
+    impulsor:{n:11,name:"Impulsor / Bendix (piñón)",desc:"Piñón de <b>estriado helicoidal</b> con pocos dientes. Engrana con la corona del volante y multiplica la fuerza (relación <b>15:1 a 20:1</b>). Primero engrana, después gira. Puede llevar reductor."},
+    ruedalibre:{n:12,name:"Rueda libre (embrague)",desc:"Embrague de rodillos que transmite el giro en <b>un solo sentido</b>. Cuando el motor arranca, desacopla el piñón para que la corona no acelere al arranque y lo destruya (36.000 rpm)."}
+  },
+  alternador: {
+    polea:{n:1,name:"Polea de arrastre",desc:"La correa multibanda del cigüeñal la hace girar, y con ella al rotor. Algunas llevan <b>embrague unidireccional</b> para descargar la correa."},
+    ventilador:{n:2,name:"Ventilador",desc:"Enfría el conjunto (sobre todo los diodos y bobinados). Interno o externo, de chapa galvanizada; suele haber uno a cada lado del rotor."},
+    carcasas:{n:3,name:"Semi-carcasas",desc:"Las dos tapas que <b>soportan todos los elementos</b>, alojan los rodamientos y fijan el alternador al block del motor."},
+    rotor:{n:4,name:"Rotor",desc:"Imán giratorio: bobina sobre <b>6 pares de polos (12 polos)</b>. Es el <b>campo que gira</b> (a diferencia del dínamo). Recibe la corriente de excitación por los anillos rozantes y lleva ventiladores a ambos lados."},
+    anillos:{n:5,name:"Anillos rozantes",desc:"Dos anillos en el eje del rotor; por ellos (vía las escobillas) entra la <b>corriente de excitación</b> al bobinado del rotor."},
+    estator:{n:6,name:"Estator",desc:"Elemento <b>fijo</b> entre las carcasas: <b>3 pares de bobinas a 120°</b> unidas en el <b>punto neutro</b>. Ahí se induce la <b>CA trifásica</b>. Resistencia fase-fase ≈ 0,138 Ω."},
+    rectificador:{n:7,name:"Puente rectificador",desc:"<b>6 diodos de potencia</b> (3 positivos + 3 negativos, dos por fase). Convierten la CA trifásica en CC de <b>onda completa</b> y la entregan al borne <b>B+</b>. A veces 2 diodos extra para el punto neutro."},
+    excitacion:{n:8,name:"Diodos de excitación (trío)",desc:"Derivan corriente para alimentar el <b>propio rotor</b> (autoexcitación) y salen por el borne <b>D+</b> (hasta ~1 A). Son los que apagan la lámpara testigo cuando el alternador ya genera."},
+    regulador:{n:9,name:"Regulador de tensión",desc:"Mantiene la salida en <b>~14 V</b> sin importar RPM ni carga, regulando la corriente de excitación con juego <b>ON/OFF</b>. Compensa por temperatura. Hoy integra el portaescobillas."},
+    escobillas:{n:10,name:"Escobillas",desc:"Rozan los anillos rozantes del rotor y le llevan la <b>corriente de excitación</b>. Resistencia esperada &lt; 1 Ω."},
+    rodamientos:{n:11,name:"Rodamientos",desc:"Dos, uno por soporte. Permiten que el rotor gire con bajo rozamiento a alta velocidad. Gastados → ruido y vibración."},
+    bornes:{n:12,name:"Bornes B+ / D+",desc:"<b>B+</b>: salida de potencia (60–120 A) a la batería y a todos los consumos. <b>D+</b>: señal de excitación / lámpara testigo de carga."}
+  },
+  distribuidor: {
+    tapa:{n:1,name:"Tapa del distribuidor",desc:"Reparte la <b>alta tensión</b>: el rotor pasa frente al contacto de cada bujía en el orden de encendido. Tiene una <b>torre central</b> (entra la AT de la bobina) y una por cilindro."},
+    rotor:{n:2,name:"Rotor (dedo distribuidor)",desc:"Gira con el eje y lleva la alta tensión desde el centro de la tapa hacia el contacto de la <b>bujía que corresponde</b> en ese instante."},
+    leva:{n:3,name:"Leva",desc:"Tiene <b>tantos vértices como cilindros</b>. Al girar, abre los platinos en el momento justo de cada chispa."},
+    platinos:{n:4,name:"Platinos (contactos ruptores)",desc:"De <b>tungsteno</b>. Cerrados, cargan el primario de la bobina; al abrirse (los abre la leva) cortan la corriente y nace la alta tensión. La <b>luz de platinos</b> se calibra moviendo el contacto fijo (nunca el móvil)."},
+    condensador:{n:5,name:"Condensador",desc:"En <b>paralelo</b> con los platinos. Absorbe la corriente de <b>extra-ruptura</b> al abrirse los contactos para que no se quemen (evita el chisporroteo). Mal calibrado → cráteres en los contactos."},
+    placa:{n:6,name:"Placa ruptora",desc:"Placa donde se montan los platinos y el condensador. Se desplaza un poco para el <b>avance por vacío</b>."},
+    centrifugo:{n:7,name:"Avance centrífugo",desc:"<b>Contrapesos + resortes</b> bajo la placa. Al subir las RPM, la fuerza centrífuga los abre y <b>adelanta</b> la chispa; al bajar, los resortes la retrasan. Depende de las <b>RPM</b>."},
+    vacio:{n:8,name:"Cápsula de avance por vacío",desc:"Cápsula con <b>diafragma y resorte</b> conectada al múltiple de admisión. El vacío mueve la placa ruptora y adelanta la chispa según la <b>carga</b> del motor (apertura parcial de la mariposa)."},
+    eje:{n:9,name:"Eje",desc:"Movido por el motor (media vuelta por cada vuelta del cigüeñal, en 4T). Arrastra la leva, el rotor y el mecanismo de avance centrífugo."}
+  },
+  bobina: {
+    primario:{n:1,name:"Bobinado primario",desc:"<b>150–250 vueltas</b> de alambre grueso (~0,7 mm). Cuando los platinos cierran, por él circula corriente y se crea el campo magnético. Bornes de baja: <b>15 (+)</b> y <b>1 (−)</b>."},
+    secundario:{n:2,name:"Bobinado secundario",desc:"<b>15.000–25.000 vueltas</b> de alambre finísimo (~0,04 mm). Al cortarse el primario, el campo colapsa e induce aquí la <b>alta tensión</b> (15–25 kV). La relación de vueltas es ≈ 1:100."},
+    nucleo:{n:3,name:"Núcleo de hierro laminado",desc:"Concentra el campo magnético. Es <b>laminado</b> para evitar las <b>corrientes parásitas</b> (Foucault), que lo calentarían y le harían perder eficiencia."},
+    at:{n:4,name:"Borne de alta tensión (AT)",desc:"Salida central: lleva la alta tensión al centro de la tapa del distribuidor (o directo a la bujía en las bobinas modernas)."},
+    bano:{n:5,name:"Baño de aceite / resina",desc:"Rellena la carcasa para <b>aislar</b> los bobinados y <b>refrigerar</b>. Las clásicas usan baño de aceite; las modernas, resina."}
+  }
+};
+
+/* ===== Explorador genérico ===== */
+(function(){
+  function initExplorer(root){
+    var key=root.getAttribute('data-explorer'), data=PARTS[key];
+    if(!data) return;
+    var parts=root.querySelectorAll('.part'), list=root.querySelector('.plist');
+    var numEl=root.querySelector('.xp-num'), titEl=root.querySelector('.xp-title'), descEl=root.querySelector('.xp-desc');
+
+    // construir la lista de chips desde los datos (orden = orden de declaración)
+    Object.keys(data).forEach(function(id){
+      var d=data[id];
+      var b=document.createElement('button');
+      b.type='button'; b.className='chip-part part-chip'; b.setAttribute('data-part',id);
+      b.innerHTML='<span class="cn">'+d.n+'</span>'+d.name;
+      list.appendChild(b);
+    });
+    var chips=list.querySelectorAll('.chip-part');
+
+    function activate(id){
+      var d=data[id]; if(!d) return;
+      parts.forEach(function(p){ p.classList.toggle('active', p.getAttribute('data-part')===id); });
+      chips.forEach(function(c){ c.classList.toggle('on', c.getAttribute('data-part')===id); });
+      root.classList.add('has-active');
+      numEl.textContent=d.n; titEl.textContent=d.name; descEl.innerHTML=d.desc;
+    }
+    function bind(el){
+      var id=el.getAttribute('data-part');
+      el.addEventListener('click', function(){ activate(id); });
+      el.addEventListener('mouseenter', function(){ activate(id); });
+      el.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); activate(id); } });
+    }
+    parts.forEach(bind);
+    chips.forEach(bind);
+  }
+  document.querySelectorAll('.explorer').forEach(initExplorer);
+})();
+</script>
+</body>
+</html>

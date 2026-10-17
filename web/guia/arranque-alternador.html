@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motor de Arranque y Alternador · Guía Visual ITCA</title>
+<link rel="stylesheet" href="guia.css">
+<style>
+/* --- estilos específicos de esta página --- */
+/* Bobinados del solenoide */
+.coil{fill:none;stroke:var(--copper);stroke-width:4.5;stroke-linecap:round;opacity:.32;transition:opacity .35s,stroke .35s,filter .35s}
+.coil.live{opacity:1;stroke:var(--spark);filter:drop-shadow(0 0 3px color-mix(in srgb,var(--spark) 55%,transparent))}
+.plungerG{transition:transform .55s cubic-bezier(.34,1.25,.4,1)}
+.mainbar{fill:var(--copper);transition:fill .3s,filter .3s}
+.mainbar.closed{fill:var(--spark);filter:drop-shadow(0 0 4px color-mix(in srgb,var(--spark) 60%,transparent))}
+.motorflow{opacity:0;transition:opacity .3s}
+.motorflow.on{opacity:1}
+.flow-slow{stroke-dasharray:5 9;animation:flow 2.4s linear infinite}
+.spinbar{transition:opacity .3s}
+.statepill{font-family:ui-monospace,Menlo,monospace;font-size:.78rem;padding:4px 10px;border-radius:8px;
+  background:var(--bg2);border:1px solid var(--line);color:var(--muted)}
+.statepill.act{background:var(--spark);color:#2a1c00;border-color:transparent;font-weight:700}
+/* Engranajes */
+.gear{fill:none;stroke:var(--wire);stroke-width:9;stroke-linecap:butt}
+.gearbody{fill:color-mix(in srgb,var(--wire) 20%,transparent);stroke:var(--wire);stroke-width:1.5}
+/* Alternador trifásico */
+.statcoil{fill:none;stroke-width:8;stroke-linecap:round;opacity:.85}
+.readout-big{font-family:ui-monospace,Menlo,monospace;font-size:1.3rem;font-weight:700;transition:color .2s}
+.dot3{transition:none}
+/* Lámpara testigo */
+.bulb{transition:fill .25s,filter .3s}
+.bulbglow{transition:opacity .3s}
+.lampwire{opacity:0;transition:opacity .3s}
+.lampwire.on{opacity:1}
+.parts-legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:12px;font-size:.85rem;color:var(--muted)}
+.parts-legend span{display:inline-flex;align-items:center;gap:7px}
+.swatch{width:14px;height:4px;border-radius:2px;display:inline-block}
+.term{font-family:ui-monospace,Menlo,monospace;font-size:11px;fill:var(--copper)}
+</style>
+</head>
+<body>
+<div class="readbar" id="readbar"></div>
+
+<header class="site">
+  <div class="hbar">
+    <a class="logo" href="index.html" aria-label="Inicio"><img src="logo.png" alt="ITCA"></a>
+    <div class="brand"><b>Arranque y <span class="spark">alternador</span></b><span>Guía visual · 1ª parte</span></div>
+    <div class="grow"></div>
+    <a class="navlink" href="index.html">← Índice</a>
+    <a class="navlink" href="../test-electricidad.html">Test ⚡</a>
+    <button class="iconbtn" onclick="toggleTheme()" aria-label="Cambiar tema"><span id="themeIcon">🌙</span></button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero reveal">
+    <span class="eyebrow"><span class="dot"></span> Arranque · Alternador · Carga</span>
+    <h1 class="big display">De <span class="spark">400&nbsp;A</span> para arrancar a <span class="spark">14&nbsp;V</span> de carga</h1>
+    <p class="sub">El motor de arranque le da el primer envión al cigüeñal con cientos de amperes; después el alternador genera la corriente de todo el auto y recarga la batería. Solenoide en 3 fases, corriente alterna trifásica, puente de diodos, autoexcitación y regulación — con esquemas que se mueven.</p>
+    <div class="metastrip">
+      <span class="chip">🔋 Arranque tira <b>120–400&nbsp;A</b></span>
+      <span class="chip">🔄 Alternador carga <b>13,5–14,5&nbsp;V</b></span>
+      <span class="chip">🕹️ <b>5</b> esquemas interactivos</span>
+    </div>
+  </section>
+
+  <!-- 01 · MOTOR DE ARRANQUE -->
+  <section class="block reveal" id="arranque">
+    <div class="kicker"><span class="num">01</span><span class="rule"></span></div>
+    <h2 class="sec display">Motor de arranque: <span class="spark">par máximo</span> desde cero</h2>
+    <p class="lead">Su finalidad es dar el <b>primer impulso al cigüeñal</b> para iniciar el ciclo del motor. Es un motor eléctrico de corriente continua de <b>~2&nbsp;CV / 12&nbsp;V</b> que consume muchísima corriente (<b>120–400&nbsp;A</b>): por eso no se lo acciona en exceso, descarga la batería en minutos.</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Motor serie DC · par vs. velocidad</b><span class="mono">principio</span></div>
+      <div class="body">
+        <svg viewBox="0 0 760 260" role="img" aria-label="Curva de par y corriente del motor serie de corriente continua">
+          <!-- ejes -->
+          <line x1="70" y1="30" x2="70" y2="210" class="wire"/>
+          <line x1="70" y1="210" x2="710" y2="210" class="wire"/>
+          <text x="70" y="24" text-anchor="middle" class="lbl">par / corriente</text>
+          <text x="710" y="234" text-anchor="end" class="lbl">velocidad (rpm) →</text>
+          <!-- par: cae con la velocidad -->
+          <path d="M70 44 C 240 70, 420 175, 700 202" fill="none" stroke="var(--spark)" stroke-width="3"/>
+          <text x="120" y="64" class="lbl" fill="var(--spark)">PAR</text>
+          <!-- corriente: alta al inicio, baja al girar -->
+          <path d="M70 58 C 250 96, 470 185, 700 200" fill="none" stroke="var(--copper)" stroke-width="2.4" stroke-dasharray="5 5"/>
+          <text x="120" y="96" class="lbl" fill="var(--copper)">CORRIENTE</text>
+          <!-- marca arranque -->
+          <circle cx="70" cy="44" r="5" class="hot"/>
+          <text x="86" y="40" class="lbl-strong" font-size="12">par máximo · ~400 A</text>
+          <!-- FCEM -->
+          <line x1="470" y1="30" x2="470" y2="210" stroke="var(--signal)" stroke-width="1.4" stroke-dasharray="3 5"/>
+          <text x="482" y="46" class="lbl" fill="var(--signal)">al girar aparece la</text>
+          <text x="482" y="62" class="lbl" fill="var(--signal)">fuerza contraelectromotriz</text>
+          <text x="482" y="78" class="lbl" fill="var(--signal)">→ baja la corriente y el par</text>
+        </svg>
+        <div class="parts-legend">
+          <span><i class="swatch" style="background:var(--spark)"></i> Par motor</span>
+          <span><i class="swatch" style="background:var(--copper)"></i> Corriente absorbida</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout tip"><span class="lab">💡 Por qué el par es máximo al arrancar</span>
+      <p>Es un <b>motor serie</b>: en el instante del arranque el inducido está casi quieto, la resistencia es muy baja y circula una corriente enorme → <b>par máximo justo al inicio</b>, cuando más se lo necesita para vencer la compresión. Al tomar velocidad, el inducido genera una <b>fuerza contraelectromotriz</b> que se opone a la batería, la corriente cae y el par baja. El inducido puede llegar a <b>30.000&nbsp;rpm</b>.</p></div>
+
+    <h3 class="sub3">Los tres conjuntos</h3>
+    <div class="grid g3" style="margin-top:6px">
+      <div class="card"><span class="ic">🧲</span><span class="tag">mando magnético</span><h4>Solenoide</h4><p>Enciende/apaga el motor y engrana/desengrana el piñón. Dos bobinas (activación + retención) mueven un émbolo. <a href="#solenoide" style="color:var(--signal)">Ver 3 fases ↓</a></p></div>
+      <div class="card"><span class="ic">⚙️</span><span class="tag">campo + inducido</span><h4>Motor propiamente dicho</h4><p>Bobinas inductoras y masas polares (o imanes permanentes) crean el campo; el <b>inducido/rotor</b> (bobinado + colector de cobre) gira; las <b>escobillas</b> sinterizadas llevan la corriente al colector.</p></div>
+      <div class="card"><span class="ic">🔩</span><span class="tag">Bendix</span><h4>Impulsor / piñón</h4><p>Piñón de estriado helicoidal con pocos dientes; puede llevar <b>reductor</b> para aumentar el par cuando la potencia supera 1&nbsp;kW. <a href="#pinion" style="color:var(--signal)">Ver relación ↓</a></p></div>
+    </div>
+
+    <div class="callout mem"><span class="lab">Para memorizar</span>
+      <p>Motor <b>serie DC</b> → <b>par máximo al inicio</b>, corriente enorme (120–400&nbsp;A). Al girar, la <b>fuerza contraelectromotriz</b> reduce corriente y par. Relación piñón/corona <b>15:1 a 20:1</b>.</p></div>
+  </section>
+
+  <!-- 02 · SOLENOIDE 3 FASES -->
+  <section class="block reveal" id="solenoide">
+    <div class="kicker"><span class="num">02</span><span class="rule"></span></div>
+    <h2 class="sec display">El solenoide y sus <span class="spark">3 fases</span></h2>
+    <p class="lead">El solenoide hace <b>dos trabajos a la vez</b>: empuja el piñón contra la corona y cierra el contacto principal que deja pasar los cientos de amperes al motor. Lo logra con <b>dos bobinas</b> sobre el mismo émbolo. Recorré las fases:</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Solenoide de arranque</b><span class="mono" id="solState">activación</span></div>
+      <div class="body">
+        <svg viewBox="0 0 780 340" role="img" aria-label="Solenoide del motor de arranque en sus tres fases">
+          <!-- batería -->
+          <rect x="24" y="238" width="52" height="66" rx="7" class="node"/>
+          <text x="50" y="268" text-anchor="middle" class="lbl-strong" font-size="12">12V</text>
+          <text x="50" y="322" text-anchor="middle" class="lbl">batería</text>
+          <!-- llave START -->
+          <circle cx="46" cy="70" r="4" class="node"/>
+          <line x1="46" y1="70" x2="70" y2="56" class="wire"/>
+          <circle cx="74" cy="54" r="4" class="node"/>
+          <text x="48" y="44" class="lbl">llave · START</text>
+          <!-- terminal 50 hacia bobinas -->
+          <path class="wire flow" d="M78 54 H150 V150 H232"/>
+          <text x="150" y="140" class="term">50</text>
+          <!-- carcasa solenoide -->
+          <rect x="228" y="112" width="168" height="150" rx="12" fill="none" stroke="var(--line2)" stroke-width="1.4" stroke-dasharray="4 4"/>
+          <text x="312" y="106" text-anchor="middle" class="lbl">SOLENOIDE</text>
+          <!-- bobina activación (arriba) -->
+          <path id="coilAct" class="coil live" d="M244 132 q16 -12 0 -24 M262 132 q16 -12 0 -24 M280 132 q16 -12 0 -24 M298 132 q16 -12 0 -24 M316 132 q16 -12 0 -24 M334 132 q16 -12 0 -24 M352 132 q16 -12 0 -24"/>
+          <text x="312" y="150" text-anchor="middle" class="lbl">activación (llamado)</text>
+          <!-- bobina retención (abajo) -->
+          <path id="coilHold" class="coil live" d="M244 250 q16 -12 0 -24 M262 250 q16 -12 0 -24 M280 250 q16 -12 0 -24 M298 250 q16 -12 0 -24 M316 250 q16 -12 0 -24 M334 250 q16 -12 0 -24 M352 250 q16 -12 0 -24"/>
+          <text x="312" y="244" text-anchor="middle" class="lbl">retención</text>
+          <!-- resorte de retorno (fijo) -->
+          <path d="M388 186 l8 -8 l-8 -6 l8 -8 l-8 -6 l8 -8" fill="none" stroke="var(--wire)" stroke-width="2"/>
+          <text x="410" y="176" class="lbl">resorte</text>
+
+          <!-- ===== grupo móvil: émbolo + barra de contacto + horquilla + piñón ===== -->
+          <g id="plungerG" class="plungerG">
+            <!-- émbolo -->
+            <rect x="250" y="166" width="96" height="42" rx="6" fill="color-mix(in srgb,var(--wire) 42%,transparent)" stroke="var(--wire)" stroke-width="1.6"/>
+            <text x="298" y="192" text-anchor="middle" class="lbl">émbolo</text>
+            <!-- vástago hacia el contacto -->
+            <line x1="346" y1="176" x2="430" y2="92" class="wire"/>
+            <!-- barra de contacto móvil -->
+            <rect id="solBar" class="mainbar closed" x="420" y="60" width="52" height="12" rx="4"/>
+            <!-- horquilla hacia el piñón -->
+            <line x1="330" y1="208" x2="430" y2="266" class="wire"/>
+            <!-- piñón -->
+            <g transform="translate(430,278)">
+              <circle class="gear" r="24"/>
+              <circle class="gearbody" r="15"/>
+              <circle r="4" class="node"/>
+            </g>
+            <text x="430" y="322" text-anchor="middle" class="lbl">piñón</text>
+          </g>
+
+          <!-- contacto principal (postes fijos) -->
+          <rect x="470" y="72" width="8" height="22" rx="2" fill="var(--copper)"/>
+          <rect x="506" y="72" width="8" height="22" rx="2" fill="var(--copper)"/>
+          <text x="464" y="112" class="term">30</text>
+          <!-- 30 desde batería -->
+          <path class="wire-hi" d="M60 238 V150 H70 M70 150 V96 H474"/>
+          <!-- salida al motor -->
+          <path id="motorFlow" class="wire-hi flow-slow motorflow on" d="M510 96 H600"/>
+          <path class="wire" d="M510 96 H600" opacity=".35"/>
+          <!-- motor M -->
+          <circle cx="626" cy="96" r="26" class="node"/>
+          <text x="626" y="102" text-anchor="middle" class="lbl-strong" font-size="16">M</text>
+          <text x="626" y="140" text-anchor="middle" class="lbl">motor</text>
+
+          <!-- corona (volante) fija -->
+          <g transform="translate(600,300)">
+            <circle class="gear" r="72"/>
+            <circle class="gearbody" r="58"/>
+            <text x="0" y="4" text-anchor="middle" class="lbl">corona</text>
+          </g>
+        </svg>
+
+        <div class="seg" id="solSeg" style="margin-top:6px">
+          <button class="on" data-ph="act">1 · Activación</button>
+          <button data-ph="hold">2 · Retención</button>
+          <button data-ph="ret">3 · Retorno</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <span class="statepill" id="sp1">bobina activación</span>
+          <span class="statepill" id="sp2">bobina retención</span>
+          <span class="statepill" id="sp3">contacto 30 cerrado</span>
+          <span class="statepill" id="sp4">piñón engranado</span>
+        </div>
+        <div class="callout" id="solTxtBox" style="margin-top:14px"><span class="lab">Qué pasa · P5</span>
+          <p id="solTxt"></p></div>
+      </div>
+    </div>
+
+    <div class="callout mem"><span class="lab">Para memorizar · P5</span>
+      <p><b>Activación = las DOS bobinas</b> (máximo tirón para engranar el piñón y cerrar el contacto principal). <b>Retención = solo la de retención</b> (al cerrar el contacto, la de activación queda con el mismo potencial en los dos extremos y se apaga; con poca corriente alcanza para sostener). <b>Retorno = las dos en serie, sus campos se anulan</b> → el resorte devuelve el émbolo y retrae el piñón.</p></div>
+    <div class="callout tip"><span class="lab">💡 Por qué dos bobinas</span>
+      <p>Arrancar el movimiento desde el reposo necesita <b>mucha fuerza</b>; mantenerlo, muy poca. Se usan las dos para tirar y solo una para sostener: es lo eficiente (menos corriente y menos calor). La de retención sola <b>no podría</b> mover el émbolo desde cero.</p></div>
+  </section>
+
+  <!-- 03 · IMPULSOR / RUEDA LIBRE / RELACIÓN -->
+  <section class="block reveal" id="pinion">
+    <div class="kicker"><span class="num">03</span><span class="rule"></span></div>
+    <h2 class="sec display">Impulsor, rueda libre y <span class="spark">relación piñón/corona</span></h2>
+    <p class="lead">El piñón engrana con la corona del volante y multiplica la fuerza: gira <b>15 a 20 veces más rápido</b> que el motor. Elegí la relación y el régimen y mirá cómo se dispararían las RPM del arranque.</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Piñón chico rápido ↔ corona grande lenta</b><span class="mono" id="ratioMono">18:1</span></div>
+      <div class="body">
+        <div class="grid g2" style="align-items:center">
+          <svg viewBox="0 0 320 260" role="img" aria-label="Piñón engranado a la corona del volante">
+            <!-- corona grande -->
+            <g id="coronaG" transform="translate(210,130)">
+              <circle class="gear" r="86"/>
+              <circle class="gearbody" r="70"/>
+              <line x1="0" y1="-70" x2="0" y2="-30" stroke="var(--wire)" stroke-width="3"/>
+              <circle r="6" class="node"/>
+            </g>
+            <text x="210" y="246" text-anchor="middle" class="lbl">corona (volante)</text>
+            <!-- piñón chico -->
+            <g id="pinionG" transform="translate(78,130)">
+              <circle class="gear" r="34"/>
+              <circle class="gearbody" r="22"/>
+              <line x1="0" y1="-22" x2="0" y2="0" stroke="var(--spark)" stroke-width="3"/>
+              <circle r="5" class="hot"/>
+            </g>
+            <text x="78" y="200" text-anchor="middle" class="lbl">piñón</text>
+          </svg>
+          <div>
+            <div class="seg" id="ratioSeg">
+              <button data-r="15">15:1</button>
+              <button class="on" data-r="18">18:1</button>
+              <button data-r="20">20:1</button>
+            </div>
+            <div class="readout" style="margin:16px 0 6px">Régimen del motor: <b id="motRpmVal">200</b> rpm</div>
+            <input class="slider" id="motRpm" type="range" min="200" max="2000" step="50" value="200">
+            <div style="display:flex;justify-content:space-between" class="lbl"><span>arranque (200)</span><span>ya en marcha (2000)</span></div>
+            <div class="callout" id="pinBox" style="margin-top:16px"><span class="lab">El arranque giraría a</span>
+              <p><b id="arrRpm" class="val">3.600 rpm</b> <span id="pinNote">— relación 18:1 sobre 200 rpm de arranque. Perfecto para dar el envión.</span></p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:16px">
+      <div class="callout tip"><span class="lab">Rueda libre · embrague de contra vuelta</span>
+        <p>Embrague de rodillos que transmite torsión en <b>un solo sentido</b>: el arranque mueve al volante, pero cuando el motor arranca <b>impide que la corona acelere al arranque</b> y lo desacopla. Sin ella, a 2.000&nbsp;rpm el arranque llegaría a <b>36.000&nbsp;rpm</b> y se destruiría.</p></div>
+      <div class="callout"><span class="lab">El piñón engrana ANTES de girar</span>
+        <p>Sus dientes se estrechan en las puntas para un acople suave. <b>Primero engrana, después gira</b> el motor: al revés se dañarían los dientes del piñón y de la corona.</p></div>
+    </div>
+    <div class="callout warn"><span class="lab">⚠️ Excitación eléctrica vs. imanes</span>
+      <p>La excitación <b>eléctrica</b> da un par de aceleración muy alto (por saturación magnética); la de <b>imanes permanentes</b> mantiene el flujo constante pero es sensible a la desmagnetización por calor, golpes, vibraciones y envejecimiento.</p></div>
+  </section>
+
+  <!-- 04 · ALTERNADOR TRIFÁSICO -->
+  <section class="block reveal" id="alternador">
+    <div class="kicker"><span class="num">04</span><span class="rule"></span></div>
+    <h2 class="sec display">Alternador: el <span class="spark">campo que gira</span> y la CA trifásica</h2>
+    <p class="lead">Mientras el motor gira, el alternador genera la electricidad de todo el auto y <b>recarga la batería</b>. A diferencia del dínamo, acá <b>el campo magnético gira</b> (rotor) y los conductores quedan quietos (estator). De tres bobinas a 120° sale <b>corriente alterna trifásica</b>.</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Rotor girando + estator trifásico</b><span class="mono" id="altAngle">0°</span></div>
+      <div class="body">
+        <div class="grid g2" style="align-items:center">
+          <svg viewBox="0 0 300 300" role="img" aria-label="Rotor giratorio y tres bobinas del estator a 120 grados">
+            <circle cx="150" cy="150" r="118" fill="none" stroke="var(--line)" stroke-width="1.4"/>
+            <!-- estator: 3 bobinas a 120° -->
+            <g class="statcoil" stroke="var(--spark)"><path d="M150 40 m-26 0 a26 26 0 1 1 52 0"/></g>
+            <text x="150" y="28" text-anchor="middle" class="lbl" fill="var(--spark)">U</text>
+            <g class="statcoil" stroke="var(--signal)" transform="rotate(120 150 150)"><path d="M150 40 m-26 0 a26 26 0 1 1 52 0"/></g>
+            <g class="statcoil" stroke="var(--copper)" transform="rotate(240 150 150)"><path d="M150 40 m-26 0 a26 26 0 1 1 52 0"/></g>
+            <text x="255" y="215" text-anchor="middle" class="lbl" fill="var(--signal)">V</text>
+            <text x="46" y="215" text-anchor="middle" class="lbl" fill="var(--copper)">W</text>
+            <!-- rotor (barra imán) -->
+            <g id="altRotor">
+              <rect x="142" y="70" width="16" height="160" rx="7" fill="color-mix(in srgb,var(--wire) 30%,transparent)" stroke="var(--wire)" stroke-width="1.4"/>
+              <rect x="142" y="70" width="16" height="80" rx="7" fill="color-mix(in srgb,var(--bad) 45%,transparent)"/>
+              <text x="150" y="104" text-anchor="middle" class="lbl" fill="var(--bad)">N</text>
+              <text x="150" y="204" text-anchor="middle" class="lbl" fill="var(--navy2)">S</text>
+            </g>
+            <circle cx="150" cy="150" r="8" class="node"/>
+            <text x="150" y="286" text-anchor="middle" class="lbl">el campo gira; el estator queda fijo</text>
+          </svg>
+          <div>
+            <svg viewBox="0 0 300 150" style="margin-bottom:4px" aria-label="Tres ondas senoidales desfasadas 120 grados">
+              <line x1="8" y1="75" x2="292" y2="75" stroke="var(--line)" stroke-width="1"/>
+              <path id="wU" fill="none" stroke="var(--spark)" stroke-width="2.4"/>
+              <path id="wV" fill="none" stroke="var(--signal)" stroke-width="2.4"/>
+              <path id="wW" fill="none" stroke="var(--copper)" stroke-width="2.4"/>
+              <line id="curLine" x1="8" y1="10" x2="8" y2="140" stroke="var(--faint)" stroke-width="1.2" stroke-dasharray="3 4"/>
+              <circle id="dotU" class="dot3" r="4" fill="var(--spark)"/>
+              <circle id="dotV" class="dot3" r="4" fill="var(--signal)"/>
+              <circle id="dotW" class="dot3" r="4" fill="var(--copper)"/>
+            </svg>
+            <div class="ctrls">
+              <button class="btn primary" id="altPlay">⏸ Pausar</button>
+            </div>
+            <div class="callout tip" style="margin-top:14px"><span class="lab">3 fases a 120°</span>
+              <p>El rotor tiene <b>6 pares de polos (12 polos)</b> y recibe corriente por <b>dos anillos rozantes</b>. Al girar induce tres tensiones desfasadas 120°: cuando una está en su pico, las otras dos van en descenso. Esa es la <b>CA trifásica</b> que después se rectifica.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="callout mem"><span class="lab">Para memorizar</span>
+      <p>Alternador = <b>campo giratorio</b> (rotor) + <b>estator fijo</b> → <b>CA trifásica</b> (3 bobinas a 120°, unidas en el <b>punto neutro</b>). Requiere cargar aun a ralentí con consumos y aguantar temperatura, humedad y vibraciones.</p></div>
+  </section>
+
+  <!-- 05 · ESTRUCTURA -->
+  <section class="block reveal" id="estructura">
+    <div class="kicker"><span class="num">05</span><span class="rule"></span></div>
+    <h2 class="sec display">Estructura por dentro</h2>
+    <div class="grid g3" style="margin-top:18px">
+      <div class="card"><span class="ic">🌀</span><span class="tag">imán giratorio</span><h4>Rotor</h4><p>Bobina sobre <b>6 pares de polos (12 polos)</b>; recibe corriente por <b>dos anillos rozantes</b>. Lleva ventiladores a ambos lados.</p></div>
+      <div class="card"><span class="ic">🧵</span><span class="tag">bobina fija</span><h4>Estator</h4><p><b>3 pares de bobinas</b> entre carcasas, unidas en el <b>punto neutro</b>; generan la CA trifásica.</p></div>
+      <div class="card"><span class="ic">🔻</span><span class="tag">onda completa</span><h4>Puente rectificador</h4><p><b>6 diodos de potencia</b> (3 positivos + 3 negativos), dos por fase. Salen al borne <b>B+</b> (60–120&nbsp;A).</p></div>
+      <div class="card"><span class="ic">🔺</span><span class="tag">el "trío"</span><h4>Diodos de excitación</h4><p>Derivan corriente para alimentar el propio rotor por el borne <b>D+</b> (hasta ~1&nbsp;A). <a href="#autoexc" style="color:var(--signal)">Ver autoexcitación ↓</a></p></div>
+      <div class="card"><span class="ic">🎚️</span><span class="tag">~14 V nominal</span><h4>Regulador</h4><p>Mantiene la salida constante regulando la <b>corriente de excitación</b>. Hoy lleva el porta-escobillas incorporado. <a href="#regulacion" style="color:var(--signal)">Ver ON/OFF ↓</a></p></div>
+      <div class="card"><span class="ic">⚙️</span><span class="tag">arrastre</span><h4>Polea + rodamientos</h4><p>Movida por correa multibanda desde el cigüeñal; algunas con <b>embrague unidireccional</b>. Dos rodamientos, uno por soporte.</p></div>
+    </div>
+    <div class="callout"><span class="lab">Datos de referencia</span>
+      <p>Tensión nominal <span class="val">14 V</span> · velocidad máx. continua <b>2000 rpm</b> · resistencia bobina rotórica <b>3,4 Ω</b> ±10% · estator fase-fase <b>0,138 Ω</b> ±10% · diámetro de polea 60&nbsp;mm.</p></div>
+  </section>
+
+  <!-- 06 · RECTIFICACIÓN -->
+  <section class="block reveal" id="rectificacion">
+    <div class="kicker"><span class="num">06</span><span class="rule"></span></div>
+    <h2 class="sec display">De CA a CC: los <span class="spark">6 diodos</span></h2>
+    <p class="lead">La trifásica del estator se rectifica a <b>onda completa</b> con 6 diodos (dos por fase). Queda una continua <b>ondulada</b>; la batería en paralelo la suaviza como si fuera un condensador. Probá el efecto:</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Salida rectificada</b><span class="mono" id="rectMono">sin batería</span></div>
+      <div class="body">
+        <svg viewBox="0 0 720 220" role="img" aria-label="Onda rectificada trifásica y salida continua">
+          <line x1="40" y1="30" x2="40" y2="180" class="wire"/>
+          <line x1="40" y1="180" x2="700" y2="180" class="wire"/>
+          <text x="40" y="24" text-anchor="middle" class="lbl">V</text>
+          <text x="700" y="200" text-anchor="end" class="lbl">tiempo →</text>
+          <!-- humps rectificados (fondo) -->
+          <path id="rectHumps" fill="none" stroke="var(--faint)" stroke-width="1.4" opacity=".55"/>
+          <!-- línea de 14V referencia -->
+          <line x1="40" y1="60" x2="700" y2="60" stroke="var(--signal)" stroke-width="1" stroke-dasharray="2 5"/>
+          <text x="700" y="54" text-anchor="end" class="lbl" fill="var(--signal)">14 V</text>
+          <!-- salida -->
+          <path id="rectOut" fill="none" stroke="var(--spark)" stroke-width="3"/>
+        </svg>
+        <div class="seg" id="rectSeg" style="margin-top:6px">
+          <button class="on" data-b="off">Sin batería</button>
+          <button data-b="on">Con batería en paralelo</button>
+        </div>
+        <div class="callout" id="rectBox" style="margin-top:14px"><span class="lab">Rizado (CA en B+)</span>
+          <p id="rectTxt"></p></div>
+      </div>
+    </div>
+    <div class="callout tip"><span class="lab">💡 Efecto condensador</span>
+      <p>La batería en paralelo <b>absorbe los picos y rellena los valles</b> de la ondulación: la salida queda casi plana. Por eso, con el motor en marcha, el rizado de CA en el B+ debe ser <b>&lt; 0,4 V</b>. Si es mayor, hay un <b>diodo abierto o en corto</b>. A veces se agregan 2 diodos extra para el punto neutro.</p></div>
+  </section>
+
+  <!-- 07 · AUTOEXCITACIÓN Y LÁMPARA -->
+  <section class="block reveal" id="autoexc">
+    <div class="kicker"><span class="num">07</span><span class="rule"></span></div>
+    <h2 class="sec display">Autoexcitación y <span class="spark">lámpara testigo</span></h2>
+    <p class="lead">Problema del huevo o la gallina: el rotor es un electroimán que necesita corriente para generar… pero esa corriente la genera el propio alternador. Movés el régimen y ves cómo arranca todo y se apaga la luz de carga:</p>
+
+    <div class="schematic" style="margin-top:20px">
+      <div class="cap"><span class="led"></span><b>Circuito de excitación</b><span class="mono" id="lampState">contacto puesto · motor parado</span></div>
+      <div class="body">
+        <div class="grid g2" style="align-items:center">
+          <svg viewBox="0 0 340 240" role="img" aria-label="Lámpara testigo, batería, borne D más y rotor del alternador">
+            <!-- batería -->
+            <rect x="20" y="96" width="50" height="60" rx="7" class="node"/>
+            <text x="45" y="130" text-anchor="middle" class="lbl-strong" font-size="12">12V</text>
+            <text x="45" y="174" text-anchor="middle" class="lbl">batería</text>
+            <!-- cable a lámpara -->
+            <path class="wire" d="M70 110 H120"/>
+            <path id="lampWire1" class="wire-hi flow lampwire on" d="M70 110 H120"/>
+            <!-- lámpara testigo -->
+            <circle id="bulbGlow" class="bulbglow" cx="150" cy="110" r="30" fill="var(--spark)" opacity=".35"/>
+            <circle id="bulb" class="bulb" cx="150" cy="110" r="18" fill="var(--spark)" stroke="var(--line2)" stroke-width="1.5"/>
+            <path d="M143 103 l14 14 M157 103 l-14 14" stroke="#2a1c00" stroke-width="1.6" opacity=".7"/>
+            <text x="150" y="160" text-anchor="middle" class="lbl">luz de carga</text>
+            <!-- cable a D+ -->
+            <path class="wire" d="M180 110 H236"/>
+            <path id="lampWire2" class="wire-hi flow lampwire on" d="M180 110 H236"/>
+            <text x="208" y="100" class="term">D+</text>
+            <!-- alternador / rotor -->
+            <circle cx="272" cy="110" r="34" class="node"/>
+            <text x="272" y="106" text-anchor="middle" class="lbl-strong" font-size="13">G</text>
+            <text x="272" y="124" text-anchor="middle" class="lbl">rotor</text>
+            <text x="272" y="166" text-anchor="middle" class="lbl">alternador</text>
+            <!-- lectura D+ -->
+            <text x="150" y="212" text-anchor="middle" class="readout-big" id="dplusVal" fill="var(--muted)">D+ ≈ 0 V</text>
+          </svg>
+          <div>
+            <div class="readout" style="margin-bottom:6px">Régimen del alternador: <b id="rpmVal">0</b> rpm</div>
+            <input class="slider" id="rpmSlider" type="range" min="0" max="3000" step="50" value="0">
+            <div style="display:flex;justify-content:space-between" class="lbl"><span>parado</span><span>en marcha</span></div>
+            <div class="callout" id="lampBox" style="margin-top:16px"><span class="lab">Qué pasa · P1</span>
+              <p id="lampTxt"></p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="callout mem"><span class="lab">Para memorizar · P1</span>
+      <p>Al dar contacto, la batería presta la <b>corriente de pre-excitación</b> al rotor pasando por la <b>lámpara testigo</b> (que hace de resistencia limitadora) → la luz se <b>enciende</b>. En marcha, los <b>3 diodos de excitación</b> realimentan el rotor: cuando el <b>D+ ≈ 14&nbsp;V</b>, la tensión se iguala a ambos lados de la lámpara, no circula corriente por ella → se <b>apaga</b>. Una luz que <b>queda encendida</b> con el motor en marcha indica <b>falla del alternador</b>.</p></div>
+  </section>
+
+  <!-- 08 · REGULACIÓN -->
+  <section class="block reveal" id="regulacion">
+    <div class="kicker"><span class="num">08</span><span class="rule"></span></div>
+    <h2 class="sec display">Regulación de carga <span class="spark">ON/OFF</span></h2>
+    <p class="lead">El regulador mantiene la salida en <b>~14 V</b> sin importar las RPM ni la carga. No hace magia analógica fina: <b>conecta y desconecta</b> muy rápido la corriente de excitación del rotor (juego ON/OFF), y así sube o baja el promedio.</p>
+    <div class="grid g2" style="margin-top:18px">
+      <div class="steps">
+        <div class="step"><div><h4>Tensión baja de 14 V</h4><p>El regulador deja pasar corriente de excitación (<b>ON</b>): el rotor se magnetiza más y el alternador genera más.</p></div></div>
+        <div class="step"><div><h4>Tensión pasa de 14 V</h4><p>El regulador corta la excitación (<b>OFF</b>): el campo cae y la tensión baja. El ciclo se repite miles de veces por segundo.</p></div></div>
+        <div class="step"><div><h4>Compensa temperatura</h4><p>Da <b>más tensión con frío</b> y menos con calor, para cargar bien la batería en cualquier clima.</p></div></div>
+      </div>
+      <div>
+        <div class="callout tip"><span class="lab">Tipos de regulador</span>
+          <p>Con transistor → híbridos → <b>monolíticos</b> (un solo chip, más fiables). Los <b>polivalentes</b> señalan tanto la <b>falta</b> como el <b>exceso</b> de recarga.</p></div>
+        <div class="callout warn"><span class="lab">⚠️ Sobretensión</span>
+          <p>Un regulador que no corta produce <b>sobretensión</b>: vida corta de lámparas y batería, y arranque difícil.</p></div>
+        <div class="callout mem"><span class="lab">Para memorizar</span>
+          <p>El regulador controla la <b>corriente de excitación</b> con ciclos <b>ON/OFF</b> para clavar la salida en ~14&nbsp;V, y compensa por temperatura.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 · VALORES DE MEDICIÓN -->
+  <section class="block reveal" id="valores">
+    <div class="kicker"><span class="num">09</span><span class="rule"></span></div>
+    <h2 class="sec display">Valores de medición (TP2 y TP3)</h2>
+
+    <h3 class="sub3">Alternador · circuito de carga (montado)</h3>
+    <div class="tblscroll">
+      <table class="tbl">
+        <thead><tr><th>Medición</th><th>Valor esperado</th></tr></thead>
+        <tbody>
+          <tr><td>Régimen de prueba</td><td class="mono">2.000 rpm</td></tr>
+          <tr><td>Tensión de batería en reposo</td><td class="mono">&gt; 13,5 V</td></tr>
+          <tr><td>Tensión de carga (con consumidores, a 2.000 rpm)</td><td class="mono">13,5 – 14,5 V</td></tr>
+          <tr><td>Corriente de carga (con consumidores)</td><td class="mono">≥ 60% del nominal</td></tr>
+          <tr><td>Caída en cable positivo (B+ a batería)</td><td class="mono">&lt; 0,4 V</td></tr>
+          <tr><td>Caída en cable de masa</td><td class="mono">&lt; 0,2 V</td></tr>
+          <tr><td>Rizado / CA en B+ (diodos)</td><td class="mono">&lt; 0,4 V</td></tr>
+          <tr><td>Fuga por diodos (motor detenido)</td><td class="mono">&lt; 2 mA</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub3">Alternador · desarmado</h3>
+    <div class="tblscroll">
+      <table class="tbl">
+        <thead><tr><th>Medición</th><th>Valor esperado</th></tr></thead>
+        <tbody>
+          <tr><td>Continuidad del rotor (entre anillos)</td><td class="mono">2,5 – 5 Ω</td></tr>
+          <tr><td>Continuidad del estator (entre bobinados)</td><td class="mono">0,1 – 0,3 Ω</td></tr>
+          <tr><td>Diodos — sentido conducción</td><td class="mono">400 – 700 mV</td></tr>
+          <tr><td>Diodos — sentido bloqueo</td><td class="mono">infinito</td></tr>
+          <tr><td>Resistencia de escobillas</td><td class="mono">&lt; 1 Ω</td></tr>
+          <tr><td>Aislación rotor/estator a masa (lámpara 220 V)</td><td class="mono">apagada</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub3">Motor de arranque · circuito y desarmado</h3>
+    <div class="tblscroll">
+      <table class="tbl">
+        <thead><tr><th>Medición</th><th>Valor esperado</th></tr></thead>
+        <tbody>
+          <tr><td>Corriente de descarga en arranque</td><td class="mono">120 – 200 A</td></tr>
+          <tr><td>Tensión de descarga en arranque (10 s)</td><td class="mono">9,6 – 13,5 V</td></tr>
+          <tr><td>Tensión de excitación del solenoide (terminal 50)</td><td class="mono">&gt; 9 V</td></tr>
+          <tr><td>Caída entre contactos del solenoide</td><td class="mono">&lt; 0,2 V</td></tr>
+          <tr><td>Caída en cables de alimentación / masa</td><td class="mono">&lt; 0,5 V c/u</td></tr>
+          <tr><td>Bobina de llamado / activación (en paralelo)</td><td class="mono">0,9 – 2 Ω</td></tr>
+          <tr><td>Bobina de retención (en serie)</td><td class="mono">0,3 – 0,6 Ω</td></tr>
+          <tr><td>Reposo previo de la batería para el ensayo</td><td class="mono">≥ 8 hs</td></tr>
+          <tr><td>Consumo en reposo (fugas) que descarga la batería</td><td class="mono">&gt; 30 mA</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout"><span class="lab">Antes de culpar al arranque</span>
+      <p>Una puesta en marcha dificultosa puede <b>no</b> ser culpa del arranque: verificá primero la <b>carga del alternador</b> (13,8–14,5&nbsp;V) y las <b>fugas de corriente</b> de la batería (un consumo en reposo &gt; 30&nbsp;mA la descarga durante la noche).</p></div>
+  </section>
+
+  <!-- 10 · AVERÍAS -->
+  <section class="block reveal" id="averias">
+    <div class="kicker"><span class="num">10</span><span class="rule"></span></div>
+    <h2 class="sec display">Averías comunes</h2>
+    <div class="grid g2" style="margin-top:18px">
+      <div>
+        <h3 class="sub3">Motor de arranque</h3>
+        <div class="grid" style="gap:12px">
+          <div class="card"><span class="tag" style="color:var(--bad)">no arranca</span><p>Escobillas gastadas, contactos oxidados o flojos, bobinados interrumpidos, bornes 30/50 flojos.</p></div>
+          <div class="card"><span class="tag" style="color:var(--bad)">ruidos</span><p>Montaje incorrecto, bulones flojos, mal centrado, bujes fuera de tolerancia.</p></div>
+        </div>
+      </div>
+      <div>
+        <h3 class="sub3">Alternador</h3>
+        <div class="grid" style="gap:12px">
+          <div class="card"><span class="tag" style="color:var(--bad)">batería descargada</span><p>Tornillos flojos, ralentí bajo, borne positivo roto, correa cortada o tensor flojo, circuito de excitación interrumpido.</p></div>
+          <div class="card"><span class="tag" style="color:var(--bad)">sobretensión</span><p>Vida corta de lámparas y batería, arranque difícil (regulador que no corta).</p></div>
+          <div class="card"><span class="tag" style="color:var(--bad)">ruido / correa</span><p>Rodamientos gastados o poleas desalineadas. Ojo: cables demasiado largos (B+ y masa &lt; 3 m).</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 · P&R -->
+  <section class="block reveal" id="pr">
+    <div class="kicker"><span class="num">11</span><span class="rule"></span></div>
+    <h2 class="sec display">Preguntas que más se traban</h2>
+    <p class="lead">Las explicaciones profundas del resumen, acá mismo. Tocá cada una para desplegarla.</p>
+    <div class="acc qacc" style="margin-top:18px">
+
+      <details open>
+        <summary><span class="idx">P1</span><span class="qq">¿Qué hacen los 3 diodos de excitación y por qué la luz de carga se apaga sola?</span><span class="chev">›</span></summary>
+        <div class="inner">
+          <p class="ansline"><span class="k">El problema del "huevo o gallina"</span>El rotor es un electroimán que necesita corriente para generar su campo… pero esa corriente la genera el propio alternador. ¿De dónde sale al arrancar?</p>
+          <div class="tblscroll" style="margin:14px 0">
+            <table class="tbl">
+              <thead><tr><th>Grupo</th><th>Cantidad</th><th>Función</th><th>Salida</th></tr></thead>
+              <tbody>
+                <tr><td>Diodos de <b>potencia</b></td><td class="mono">6 (3+ y 3−)</td><td>Rectifican la CA trifásica → CC</td><td class="mono">B+ (auto + batería)</td></tr>
+                <tr><td>Diodos de <b>excitación</b></td><td class="mono">3 (el "trío")</td><td>Realimentan al propio rotor</td><td class="mono">D+ (máx. ~1 A)</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="steps" style="margin:14px 0">
+            <div class="step"><div><h4>Arranque</h4><p>El alternador gira lento y no genera: la corriente de <b>pre-excitación</b> la presta la batería, pasando por la <b>lámpara testigo</b> (que actúa de resistencia). Por eso la luz se enciende con el contacto.</p></div></div>
+            <div class="step"><div><h4>En marcha</h4><p>Los 3 diodos de excitación realimentan el rotor → el alternador <b>se autoalimenta</b>. Cuando hay ~14 V en el D+, la tensión se iguala a ambos lados de la lámpara → no circula corriente → <b>se apaga</b>.</p></div></div>
+          </div>
+          <div class="callout warn"><span class="lab">Diagnóstico</span><p>Una luz que <b>queda encendida</b> con el motor en marcha indica falla del alternador.</p></div>
+          <a class="jump" href="#autoexc">🕹️ Probalo en el esquema de la lámpara testigo ↑</a>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="idx">P5</span><span class="qq">En la fase de ACTIVACIÓN del solenoide, ¿qué bobinas actúan y por qué?</span><span class="chev">›</span></summary>
+        <div class="inner">
+          <p class="ansline"><span class="k">Respuesta corta</span>Actúan <b>las dos bobinas juntas</b> — la de <b>activación (llamado)</b> y la de <b>retención</b>.</p>
+          <p>Arrancar el movimiento es el momento más exigente: hay que vencer el resorte, mover el émbolo, empujar el piñón contra la corona y cerrar el contacto principal. Se necesita la <b>máxima fuerza</b>, sumando el tirón de ambas bobinas.</p>
+          <div class="grid g3" style="gap:12px;margin:14px 0">
+            <div class="callout" style="margin:0"><span class="lab">Activación</span><p>Las <b>dos</b> bobinas (máximo tirón para engranar y cerrar el contacto).</p></div>
+            <div class="callout tip" style="margin:0"><span class="lab">Retención</span><p>Al cerrar el contacto, la bobina de activación queda al mismo potencial de los dos lados → deja de circular. Sostiene <b>solo la de retención</b>.</p></div>
+            <div class="callout" style="margin:0;border-left-color:var(--copper)"><span class="lab">Retorno</span><p>Las dos en serie, con campos <b>opuestos que se cancelan</b> → el resorte devuelve el émbolo.</p></div>
+          </div>
+          <div class="callout mem"><span class="lab">La idea</span><p>Arrancar el movimiento necesita mucha fuerza; mantenerlo, muy poca. Usar las dos para tirar y solo una para sostener es lo eficiente (menos corriente y calor).</p></div>
+          <a class="jump" href="#solenoide">🕹️ Probalo en el esquema del solenoide en 3 fases ↑</a>
+        </div>
+      </details>
+
+    </div>
+    <p class="lbl" style="margin-top:16px">Más preguntas de encendido (P2–P9) → en <a class="jump" href="encendido.html#pr" style="display:inline">Sistema de encendido</a>.</p>
+  </section>
+
+</main>
+
+<footer class="site"><div class="wrap" style="padding-bottom:0">
+  <div class="footrow">
+    <span>ITCA · Electricidad Automotriz — material de estudio. Español rioplatense.</span>
+    <a class="navlink" href="../test-electricidad.html">Practicar en el test ⚡</a>
+  </div>
+</div></footer>
+
+<script src="guia.js"></script>
+<script>
+/* ---------- 02 · Solenoide en 3 fases ---------- */
+(function(){
+  var seg=document.getElementById('solSeg'),
+      pg=document.getElementById('plungerG'), cA=document.getElementById('coilAct'), cH=document.getElementById('coilHold'),
+      bar=document.getElementById('solBar'), mflow=document.getElementById('motorFlow'),
+      st=document.getElementById('solState'), txt=document.getElementById('solTxt'),
+      pills=['sp1','sp2','sp3','sp4'].map(function(id){return document.getElementById(id);});
+  function setPills(a,b,c,d){ var v=[a,b,c,d]; pills.forEach(function(p,i){ p.classList.toggle('act', !!v[i]); }); }
+  var DX=44;
+  function set(ph){
+    if(ph==='act'){
+      pg.setAttribute('transform','translate('+DX+',0)');
+      cA.classList.add('live'); cH.classList.add('live');
+      bar.classList.add('closed'); mflow.classList.add('on'); mflow.style.animationDuration='2.4s';
+      st.textContent='activación';
+      setPills(1,1,1,1);
+      txt.innerHTML='La llave en <b>START</b> manda corriente por el terminal <b>50</b> a las <b>dos bobinas juntas</b>: es el momento más exigente (vencer el resorte, mover el émbolo, empujar el piñón contra la corona y cerrar el contacto principal). El motor gira <b>lento</b>, lo que ayuda a que el piñón engrane suave.';
+    } else if(ph==='hold'){
+      pg.setAttribute('transform','translate('+DX+',0)');
+      cA.classList.remove('live'); cH.classList.add('live');
+      bar.classList.add('closed'); mflow.classList.add('on'); mflow.style.animationDuration='0.9s';
+      st.textContent='retención';
+      setPills(0,1,1,1);
+      txt.innerHTML='Con el contacto principal <b>cerrado</b> (terminal <b>30</b> → motor), los dos extremos de la bobina de <b>activación</b> quedan al mismo potencial → deja de circular corriente por ella. Ahora <b>solo la de retención</b> sostiene el émbolo, con poca corriente, y el motor gira a <b>plena corriente</b> directo de la batería.';
+    } else {
+      pg.setAttribute('transform','translate(0,0)');
+      cA.classList.remove('live'); cH.classList.remove('live');
+      bar.classList.remove('closed'); mflow.classList.remove('on');
+      st.textContent='retorno';
+      setPills(0,0,0,0);
+      txt.innerHTML='La llave vuelve a <b>contacto (IGN)</b>: la corriente pasa por las <b>dos bobinas en serie</b>, enrolladas de modo que sus campos <b>se oponen y se anulan</b> → desaparece la fuerza magnética. El <b>resorte de retorno</b> empuja el émbolo, abre el contacto y retrae el piñón.';
+    }
+    seg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.ph===ph); });
+  }
+  seg.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ set(b.dataset.ph); }; });
+  set('act');
+})();
+
+/* ---------- 03 · Relación piñón/corona ---------- */
+(function(){
+  var seg=document.getElementById('ratioSeg'), mot=document.getElementById('motRpm'), motVal=document.getElementById('motRpmVal'),
+      arr=document.getElementById('arrRpm'), note=document.getElementById('pinNote'), mono=document.getElementById('ratioMono'),
+      box=document.getElementById('pinBox'), pin=document.getElementById('pinionG'), cor=document.getElementById('coronaG');
+  var ratio=18, aPin=0, aCor=0, running=true;
+  function fmt(n){ return n.toLocaleString('es-AR'); }
+  function upd(){
+    var m=+mot.value; motVal.textContent=fmt(m);
+    var a=m*ratio;
+    arr.textContent=fmt(a)+' rpm';
+    mono.textContent=ratio+':1';
+    if(a>=30000){
+      note.textContent='— si la rueda libre no desacoplara, el arranque se destruiría (36.000 rpm a 2.000 del motor).';
+      box.style.borderLeftColor='var(--bad)';
+    } else if(m<=300){
+      note.textContent='— relación '+ratio+':1 sobre '+fmt(m)+' rpm de arranque. Perfecto para dar el envión.';
+      box.style.borderLeftColor='var(--spark)';
+    } else {
+      note.textContent='— el motor ya tomó velocidad: acá entra la rueda libre a desacoplar el piñón.';
+      box.style.borderLeftColor='var(--copper)';
+    }
+  }
+  seg.querySelectorAll('button').forEach(function(b){
+    b.onclick=function(){ seg.querySelectorAll('button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); ratio=+b.dataset.r; upd(); };
+  });
+  mot.addEventListener('input',upd);
+  function loop(){
+    if(running){
+      var spd=(+mot.value)/200;            // velocidad base de la corona
+      aCor+=spd; aPin+=spd*ratio;
+      cor.setAttribute('transform','translate(210,130) rotate('+aCor+')');
+      pin.setAttribute('transform','translate(78,130) rotate('+(-aPin)+')');
+    }
+    requestAnimationFrame(loop);
+  }
+  upd(); requestAnimationFrame(loop);
+})();
+
+/* ---------- 04 · Alternador trifásico ---------- */
+(function(){
+  var rotor=document.getElementById('altRotor'), angT=document.getElementById('altAngle'), play=document.getElementById('altPlay'),
+      wU=document.getElementById('wU'), wV=document.getElementById('wV'), wW=document.getElementById('wW'),
+      cur=document.getElementById('curLine'), dU=document.getElementById('dotU'), dV=document.getElementById('dotV'), dW=document.getElementById('dotW');
+  var W=300, H=150, x0=12, x1=290, midY=75, amp=52, k=(2*Math.PI*1.6)/(x1-x0);
+  var ph=[0, 2*Math.PI/3, 4*Math.PI/3];
+  function y(p,x){ return midY - amp*Math.sin(k*(x-x0)+p); }
+  function build(pOff){
+    var d=''; for(var x=x0;x<=x1;x+=2){ d+=(x===x0?'M':'L')+x.toFixed(1)+' '+y(pOff,x).toFixed(1)+' '; } return d;
+  }
+  wU.setAttribute('d',build(ph[0])); wV.setAttribute('d',build(ph[1])); wW.setAttribute('d',build(ph[2]));
+  var t=0, running=true;
+  function frame(){
+    if(running){
+      t+=0.9;
+      var xc=x0+((t*3)%(x1-x0));
+      var p=k*(xc-x0);
+      cur.setAttribute('x1',xc); cur.setAttribute('x2',xc);
+      dU.setAttribute('cx',xc); dU.setAttribute('cy', midY-amp*Math.sin(p+ph[0]));
+      dV.setAttribute('cx',xc); dV.setAttribute('cy', midY-amp*Math.sin(p+ph[1]));
+      dW.setAttribute('cx',xc); dW.setAttribute('cy', midY-amp*Math.sin(p+ph[2]));
+      var deg=Math.round((p*180/Math.PI)%360);
+      rotor.setAttribute('transform','rotate('+deg+' 150 150)');
+      angT.textContent=deg+'°';
+    }
+    requestAnimationFrame(frame);
+  }
+  play.onclick=function(){ running=!running; play.textContent=running?'⏸ Pausar':'▶ Reanudar'; };
+  requestAnimationFrame(frame);
+})();
+
+/* ---------- 06 · Rectificación CA→CC ---------- */
+(function(){
+  var seg=document.getElementById('rectSeg'), humps=document.getElementById('rectHumps'), out=document.getElementById('rectOut'),
+      mono=document.getElementById('rectMono'), txt=document.getElementById('rectTxt'), box=document.getElementById('rectBox');
+  var x0=40, x1=700, base=180, topRef=60; // 60 = 14V ref
+  // humps: seis pulsos rectificados (envolvente), amplitud hacia arriba
+  var dH=''; for(var x=x0;x<=x1;x+=3){
+    var ph=(x-x0)/(x1-x0)*Math.PI*9; // 9 semiciclos
+    var v=Math.abs(Math.sin(ph));
+    var yv=base-(80+40*v); // pulsos individuales
+    dH+=(x===x0?'M':'L')+x+' '+yv.toFixed(1)+' ';
+  }
+  humps.setAttribute('d',dH);
+  function outPath(smooth){
+    var d=''; for(var x=x0;x<=x1;x+=3){
+      var ph=(x-x0)/(x1-x0)*Math.PI*9;
+      // envolvente de 6 pulsos: rizado visible
+      var ripple=Math.abs(Math.sin(ph*3));       // ondulación rápida
+      var y;
+      if(smooth){ y=topRef+2 - 1.5*Math.sin(ph*3); }       // casi plana en 14V
+      else { y=(base-118) + 16*(1-ripple); }                // ondulada
+      d+=(x===x0?'M':'L')+x+' '+y.toFixed(1)+' ';
+    }
+    return d;
+  }
+  function set(b){
+    var smooth=(b==='on');
+    out.setAttribute('d',outPath(smooth));
+    mono.textContent=smooth?'con batería en paralelo':'sin batería';
+    if(smooth){
+      txt.innerHTML='La batería en paralelo <b>absorbe los picos y rellena los valles</b>: la salida queda casi plana en ~14&nbsp;V. Rizado <span class="val sig">&lt; 0,4 V</span> → diodos sanos.';
+      box.style.borderLeftColor='var(--signal)';
+    } else {
+      txt.innerHTML='Onda completa de 6 pulsos: la continua queda <b>ondulada</b> (rizado). Sin nada que la suavice, la tensión sube y baja al ritmo de las fases.';
+      box.style.borderLeftColor='var(--spark)';
+    }
+    seg.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x.dataset.b===b); });
+  }
+  seg.querySelectorAll('button').forEach(function(x){ x.onclick=function(){ set(x.dataset.b); }; });
+  set('off');
+})();
+
+/* ---------- 07 · Lámpara testigo / autoexcitación ---------- */
+(function(){
+  var sl=document.getElementById('rpmSlider'), rpmVal=document.getElementById('rpmVal'),
+      dV=document.getElementById('dplusVal'), bulb=document.getElementById('bulb'), glow=document.getElementById('bulbGlow'),
+      w1=document.getElementById('lampWire1'), w2=document.getElementById('lampWire2'),
+      st=document.getElementById('lampState'), txt=document.getElementById('lampTxt'), box=document.getElementById('lampBox');
+  function upd(){
+    var r=+sl.value; rpmVal.textContent=r.toLocaleString('es-AR');
+    // D+ sube de 0 a ~14 entre 200 y 1800 rpm
+    var dplus = r<=200 ? (r/200*0.6) : Math.min(14.2, 0.6+(r-200)/1600*13.6);
+    dV.textContent='D+ ≈ '+dplus.toFixed(1).replace('.',',')+' V';
+    var bright = Math.max(0, Math.min(1, (14 - dplus)/14));
+    glow.style.opacity = (0.15 + 0.5*bright).toFixed(2);
+    bulb.setAttribute('fill', bright>0.1 ? 'var(--spark)' : 'var(--bg2)');
+    glow.setAttribute('r', (22+10*bright).toFixed(0));
+    var flowing = bright>0.12;
+    w1.classList.toggle('on',flowing); w2.classList.toggle('on',flowing);
+    if(r===0){
+      st.textContent='contacto puesto · motor parado';
+      dV.setAttribute('fill','var(--spark)');
+      txt.innerHTML='El alternador no genera. La <b>batería</b> presta la corriente de pre-excitación al rotor <b>pasando por la lámpara</b> (que limita) → hay diferencia de potencial a los dos lados → la luz de carga se <b>enciende</b>.';
+      box.style.borderLeftColor='var(--spark)';
+    } else if(dplus>=13){
+      st.textContent='motor en marcha · autoexcitado';
+      dV.setAttribute('fill','var(--signal)');
+      txt.innerHTML='El alternador ya genera: los <b>3 diodos de excitación</b> mandan corriente de vuelta al rotor. Con <b>D+ ≈ 14&nbsp;V</b> la tensión se iguala a ambos lados de la lámpara → no circula corriente → la luz se <b>apaga</b>.';
+      box.style.borderLeftColor='var(--signal)';
+    } else {
+      st.textContent='tomando velocidad…';
+      dV.setAttribute('fill','var(--copper)');
+      txt.innerHTML='El alternador empieza a generar y el <b>D+ sube</b>. A medida que se acerca a 14&nbsp;V, cae la diferencia sobre la lámpara y su brillo <b>se atenúa</b>.';
+      box.style.borderLeftColor='var(--copper)';
+    }
+  }
+  sl.addEventListener('input',upd); upd();
+})();
+</script>
+</body>
+</html>

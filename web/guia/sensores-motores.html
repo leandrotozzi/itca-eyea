@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sensores por motor · Competencia · Guía Visual ITCA</title>
+<link rel="stylesheet" href="guia.css">
+<style>
+/* textos de los esquemas */
+.wlab{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;fill:var(--ink)}
+.wlab2{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;fill:var(--muted)}
+
+/* reglas de cables */
+.rulegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:16px}
+.rule-c{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 15px;box-shadow:var(--shadow)}
+.rule-c .pn{font-family:ui-monospace,Menlo,monospace;font-weight:800;font-size:1.6rem;color:var(--spark);line-height:1}
+.rule-c .pn small{font-size:.75rem;color:var(--muted);font-weight:700;margin-left:4px}
+.rule-c p{margin:.45em 0 0;font-size:.88rem;color:var(--muted)}
+.rule-c p b{color:var(--ink)}
+
+@media(max-width:560px){.hbar>.navlink{display:none}}
+.mobcta{display:block;text-decoration:none;color:inherit;margin-top:14px}
+.mobcta:hover{border-color:var(--spark)}
+
+/* --- motores --- */
+.engsel{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.engsel button{font:inherit;font-weight:800;font-size:.88rem;border:1.5px solid var(--line2);background:var(--panel);color:var(--ink);
+  border-radius:11px;padding:9px 13px;cursor:pointer;text-align:left;line-height:1.2;transition:border-color .14s,transform .1s}
+.engsel button small{display:block;font-weight:600;font-size:.72rem;color:var(--muted)}
+.engsel button:hover{border-color:var(--spark);transform:translateY(-1px)}
+.engsel button.on{border-color:var(--spark);background:color-mix(in srgb,var(--spark) 13%,var(--panel))}
+.einfo{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin:16px 0 0}
+.einfo div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 13px}
+.einfo .k{display:block;font-family:ui-monospace,Menlo,monospace;font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;color:var(--copper)}
+.einfo b{font-size:.93rem}
+.zone{fill:var(--panel);stroke:var(--line2);stroke-width:1.5}
+.zone.hot2{fill:color-mix(in srgb,var(--copper) 8%,var(--panel))}
+.zt{font-family:ui-monospace,Menlo,monospace;font-size:11px;fill:var(--faint);letter-spacing:.06em}
+.mk{cursor:pointer}
+.mk circle{fill:var(--panel);stroke:var(--spark);stroke-width:2.2;transition:.15s}
+.mk text{font-family:ui-monospace,Menlo,monospace;font-weight:800;font-size:12px;text-anchor:middle;fill:var(--ink);pointer-events:none}
+.mk:hover circle,.mk:focus circle{fill:color-mix(in srgb,var(--spark) 30%,var(--panel))}
+.mk.on circle{fill:var(--spark);filter:drop-shadow(0 0 5px color-mix(in srgb,var(--spark) 70%,transparent))}
+.mk.on text{fill:#2a1c00}
+.mk:focus{outline:none}
+.emap.has-on .mk:not(.on){opacity:.4}
+.qk{cursor:pointer}
+.qk rect{fill:var(--panel);stroke:var(--line2);stroke-width:1.8;transition:.15s}
+.qk text{font-family:ui-monospace,Menlo,monospace;font-weight:800;font-size:11.5px;text-anchor:middle;fill:var(--ink);pointer-events:none}
+.qk:hover rect,.qk:focus rect{stroke:var(--spark);fill:color-mix(in srgb,var(--spark) 18%,var(--panel))}
+.qk:focus{outline:none}
+.qk.ok rect{fill:var(--ok);stroke:var(--ok)} .qk.ok text{fill:#fff}
+.qk.bad rect{fill:var(--bad);stroke:var(--bad)} .qk.bad text{fill:#fff}
+.qk.miss rect{stroke:var(--ok);stroke-width:2.5;stroke-dasharray:4 3}
+.qhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:14px}
+.qhead .eng{font-size:1.25rem;font-weight:800}
+.qhead .sc{font-family:ui-monospace,Menlo,monospace;font-size:.85rem;color:var(--muted)}
+.qhead .sc b{color:var(--ink)}
+#qlog{margin-top:10px;font-size:.92rem;min-height:1.4em}
+.plist{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.chip-part{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);background:var(--panel);border-radius:10px;
+  padding:6px 10px 6px 7px;cursor:pointer;font:inherit;font-size:.84rem;font-weight:700;color:var(--ink);line-height:1.2;text-align:left}
+.chip-part:hover{border-color:var(--spark)}
+.chip-part .cn{font-family:ui-monospace,Menlo,monospace;font-size:.72rem;background:var(--bg2);border-radius:6px;padding:2px 7px;color:var(--muted)}
+.chip-part.on{background:color-mix(in srgb,var(--spark) 12%,var(--panel));border-color:var(--spark)}
+.chip-part.on .cn{background:var(--spark);color:#2a1c00}
+.xp{margin-top:14px}
+.xp h4{margin:.2em 0 .3em;font-size:1.1rem}
+.xp .row{display:grid;grid-template-columns:110px 1fr;gap:4px 12px;font-size:.92rem;margin:.35em 0}
+.xp .row .k{font-family:ui-monospace,Menlo,monospace;font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;color:var(--copper);padding-top:3px}
+@media(max-width:560px){.xp .row{grid-template-columns:1fr}}
+.conf{font-family:ui-monospace,Menlo,monospace;font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-radius:6px;padding:2px 7px;vertical-align:1px}
+.conf.alto{color:var(--ok);background:var(--ok-bg)}
+.conf.medio{color:var(--copper);background:color-mix(in srgb,var(--copper) 14%,transparent)}
+.conf.bajo{color:var(--bad);background:var(--bad-bg)}
+.etbl td{white-space:normal!important;vertical-align:top}
+.etbl td:first-child{font-family:ui-monospace,Menlo,monospace;font-weight:800;color:var(--spark)}
+.mtx td,.mtx th{text-align:center!important}
+.mtx td:first-child,.mtx th:first-child{text-align:left!important}
+.mtx .no{color:var(--faint)}
+
+/* --- hoja imprimible --- */
+.sheet{background:#fff;color:#111;border-radius:12px;padding:16px;margin-top:14px;border:1px solid var(--line);overflow-x:auto}
+.sheet h4{margin:.2em 0 .5em;color:#111}
+.sheet table{width:100%;border-collapse:collapse;font-size:.8rem;margin-bottom:16px}
+.sheet th,.sheet td{border:1px solid #999;padding:6px;text-align:left;height:28px}
+.sheet th{background:#eee;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em}
+@media print{
+  header.site,footer.site,.readbar,.noprint{display:none!important}
+  body.only-sheet main>section:not(#hoja){display:none!important}
+  body.only-sheet #hoja .kicker,body.only-sheet #hoja h2,body.only-sheet #hoja p{display:none}
+  body{background:#fff!important}
+  .reveal{opacity:1!important;transform:none!important}
+  .sheet{border:none;padding:0}
+  .sheet .eng{page-break-after:always}
+}
+</style>
+</head>
+<body>
+<div class="readbar" id="readbar"></div>
+
+<header class="site">
+  <div class="hbar">
+    <a class="logo" href="index.html" aria-label="Inicio"><img src="logo.png" alt="ITCA"></a>
+    <div class="brand"><b>Sensores <span class="spark">por motor</span></b><span>Guía visual · 2ª parte · Competencia</span></div>
+    <div class="grow"></div>
+    <a class="navlink" href="index.html">← Índice</a>
+    <a class="navlink" href="#motores">Motores</a>
+    <a class="navlink" href="#analisis">Por qué</a>
+    <a class="navlink" href="#quiz">Quiz</a>
+    <a class="navlink" href="#hoja">Hoja</a>
+    <button class="iconbtn" onclick="toggleTheme()" aria-label="Cambiar tema"><span id="themeIcon">🌙</span></button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero reveal">
+    <span class="eyebrow"><span class="dot"></span> Inyección nafta · Sensores · Medición</span>
+    <h1 class="big display">Sensores, <span class="spark">motor por motor</span></h1>
+    <p class="sub">Para la competencia: te dan un motor y tenés que decir <b>qué sensores tiene</b>, <b>dónde están</b>, <b>cuántos pines</b> tiene cada uno, <b>qué es cada pin</b> y <b>cómo lo medís</b>. Acá están los motores típicos del parque argentino, uno por uno. Cómo funciona y cómo se mide cada <b>tipo</b> de sensor está en <a class="jump" href="sensores-funcionamiento.html">Sensores: cómo funcionan y cómo se miden →</a></p>
+    <a class="callout tip mobcta" href="competencia-movil.html"><span class="lab">📱 En la competencia</span><p>Usá la <b>ayuda rápida</b> en el celular: elegís el motor y ves cada sensor con ubicación, pines y cómo medirlo.</p></a>
+    <div class="metastrip" id="heroChips"></div>
+    <div class="callout warn" style="margin-top:20px"><span class="lab">Ojo con los números de pin</span>
+      <p>La <b>numeración física</b> del conector (1, 2, 3…) cambia según fabricante, año y proveedor del sensor. Lo que <b>no cambia</b> es la <b>función</b>: siempre hay un 5 V de referencia, una masa y una señal. En la competencia, <b>identificá cada pin midiendo</b> (método del paso 3) y no de memoria.</p></div>
+  </section>
+
+  <!-- 01 · MÉTODO -->
+  <section class="block reveal" id="metodo">
+    <div class="kicker"><span class="num">01</span><span class="rule"></span></div>
+    <h2 class="sec display">El método en <span class="spark">4 pasos</span></h2>
+    <div class="steps" style="margin-top:14px">
+      <div class="step"><div><h4>Identificar el sistema</h4><p>Mirá la ECU (etiqueta: Magneti Marelli, Bosch, Delphi, Sagem/Continental) y si el acelerador es por <b>cable</b> (TPS + motor paso a paso) o <b>electrónico</b> (mariposa motorizada + pedal). Eso ya te dice qué sensores esperar.</p></div></div>
+      <div class="step"><div><h4>Recorrer el motor siguiendo el aire</h4><p>Filtro → <b>IAT</b> → mariposa (<b>TPS</b>) → múltiple (<b>MAP</b>) → tapa (<b>ECT</b>, <b>CMP</b>) → block (<b>detonación</b>, <b>CKP</b>, presostato) → escape (<b>lambda</b> pre y post) → caja (<b>VSS</b>). Así no te salteás ninguno.</p></div></div>
+      <div class="step"><div><h4>Identificar los pines midiendo</h4><p>Conector <b>enchufado</b>, llave en <b>contacto</b>, multímetro en V DC, punta negra a masa de batería y punta roja por atrás del conector (<i>backprobe</i>): <span class="val">≈5 V</span> = referencia · <span class="val sig">≈0 V</span> = masa · lo que varía al mover/calentar = <b>señal</b> · <span class="val cu">≈12 V</span> = alimentación de batería/relé.</p></div></div>
+      <div class="step"><div><h4>Verificar el sensor</h4><p>Sensores <b>pasivos</b> (NTC, inductivo, lambda calefactor): medir <b>Ω desconectado</b>. Sensores <b>activos</b> (Hall, MAP, TPS): medir <b>tensión de señal</b> con el sensor trabajando y comparar con lo esperado.</p></div></div>
+    </div>
+
+    <h3 class="sub3">La regla de los cables</h3>
+    <p class="lead">Contar los pines del conector ya acota mucho de qué sensor se trata.</p>
+    <div class="rulegrid">
+      <div class="rule-c"><div class="pn">1<small>pin</small></div><p><b>Presostato de aceite</b> (interruptor a masa por la carcasa) · sonda lambda vieja sin calefactor · bulbo de temperatura del tablero.</p></div>
+      <div class="rule-c"><div class="pn">2<small>pines</small></div><p><b>NTC</b> (ECT, IAT) · <b>CKP inductivo</b> · <b>detonación</b>. Y como actuadores: inyector, válvula canister.</p></div>
+      <div class="rule-c"><div class="pn">3<small>pines</small></div><p><b>Activos con 5 V</b>: TPS, MAP, <b>Hall</b> (CMP, VSS, a veces CKP). También CKP inductivo con <b>malla</b> y lambda de 3 cables.</p></div>
+      <div class="rule-c"><div class="pn">4<small>pines</small></div><p><b>TMAP</b> (MAP + IAT juntos) · <b>lambda calefaccionada</b> · ECT doble (ECU + tablero). Actuador: motor paso a paso.</p></div>
+      <div class="rule-c"><div class="pn">6<small>pines</small></div><p><b>Mariposa motorizada</b> (motor + 2 pistas) · <b>pedal del acelerador</b> (2 potenciómetros).</p></div>
+    </div>
+
+    <h3 class="sub3">Colores de los pines</h3>
+    <div class="legend" id="legend"></div>
+
+    <h3 class="sub3">No son sensores, pero tienen conector</h3>
+    <p class="lead">Actuadores que te podés cruzar al recorrer el motor: reconocelos para no anotarlos como sensores (o anotalos aparte).</p>
+    <div class="panel" style="padding:4px 18px 14px;overflow-x:auto" id="actBox"></div>
+  </section>
+
+  <!-- 02 · MOTORES -->
+  <section class="block reveal" id="motores">
+    <div class="kicker"><span class="num">02</span><span class="rule"></span></div>
+    <h2 class="sec display">Los motores, <span class="spark">uno por uno</span></h2>
+    <p class="lead">Elegí el motor. El esquema en bloques muestra <b>en qué zona</b> está cada sensor; tocá un número (o un botón) y te dice ubicación, pines y cómo medirlo.</p>
+    <div class="engsel" id="engsel"></div>
+    <div class="einfo" id="einfo"></div>
+    <div class="callout" id="enote" style="display:none"></div>
+    <div class="emap" id="emap">
+      <div class="schematic" style="margin-top:16px">
+        <div class="cap"><span class="led"></span><b id="emapTitle">Mapa del motor</b><span class="mono">vista en bloques</span></div>
+        <div class="body"><svg id="esvg" viewBox="0 0 860 470" role="img" aria-label="Mapa en bloques del motor con los sensores numerados"></svg></div>
+      </div>
+      <div class="plist" id="eplist"></div>
+      <div class="panel pad xp" id="xp"><p class="lead" style="margin:0">Tocá un sensor del esquema o de la lista.</p></div>
+    </div>
+    <h3 class="sub3">Tabla resumen del motor</h3>
+    <div class="tblscroll"><table class="tbl etbl" id="etbl"></table></div>
+    <div class="callout tip"><span class="lab">Confianza de los datos</span>
+      <p><span class="conf alto">alto</span> sale de un manual de servicio (Ford EEC-V Rocam, Renault MR-453 "Injection V42") o de varias fuentes que coinciden. <span class="conf medio">medio</span> sale de catálogos de repuestos o revistas técnicas (Oficina Brasil, O Mecânico) o es lo típico de esa familia. <span class="conf bajo">bajo</span> no está confirmado: verificalo en el motor. Las <b>funciones</b> de los pines son seguras; la <b>numeración</b> 1-2-3, no siempre.</p></div>
+  </section>
+
+  <!-- 03 · COMPARATIVA -->
+  <section class="block reveal" id="comparativa">
+    <div class="kicker"><span class="num">03</span><span class="rule"></span></div>
+    <h2 class="sec display">Comparativa: <span class="spark">pines por motor</span></h2>
+    <p class="lead">Cantidad de pines de cada sensor en cada motor. "—" = no lo tiene (o no aplica en esa versión).</p>
+    <div class="tblscroll"><table class="tbl mtx" id="mtx"></table></div>
+  </section>
+
+  <!-- 04 · PARA ENTENDER -->
+  <section class="block reveal" id="analisis">
+    <div class="kicker"><span class="num">04</span><span class="rule"></span></div>
+    <h2 class="sec display">Para entender: <span class="spark">el porqué</span> de cada diseño</h2>
+    <p class="lead">Las preguntas que salen al comparar motores. Si entendés el <b>porqué</b>, en la competencia podés deducir lo que no te acordás.</p>
+    <div class="acc qacc" style="margin-top:18px">
+
+      <details open>
+        <summary><span class="idx">A1</span><span class="qq">¿Por qué Renault tiene MAP e IAT separados y los demás usan un TMAP?</span><span class="chev">›</span></summary>
+        <div class="inner">
+          <p class="ansline"><span class="k">Respuesta corta</span>Miden exactamente lo mismo. Es una decisión de <b>diseño, proveedor y costo</b>, no de funcionamiento: la ECU necesita las dos cosas, juntas o separadas.</p>
+          <p>Estos motores no miden el aire directamente (no tienen caudalímetro/MAF). <b>Lo calculan</b> con el método <b>velocidad-densidad</b>: la masa de aire que entra a cada cilindro depende de la <b>presión</b> del múltiple (MAP) y de la <b>temperatura</b> del aire (IAT), porque el aire frío es más denso, más las RPM y la cilindrada. Por eso <b>siempre</b> hay MAP + IAT: lo que cambia es si vienen en uno o dos cuerpos.</p>
+          <div class="tblscroll" style="margin:14px 0"><table class="tbl">
+            <thead><tr><th></th><th>MAP + IAT separados (Renault K7M)</th><th>TMAP 4 pines (Agile, VW, Fire, TU, Rocam)</th></tr></thead>
+            <tbody>
+              <tr><td>Dónde mide la temperatura</td><td>En la <b>entrada de aire</b>: aire "real", sin calentar</td><td>En el <b>múltiple</b>: el aire ya se calentó un poco con el motor</td></tr>
+              <tr><td>Conectores / cables</td><td>2 conectores (3 + 2 = 5 cables)</td><td>1 conector (4 cables, masa compartida)</td></tr>
+              <tr><td>Costo y armado</td><td>Más piezas y más arnés</td><td>Más barato y simple de montar</td></tr>
+              <tr><td>Si falla uno</td><td>Cambiás solo el que falla</td><td>Cambiás el conjunto</td></tr>
+              <tr><td>Origen</td><td>Arquitectura Sagem/Siemens de los 90 (Clio), heredada</td><td>Estándar de Bosch/Marelli/Delphi desde los 2000</td></tr>
+            </tbody></table></div>
+          <div class="callout mem"><span class="lab">En la competencia</span><p>Sensor de <b>4 pines</b> en el múltiple, con un pico o agujero hacia adentro → <b>TMAP</b>. Sensor de <b>3 pines</b> en el múltiple + uno de <b>2 pines</b> en el conducto o el filtro → <b>MAP + IAT</b>. Si hay un sensor grande en el tubo entre el filtro y la mariposa, es un <b>MAF</b> (otro método: mide la masa de aire directamente).</p></div>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="idx">A2</span><span class="qq">Los motores sin sensor de fase (CMP), ¿cómo funcionan?</span><span class="chev">›</span></summary>
+        <div class="inner">
+          <p class="ansline"><span class="k">Respuesta corta</span>El CKP le dice a la ECU <b>dónde está el cigüeñal</b>, pero no <b>en qué tiempo</b> está cada cilindro. Sin CMP se arreglan con <b>chispa perdida</b> (que no necesita saber la fase) e <b>inyección semisecuencial</b> (o deducen la fase por software).</p>
+          <p><b>El problema:</b> el ciclo de 4 tiempos dura <b>2 vueltas</b> (720°), y el hueco del CKP aparece <b>una vez por vuelta</b>. Cuando el pistón 1 llega arriba, la ECU no puede saber si está en <b>compresión</b> (tiene que saltar la chispa) o terminando el <b>escape</b> (no hace falta). Eso es justamente lo que informa el CMP: da un solo pulso cada 720°.</p>
+          <div class="diag" style="margin:14px 0"><svg viewBox="0 0 770 250" role="img" aria-label="Dos vueltas de cigüeñal: el CKP repite su hueco cada vuelta, el CMP marca una sola vez cada 720 grados">
+  <text class="wlab" x="10" y="54">CKP 60-2</text>
+  <path d="M160 58 V40 H162.5 V58M165 58 V40 H167.5 V58M170 58 V40 H172.5 V58M175 58 V40 H177.5 V58M180 58 V40 H182.5 V58M185 58 V40 H187.5 V58M190 58 V40 H192.5 V58M195 58 V40 H197.5 V58M200 58 V40 H202.5 V58M205 58 V40 H207.5 V58M210 58 V40 H212.5 V58M215 58 V40 H217.5 V58M220 58 V40 H222.5 V58M225 58 V40 H227.5 V58M230 58 V40 H232.5 V58M235 58 V40 H237.5 V58M240 58 V40 H242.5 V58M245 58 V40 H247.5 V58M250 58 V40 H252.5 V58M255 58 V40 H257.5 V58M260 58 V40 H262.5 V58M265 58 V40 H267.5 V58M270 58 V40 H272.5 V58M275 58 V40 H277.5 V58M280 58 V40 H282.5 V58M285 58 V40 H287.5 V58M290 58 V40 H292.5 V58M295 58 V40 H297.5 V58M300 58 V40 H302.5 V58M305 58 V40 H307.5 V58M310 58 V40 H312.5 V58M315 58 V40 H317.5 V58M320 58 V40 H322.5 V58M325 58 V40 H327.5 V58M330 58 V40 H332.5 V58M335 58 V40 H337.5 V58M340 58 V40 H342.5 V58M345 58 V40 H347.5 V58M350 58 V40 H352.5 V58M355 58 V40 H357.5 V58M360 58 V40 H362.5 V58M365 58 V40 H367.5 V58M370 58 V40 H372.5 V58M375 58 V40 H377.5 V58M380 58 V40 H382.5 V58M385 58 V40 H387.5 V58M390 58 V40 H392.5 V58M395 58 V40 H397.5 V58M400 58 V40 H402.5 V58M405 58 V40 H407.5 V58M410 58 V40 H412.5 V58M415 58 V40 H417.5 V58M420 58 V40 H422.5 V58M425 58 V40 H427.5 V58M430 58 V40 H432.5 V58M435 58 V40 H437.5 V58M440 58 V40 H442.5 V58M445 58 V40 H447.5 V58M460 58 V40 H462.5 V58M465 58 V40 H467.5 V58M470 58 V40 H472.5 V58M475 58 V40 H477.5 V58M480 58 V40 H482.5 V58M485 58 V40 H487.5 V58M490 58 V40 H492.5 V58M495 58 V40 H497.5 V58M500 58 V40 H502.5 V58M505 58 V40 H507.5 V58M510 58 V40 H512.5 V58M515 58 V40 H517.5 V58M520 58 V40 H522.5 V58M525 58 V40 H527.5 V58M530 58 V40 H532.5 V58M535 58 V40 H537.5 V58M540 58 V40 H542.5 V58M545 58 V40 H547.5 V58M550 58 V40 H552.5 V58M555 58 V40 H557.5 V58M560 58 V40 H562.5 V58M565 58 V40 H567.5 V58M570 58 V40 H572.5 V58M575 58 V40 H577.5 V58M580 58 V40 H582.5 V58M585 58 V40 H587.5 V58M590 58 V40 H592.5 V58M595 58 V40 H597.5 V58M600 58 V40 H602.5 V58M605 58 V40 H607.5 V58M610 58 V40 H612.5 V58M615 58 V40 H617.5 V58M620 58 V40 H622.5 V58M625 58 V40 H627.5 V58M630 58 V40 H632.5 V58M635 58 V40 H637.5 V58M640 58 V40 H642.5 V58M645 58 V40 H647.5 V58M650 58 V40 H652.5 V58M655 58 V40 H657.5 V58M660 58 V40 H662.5 V58M665 58 V40 H667.5 V58M670 58 V40 H672.5 V58M675 58 V40 H677.5 V58M680 58 V40 H682.5 V58M685 58 V40 H687.5 V58M690 58 V40 H692.5 V58M695 58 V40 H697.5 V58M700 58 V40 H702.5 V58M705 58 V40 H707.5 V58M710 58 V40 H712.5 V58M715 58 V40 H717.5 V58M720 58 V40 H722.5 V58M725 58 V40 H727.5 V58M730 58 V40 H732.5 V58M735 58 V40 H737.5 V58M740 58 V40 H742.5 V58M745 58 V40 H747.5 V58" fill="none" stroke="var(--signal)" stroke-width="1.6"/>
+  <text class="wlab2" x="148" y="32">hueco</text><text class="wlab2" x="448" y="32">hueco</text>
+  <text class="wlab" x="10" y="104">CMP (fase)</text>
+  <path d="M150 104 H170 V84 H220 V104 H750" fill="none" stroke="var(--spark)" stroke-width="2.4"/>
+  <text class="wlab2" x="230" y="92">1 pulso cada 2 vueltas</text>
+  <text class="wlab" x="10" y="146">Cilindro 1</text>
+  <rect x="150" y="130" width="150" height="24" rx="5" fill="color-mix(in srgb,var(--bad) 22%,var(--panel))" stroke="var(--bad)"/><text class="wlab" x="158" y="146">EXPLOSIÓN</text>
+  <rect x="300" y="130" width="150" height="24" rx="5" fill="var(--panel)" stroke="var(--line2)"/><text class="wlab" x="308" y="146">ESCAPE</text>
+  <rect x="450" y="130" width="150" height="24" rx="5" fill="var(--panel)" stroke="var(--line2)"/><text class="wlab" x="458" y="146">ADMISIÓN</text>
+  <rect x="600" y="130" width="150" height="24" rx="5" fill="color-mix(in srgb,var(--spark) 18%,var(--panel))" stroke="var(--spark)"/><text class="wlab" x="608" y="146">COMPRESIÓN</text>
+  <text class="wlab" x="10" y="196">Chispa perdida</text>
+  <text class="wlab2" x="10" y="210">(cil. 1 y 4 juntos)</text>
+  <path d="M150 206 l6 -14 h-8 l6 -14" fill="none" stroke="var(--spark)" stroke-width="2.4"/>
+  <path d="M450 206 l6 -14 h-8 l6 -14" fill="none" stroke="var(--muted)" stroke-width="2.4"/>
+  <path d="M750 206 l6 -14 h-8 l6 -14" fill="none" stroke="var(--spark)" stroke-width="2.4"/>
+  <text class="wlab2" x="162" y="200">útil (cil. 1 en PMS de compresión)</text>
+  <text class="wlab2" x="462" y="200">perdida (cil. 1 en PMS de escape)</text>
+  <path d="M150 20 V225 M450 20 V225 M750 20 V225" stroke="var(--line2)" stroke-dasharray="3 4"/>
+  <text class="wlab2" x="144" y="242">0°</text><text class="wlab2" x="438" y="242">360°</text><text class="wlab2" x="724" y="242">720°</text>
+</svg></div>
+          <p><b>Solución 1 · encendido de chispa perdida.</b> La bobina doble (Fire), el casete (Peugeot TU) o la bobina de 4 salidas (K7M) hacen saltar la chispa en <b>dos cilindros a la vez</b>, 1-4 y 2-3, que siempre están en PMS juntos. Uno está en compresión (chispa útil) y el otro en escape (chispa perdida, que casi no consume energía porque ahí no hay presión). Salta <b>en cada vuelta</b>, así que <b>no hace falta saber la fase</b>: con el CKP alcanza.</p>
+          <p><b>Solución 2 · inyección semisecuencial (o simultánea).</b> Se inyecta en <b>pares de cilindros</b> o en todos a la vez, con media dosis en cada vuelta. El combustible espera en la válvula de admisión cerrada hasta que abre. Es un poco menos preciso que la secuencial, sobre todo en frío y en las emisiones.</p>
+          <p><b>Solución 3 · fase por software.</b> Algunas ECU arrancan en semisecuencial y después <b>deducen</b> la fase, por ejemplo analizando las pequeñas aceleraciones del cigüeñal que deja cada combustión, y pasan a secuencial. Qué estrategia exacta usa cada ECU (K7M, TU) no está confirmado; lo seguro es que <b>no tienen CMP</b> y que el encendido es de <b>chispa perdida</b>.</p>
+          <div class="tblscroll" style="margin:14px 0"><table class="tbl">
+            <thead><tr><th>¿Cuándo SÍ hace falta el CMP?</th><th>Por qué</th></tr></thead>
+            <tbody>
+              <tr><td>Bobinas individuales (COP / lápiz)</td><td>Una sola chispa cada 720°: tiene que saber cuál cilindro está en compresión</td></tr>
+              <tr><td>Inyección secuencial desde el arranque</td><td>Inyecta justo antes de que abra cada válvula de admisión</td></tr>
+              <tr><td>Distribución variable (VVT)</td><td>Tiene que medir dónde está realmente el árbol de levas</td></tr>
+              <tr><td>Detección de fallas por cilindro (OBD)</td><td>Saber exactamente qué cilindro falla</td></tr>
+            </tbody></table></div>
+          <div class="callout warn"><span class="lab">Si en un motor CON CMP se rompe el sensor</span><p>No suele quedar parado: la ECU pasa al modo de emergencia (semisecuencial / chispa perdida). Arranca, pero <b>tarda más</b> en arrancar, prende la luz de falla y consume un poco más.</p></div>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="idx">A3</span><span class="qq">¿Por qué el CKP es inductivo en unos motores y Hall en otros?</span><span class="chev">›</span></summary>
+        <div class="inner">
+          <div class="tblscroll" style="margin:6px 0 14px"><table class="tbl">
+            <thead><tr><th></th><th>Inductivo (Fire, K7M, TU, Rocam)</th><th>Hall (VW EA111)</th></tr></thead>
+            <tbody>
+              <tr><td>Alimentación</td><td>No necesita: <b>genera</b> su propia tensión</td><td>Necesita 5 o 12 V</td></tr>
+              <tr><td>Señal</td><td>Alterna (senoidal); su amplitud <b>crece con las RPM</b></td><td>Cuadrada 0/5 V, <b>igual a cualquier RPM</b></td></tr>
+              <tr><td>A muy bajas RPM</td><td>Señal débil: necesita un mínimo de giro de arranque</td><td>Lee aunque gire lentísimo (incluso parado)</td></tr>
+              <tr><td>Robustez / costo</td><td>Muy robusto y barato (bobina + imán)</td><td>Tiene electrónica adentro, más precisa</td></tr>
+              <tr><td>Se mide con</td><td><b>Ω</b> (cientos) y <b>V AC</b> dando arranque</td><td><b>V DC</b>: alimentación y señal que conmuta. Nunca Ω</td></tr>
+            </tbody></table></div>
+          <p>La tendencia es pasar a Hall (o magnetorresistivo) porque da una señal limpia desde 0 RPM, útil para el arranque rápido y el start-stop.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="idx">A4</span><span class="qq">Si la rueda fónica tiene un hueco, ¿cómo sabe la ECU cuándo está en el PMS?</span><span class="chev">›</span></summary>
+        <div class="inner">
+          <p>Una rueda <b>60-2</b> tiene lugar para 60 dientes cada 6°, pero le faltan 2. El hueco <b>no está</b> en el PMS: es una <b>referencia</b>. La ECU sabe de fábrica que el PMS del cilindro 1 está, por ejemplo, <b>N dientes después del hueco</b>, y los va contando. Con 58 dientes conoce el ángulo con una resolución de 6° (y la mejora interpolando el tiempo entre dientes).</p>
+          <p>Ford usa <b>36-1</b> (dientes cada 10°, falta 1). La idea es la misma. Por eso, si la rueda tiene un <b>diente dañado</b>, la ECU puede confundirlo con el hueco y desfasar la chispa: tironeos o no arranca.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="idx">A5</span><span class="qq">¿Por qué la mariposa motorizada y el pedal tienen 6 pines y doble pista?</span><span class="chev">›</span></summary>
+        <div class="inner">
+          <p>Con acelerador por <b>cable</b>, el pie abre la mariposa: el TPS (3 pines) solo <b>informa</b> y el motor paso a paso controla el ralentí. Con acelerador <b>electrónico</b>, la ECU es la que abre la mariposa: tu pie solo da una "orden" por el pedal.</p>
+          <p>Si el sensor del pedal o el de la mariposa mintieran, el auto podría acelerar solo. Por <b>seguridad</b>, cada uno tiene <b>dos pistas independientes</b>, con su propio 5 V y su propia masa en el pedal, y la ECU las compara todo el tiempo (<b>plausibilidad</b>). Si no coinciden: modo emergencia, motor limitado. Las cuentas: mariposa = 2 del motor + 5 V + masa + 2 pistas = <b>6</b>; pedal = 2 × (5 V + masa + señal) = <b>6</b>.</p>
+          <p>A cambio, la ECU puede manejar sola el ralentí, el control de crucero, el de tracción y las emisiones. Por eso desaparece la válvula de ralentí.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="idx">A6</span><span class="qq">¿Por qué la sonda lambda tiene 4 cables y algunos motores llevan dos?</span><span class="chev">›</span></summary>
+        <div class="inner">
+          <p>La sonda solo funciona caliente (unos <b>350 °C</b>). Sin calefactor, tarda minutos en empezar a funcionar y el motor contamina mientras tanto. Los <b>2 cables blancos</b> son un calefactor eléctrico que la deja lista en unos 30 s. Los otros 2 son la señal y su masa.</p>
+          <p>Con las normas de emisiones (OBD II / Euro 3+) aparece la <b>segunda sonda</b>, después del catalizador. La <b>pre</b> regula la mezcla y <b>oscila</b> rico ↔ pobre. La <b>post</b> controla el catalizador: si el catalizador funciona, consume el oxígeno de las oscilaciones y la post queda <b>estable</b> (≈0,45–0,7 V). Si la post oscila igual que la pre, el catalizador está agotado.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="idx">A7</span><span class="qq">¿Por qué el ECT de Ford mide 36 kΩ a 20 °C y uno Bosch 2,5 kΩ? ¿Está roto?</span><span class="chev">›</span></summary>
+        <div class="inner">
+          <p>No. La ECU no mide ohms: mide la <b>tensión</b> de un divisor que forman su resistencia interna (la que trae los 5 V) y la NTC. Cada fabricante elige una NTC y una resistencia interna que <b>van juntas</b>. Ford eligió valores altos; Bosch, más bajos. Las dos dan una tensión parecida a la misma temperatura.</p>
+          <p>Lo importante es que el sensor <b>baje su resistencia al calentarse, sin saltos</b>, y que coincida con la tabla de <b>su</b> marca. Si le ponés un sensor de otra marca "porque entra en la rosca", la ECU lee otra temperatura: mezcla corrida, electroventilador que no prende.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="idx">A8</span><span class="qq">¿Por qué los sensores trabajan con 5 V y no con los 12 V de la batería?</span><span class="chev">›</span></summary>
+        <div class="inner">
+          <p>La tensión de la batería <b>varía</b>: unos 12,5 V parado, unos 14 V cargando y 9–10 V dando arranque. Si los sensores trabajaran con ella, su señal cambiaría con la carga de la batería y no con lo que miden. La ECU arma su propio <b>5 V regulado</b>, que es además el rango de su conversor analógico-digital (0–5 V).</p>
+          <p>De paso le sirve para <b>diagnosticar</b>: la señal válida va de ≈0,2 a ≈4,8 V. Si la ECU lee <b>0 V clavado</b>, hay un corto a masa o un cable de 5 V cortado. Si lee <b>5 V clavado</b>, hay un cable de señal o de masa abierto. Así enciende la luz de falla con el código correcto. Es el mismo razonamiento que usás vos con el multímetro en el paso 3.</p>
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+  <!-- 05 · QUIZ -->
+  <section class="block reveal" id="quiz">
+    <div class="kicker"><span class="num">05</span><span class="rule"></span></div>
+    <h2 class="sec display">Quiz: <span class="spark">¿qué sensores tiene?</span></h2>
+    <p class="lead">Sale un motor al azar. En el esquema están <b>todos los sensores posibles</b>, cada uno en su lugar (ojo: el CKP puede ir en la polea o en el volante). Tocá los que <b>tiene ese motor</b>: verde si está, rojo si no. Seguí hasta encontrarlos todos.</p>
+    <div class="qhead">
+      <span class="eng" id="qEng">—</span>
+      <span class="sc">Encontrados <b id="qOk">0</b>/<b id="qTot">0</b> · Errores <b id="qBad">0</b></span>
+      <span class="ctrls" style="margin:0"><button class="btn primary" id="qNext">🎲 Otro motor</button><button class="btn ghost" id="qShow">Ver los que faltan</button></span>
+    </div>
+    <div class="schematic" style="margin-top:12px">
+      <div class="cap"><span class="led"></span><b>Mapa del motor</b><span class="mono">tocá los sensores que tiene</span></div>
+      <div class="body"><svg id="qsvg" viewBox="0 0 860 470" role="img" aria-label="Mapa en bloques con todos los sensores posibles para elegir"></svg></div>
+    </div>
+    <p id="qlog"></p>
+  </section>
+
+  <!-- 06 · HOJA -->
+  <section class="block reveal" id="hoja">
+    <div class="kicker"><span class="num">06</span><span class="rule"></span></div>
+    <h2 class="sec display">Hoja de <span class="spark">competencia</span></h2>
+    <p class="lead">Planilla para completar en papel con los 3 motores que te toquen. Se imprime sola (sin el resto de la página).</p>
+    <div class="ctrls noprint"><button class="btn primary" onclick="printSheet()">🖨️ Imprimir hoja</button></div>
+    <div class="sheet" id="sheet"></div>
+  </section>
+
+</main>
+
+<footer class="site"><div class="wrap" style="padding-bottom:0">
+  <div class="footrow">
+    <span>ITCA · Inyección electrónica nafta — material de estudio. Español rioplatense.</span>
+    <a class="navlink" href="index.html">Volver a la guía</a>
+  </div>
+</div></footer>
+
+<script src="guia.js"></script>
+<script src="sensores-data.js"></script>
+<script>
+function drawBase(){
+  var o='';
+  Object.keys(ZONES).forEach(function(k){var z=ZONES[k];
+    o+='<rect class="zone'+(k==='escape'||k==='cat'?' hot2':'')+'" x="'+z.x+'" y="'+z.y+'" width="'+z.w+'" height="'+z.h+'" rx="12"/>';
+    o+='<text class="zt" x="'+(z.x+10)+'" y="'+(z.y+17)+'">'+z.t+'</text>';});
+  // decoración: cilindros, corona, poleas, flujo de aire y gases
+  for(var i=0;i<4;i++){o+='<circle cx="'+(290+i*105)+'" cy="168" r="22" fill="none" stroke="var(--line2)" stroke-width="1.5" stroke-dasharray="4 4"/>';}
+  o+='<circle cx="200" cy="278" r="44" fill="none" stroke="var(--wire)" stroke-width="5" stroke-dasharray="3 4" opacity=".55"/>';
+  o+='<circle cx="768" cy="168" r="26" fill="none" stroke="var(--wire)" stroke-width="2" opacity=".6"/><circle cx="768" cy="282" r="30" fill="none" stroke="var(--wire)" stroke-width="2" opacity=".6"/>';
+  o+='<path d="M768 142 V252 M742 168 V282 M794 168 V282" stroke="var(--wire)" stroke-width="1.5" opacity=".35"/>';
+  o+='<path class="wire-sig flow" d="M174 62 H196 M326 62 H348" opacity=".7"/>';
+  o+='<path class="wire-hi flow" d="M495 388 V404 M570 429 H640" opacity=".7"/>';
+  o+='<text class="zt" x="600" y="448">→ post-cat</text>';
+  return o;
+}
+function drawEngine(e){
+  var o=drawBase();
+  e.sensors.forEach(function(s,i){var p=mkPos(s);
+    o+='<g class="mk" data-i="'+i+'" tabindex="0" role="button" aria-label="'+s.n+'"><circle cx="'+p.x+'" cy="'+p.y+'" r="14"/><text x="'+p.x+'" y="'+(p.y+4)+'">'+(i+1)+'</text></g>';});
+  return o;
+}
+var curEng=null;
+function selectEngine(id){
+  curEng=id; var e=ENGINES[id];
+  document.querySelectorAll('#engsel button').forEach(function(b){b.classList.toggle('on',b.dataset.id===id);});
+  document.getElementById('einfo').innerHTML=e.info.map(function(r){return '<div><span class="k">'+r[0]+'</span><b>'+r[1]+'</b></div>';}).join('');
+  var en=document.getElementById('enote'); en.style.display=e.nota?'':'none'; en.innerHTML='<span class="lab">Para tener en cuenta</span><p>'+(e.nota||'')+'</p>';
+  document.getElementById('emapTitle').textContent=e.name;
+  var svg=document.getElementById('esvg'); svg.innerHTML=drawEngine(e);
+  var pl=document.getElementById('eplist');
+  pl.innerHTML=e.sensors.map(function(s,i){return '<button type="button" class="chip-part" data-i="'+i+'"><span class="cn">'+(i+1)+'</span>'+s.n+'</button>';}).join('');
+  document.getElementById('emap').classList.remove('has-on');
+  document.getElementById('xp').innerHTML='<p class="lead" style="margin:0">Tocá un sensor del esquema o de la lista.</p>';
+  document.querySelectorAll('#esvg .mk, #eplist .chip-part').forEach(function(el){
+    var i=+el.dataset.i;
+    el.addEventListener('click',function(){showSensor(i);});
+    el.addEventListener('keydown',function(ev){if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();showSensor(i);}});
+  });
+  var t='<thead><tr><th>#</th><th>Sensor</th><th>Ubicación</th><th>Pines</th><th>Función de cada pin</th><th>Conf.</th></tr></thead><tbody>';
+  e.sensors.forEach(function(s,i){t+='<tr><td>'+(i+1)+'</td><td><b>'+s.n+'</b><br><a class="jump" href="sensores-funcionamiento.html#f-'+s.f+'">ficha →</a></td><td>'+s.ubic+'</td><td class="num">'+s.p+'</td><td>'+s.pines+'</td><td><span class="conf '+s.c+'">'+s.c+'</span></td></tr>';});
+  document.getElementById('etbl').innerHTML=t+'</tbody>';
+}
+function showSensor(i){
+  var e=ENGINES[curEng], s=e.sensors[i], f=SENSORS[s.f];
+  document.querySelectorAll('#esvg .mk').forEach(function(m){m.classList.toggle('on',+m.dataset.i===i);});
+  document.querySelectorAll('#eplist .chip-part').forEach(function(m){m.classList.toggle('on',+m.dataset.i===i);});
+  document.getElementById('emap').classList.add('has-on');
+  document.getElementById('xp').innerHTML='<h4><span class="xp-n val">'+(i+1)+'</span> '+s.n+' <span class="conf '+s.c+'">confianza '+s.c+'</span></h4>'+
+    '<div class="row"><span class="k">Ubicación</span><span>'+s.ubic+'</span></div>'+
+    '<div class="row"><span class="k">Pines</span><span><b>'+s.p+'</b> · '+s.pines+'</span></div>'+
+    (s.val?'<div class="row"><span class="k">Valores</span><span>'+s.val+'</span></div>':'')+
+    '<div class="row"><span class="k">Cómo medir</span><span>'+f.mido[0]+' '+(f.mido[1]||'')+' <a class="jump" href="sensores-funcionamiento.html#f-'+s.f+'">🧪 Cómo funciona y cómo se mide el '+f.sig+' →</a></span></div>';
+}
+function renderEngines(){
+  var ids=Object.keys(ENGINES); if(!ids.length) return;
+  document.getElementById('engsel').innerHTML=ids.map(function(id){var e=ENGINES[id];return '<button type="button" data-id="'+id+'">'+e.short+'<small>'+e.sub+'</small></button>';}).join('');
+  document.querySelectorAll('#engsel button').forEach(function(b){b.addEventListener('click',function(){selectEngine(b.dataset.id);});});
+  selectEngine(ids[0]);
+  // matriz comparativa (por función)
+  var rows=['CKP','CMP','ECT','IAT','MAP','TMAP','TPS','ETB','APP','λ pre','λ post','KS','VSS','OPS'];
+  var t='<thead><tr><th>Sensor</th>'+ids.map(function(id){return '<th>'+ENGINES[id].short+'</th>';}).join('')+'</tr></thead><tbody>';
+  rows.forEach(function(r){
+    t+='<tr><td><b>'+r+'</b></td>'+ids.map(function(id){
+      var ps=ENGINES[id].sensors.filter(function(s){return s.r===r;}).map(function(s){return s.p;});
+      return ps.length?'<td class="num">'+ps.join(' / ')+'</td>':'<td class="no">—</td>';}).join('')+'</tr>';});
+  document.getElementById('mtx').innerHTML=t+'</tbody>';
+  var hc=document.getElementById('heroChips');
+  hc.innerHTML='<span class="chip">🔧 <b>'+ids.length+'</b> motores</span><span class="chip">📟 <b>'+Object.keys(SENSORS).length+'</b> tipos de sensor</span><span class="chip">🖨️ hoja imprimible</span>';
+}
+function renderSheet(){
+  var cols=['Sensor','Ubicación','Pines','Función de cada pin','Cómo lo mido','Valor medido'], h='';
+  for(var m=1;m<=3;m++){
+    h+='<div class="eng"><h4>Motor '+m+': ______________________ &nbsp; ECU: ______________ &nbsp; Acelerador: cable / electrónico</h4><table><tr>'+cols.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr>';
+    for(var r=0;r<11;r++) h+='<tr>'+cols.map(function(){return '<td></td>';}).join('')+'</tr>';
+    h+='</table></div>';
+  }
+  document.getElementById('sheet').innerHTML=h;
+}
+function printSheet(){document.body.classList.add('only-sheet');window.print();document.body.classList.remove('only-sheet');}
+
+/* ===== Quiz: ¿qué sensores tiene? =====
+   Candidatos fijos: clave = fila comparativa @ zona (así se distingue CKP en polea vs volante). MAF = distractor. */
+var QCAND=[
+  ['IAT@filtro','IAT',62,72],['MAF@filtro','MAF',136,72],['TPS@mariposa','TPS',232,72],['ETB@mariposa','ETB',290,72],
+  ['MAP@admision','MAP',450,72],['TMAP@admision','TMAP',570,72],['ECT@tapa','ECT',252,196],['CMP@tapa','CMP',640,196],
+  ['KS@block','KS',450,282],['OPS@block','OPS',268,306],['λ pre@escape','λ pre',450,368],['λ post@cat','λ post',495,436],
+  ['CKP@caja','CKP',152,236],['VSS@caja','VSS',78,296],['CKP@dist','CKP',768,226],['APP@pedal','APP',112,436]];
+var qEngId=null, qHas={}, qDone={}, qOk=0, qBad=0;
+function qNew(){
+  var ids=Object.keys(ENGINES).filter(function(id){return id!==qEngId;});
+  qEngId=ids[Math.floor(Math.random()*ids.length)]; var e=ENGINES[qEngId];
+  qHas={}; qDone={}; qOk=0; qBad=0;
+  // TPS (cable) y ETB+APP (motorizada) son versiones distintas del mismo motor: se sortea una
+  var ss=e.sensors, ver='';
+  if(ss.some(function(x){return x.r==='TPS';})&&ss.some(function(x){return x.r==='ETB';})){
+    var cable=Math.random()<.5; ver=cable?' · acelerador por cable':' · mariposa motorizada';
+    ss=ss.filter(function(x){return cable?(x.r!=='ETB'&&x.r!=='APP'):x.r!=='TPS';});}
+  ss.forEach(function(x){var k=x.r+'@'+x.zona; (qHas[k]=qHas[k]||[]).push(x.n);});
+  var o=drawBase();
+  QCAND.forEach(function(c){var w=c[1].length*8+20;
+    o+='<g class="qk" data-k="'+c[0]+'" tabindex="0" role="button" aria-label="'+c[1]+'"><rect x="'+(c[2]-w/2)+'" y="'+(c[3]-13)+'" width="'+w+'" height="26" rx="13"/><text x="'+c[2]+'" y="'+(c[3]+4)+'">'+c[1]+'</text></g>';});
+  document.getElementById('qsvg').innerHTML=o;
+  document.getElementById('qEng').textContent=e.name+ver;
+  document.getElementById('qTot').textContent=Object.keys(qHas).length;
+  document.getElementById('qlog').innerHTML='';
+  qScore();
+  document.querySelectorAll('#qsvg .qk').forEach(function(g){
+    g.addEventListener('click',function(){qPick(g);});
+    g.addEventListener('keydown',function(ev){if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();qPick(g);}});});
+}
+function qScore(){document.getElementById('qOk').textContent=qOk;document.getElementById('qBad').textContent=qBad;}
+function qPick(g){
+  var k=g.dataset.k; if(qDone[k])return; qDone[k]=1;
+  var c=QCAND.filter(function(x){return x[0]===k;})[0], log=document.getElementById('qlog');
+  if(qHas[k]){g.classList.add('ok'); qOk++; log.innerHTML='✅ <b>'+qHas[k].join(' + ')+'</b>';}
+  else{g.classList.add('bad'); qBad++; log.innerHTML='❌ Este motor <b>no tiene '+c[1]+'</b> ahí'+(c[1]==='CKP'?' (mirá si va en la polea o en el volante)':'')+'.';}
+  qScore();
+  if(qOk===Object.keys(qHas).length) log.innerHTML='🏁 <b>¡Completo!</b> '+qOk+' sensores con '+qBad+(qBad===1?' error':' errores')+'. Tocá <b>Otro motor</b>.';
+}
+document.getElementById('qNext').addEventListener('click',qNew);
+document.getElementById('qShow').addEventListener('click',function(){
+  document.querySelectorAll('#qsvg .qk').forEach(function(g){if(qHas[g.dataset.k]&&!qDone[g.dataset.k])g.classList.add('miss');});});
+
+renderLegend(document.getElementById('legend'));
+document.getElementById('actBox').innerHTML=renderActTable();
+renderEngines(); renderSheet(); qNew();
+</script>
+</body>
+</html>

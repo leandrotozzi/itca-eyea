@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Actuadores, ralentí y emisiones · Guía Visual ITCA</title>
+<link rel="stylesheet" href="guia.css">
+<style>
+.sim{margin-top:18px}
+.sim .body{padding:14px 14px 18px}
+.simgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:center}
+@media(max-width:760px){.simgrid{grid-template-columns:1fr}}
+.simgrid>*{min-width:0}
+.ro{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px}
+.ro span{font-family:ui-monospace,Menlo,monospace;font-size:.82rem;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:6px 10px;color:var(--muted)}
+.ro b{color:var(--spark);font-size:1rem}
+.ro b.sig{color:var(--signal)}
+.ro b.bad{color:var(--bad)}
+.ro b.ok{color:var(--ok)}
+.ctl{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin:10px 0}
+.ctl label{font-size:.85rem;font-weight:700;color:var(--muted);white-space:nowrap}
+.ctl output{font-family:ui-monospace,Menlo,monospace;font-weight:800;color:var(--spark);min-width:70px;text-align:right}
+.scopebox{background:#06101c;border:1px solid #1d2c44;border-radius:12px;padding:6px}
+.scg{stroke:#17304a;stroke-width:1}
+.sct{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;fill:#6f8bb0}
+.lbl2{font-family:ui-monospace,Menlo,monospace;font-size:11px;fill:var(--muted)}
+.lblb{font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:800;fill:var(--ink)}
+.box{fill:var(--panel);stroke:var(--line2);stroke-width:1.6}
+.boxh{fill:color-mix(in srgb,var(--spark) 10%,var(--panel));stroke:var(--spark);stroke-width:1.8}
+.boxn{fill:color-mix(in srgb,var(--navy2) 10%,var(--panel));stroke:var(--navy2);stroke-width:1.8}
+.boxs{fill:color-mix(in srgb,var(--signal) 10%,var(--panel));stroke:var(--signal);stroke-width:1.8}
+.tomed{display:inline-flex;gap:6px;align-items:center;font-weight:800;color:var(--signal);text-decoration:none;font-size:.92rem;margin-top:8px}
+.tomed:hover{text-decoration:underline}
+.manref{border:1px dashed var(--line2);border-radius:14px;padding:12px 16px;margin:16px 0 4px;background:var(--panel)}
+.manref .lab{font-family:ui-monospace,Menlo,monospace;font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--navy-ink)}
+.manref ul{margin:.4em 0 0;padding-left:1.2em;font-size:.92rem;color:var(--muted)}
+.manref li{margin:.25em 0}
+.manref li b{color:var(--ink)}
+blockquote.q{margin:14px 0;padding:10px 16px;border-left:3px solid var(--navy2);background:color-mix(in srgb,var(--navy2) 7%,var(--panel));border-radius:0 12px 12px 0;color:var(--ink);font-style:italic}
+blockquote.q cite{display:block;font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:.75rem;color:var(--muted);margin-top:4px}
+.gen{font-family:ui-monospace,Menlo,monospace;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--copper);border:1px solid color-mix(in srgb,var(--copper) 45%,transparent);border-radius:6px;padding:1px 6px;white-space:nowrap}
+.btn.ghost.on{border-color:var(--spark);background:color-mix(in srgb,var(--spark) 16%,var(--panel))}
+.btn.sm{padding:8px 13px;font-size:.88rem}
+.seg{flex-wrap:wrap}
+.coil{fill:none;stroke:var(--wire);stroke-width:2.4;transition:stroke .1s}
+.coil.on{stroke:var(--spark)}
+.note{font-size:.9rem;color:var(--muted);margin:.5em 0 0;min-height:2.6em}
+.note b{color:var(--ink)}
+.recap li{margin:.45em 0}
+.recap li b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="readbar" id="readbar"></div>
+
+<header class="site">
+  <div class="hbar">
+    <a class="logo" href="index.html" aria-label="Inicio"><img src="logo.png" alt="ITCA"></a>
+    <div class="brand"><b>Actuadores, ralentí <span class="spark">y emisiones</span></b><span>Guía visual · 2ª parte</span></div>
+    <div class="grow"></div>
+    <button class="iconbtn" onclick="toggleTheme()" aria-label="Cambiar tema"><span id="themeIcon">🌙</span></button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero reveal">
+    <span class="eyebrow"><span class="dot"></span> Inyección nafta · Actuadores · Simuladores</span>
+    <h1 class="big display">Lo que la ECU <span class="spark">mueve</span>, y lo que sale por el escape</h1>
+    <p class="sub">Los sensores le cuentan a la ECU qué pasa; los <b>actuadores</b> son sus manos. Acá ves cómo sostiene el ralentí (paso a paso, regulador de CC), cómo se limpian los gases (catalizador, EGR), cómo salta la chispa sin distribuidor (DIS) y cómo se leen las señales con el multímetro.</p>
+    <div class="metastrip">
+      <span class="chip">🧪 <b>8</b> simuladores</span>
+      <span class="chip">📝 con notas propias</span>
+      <span class="chip">🏷️ lo que no es del manual dice <span class="gen">dato general de taller</span></span>
+      <a class="chip" href="sensores-funcionamiento.html" style="text-decoration:none">🔎 antes → <b>Cómo funcionan los sensores</b></a>
+    </div>
+  </section>
+
+  <!-- 01 · INTRO -->
+  <section class="block reveal" id="intro">
+    <div class="kicker"><span class="num">01</span><span class="rule"></span></div>
+    <h2 class="sec display">Sensor vs <span class="spark">actuador</span>, y por qué hay que controlar el ralentí</h2>
+    <p class="lead">Un <b>sensor</b> convierte algo físico en una señal que la ECU lee. Un <b>actuador</b> hace lo contrario: recibe una orden eléctrica de la ECU (casi siempre <b>pulsos de masa</b>) y la convierte en movimiento, aire, nafta o chispa.</p>
+    <p>En ralentí el pie está suelto y la mariposa cerrada: el motor vive del poquito aire que se filtra. Pero ese "poquito" no alcanza siempre igual. Cuando prendés el <b>aire acondicionado</b>, girás el volante con <b>dirección hidráulica</b>, el motor está <b>frío</b> (más roce, aceite espeso) o hay mucho <b>consumo eléctrico</b> (el alternador frena más), el motor necesita más aire y nafta para no caerse. Nadie está pisando el acelerador, así que la ECU tiene que abrir un paso de aire por su cuenta.</p>
+    <blockquote class="q">"…mantiene automáticamente constante el régimen ralentí motor, con cualquier carga de este último (servicios suplementarios activados o no, motor frío, motor caliente, etc.)."<cite>Válvula de ralentí · manual p. 109</cite></blockquote>
+    <div class="schematic" style="margin-top:16px">
+      <div class="cap"><span class="led"></span><b>Mapa de esta página</b><span class="mono">quién hace qué</span></div>
+      <div class="body">
+        <svg viewBox="0 0 600 300" role="img" aria-label="Las cargas y sensores informan a la ECU, que comanda el ralentí, el encendido DIS y la EGR; el catalizador limpia los gases">
+          <rect class="boxh" x="10" y="20" width="170" height="200" rx="12"/>
+          <text class="lblb" x="95" y="44" text-anchor="middle">ENTRADAS</text>
+          <text class="lbl2" x="24" y="72">RPM · ECT (temp.)</text>
+          <text class="lbl2" x="24" y="96">Interruptor A/C</text>
+          <text class="lbl2" x="24" y="120">Dirección hidráulica</text>
+          <text class="lbl2" x="24" y="144">Contacto de ralentí</text>
+          <text class="lbl2" x="24" y="168">Temp. EGR · λ</text>
+          <text class="lbl2" x="24" y="192">Presión A/C</text>
+          <rect class="boxn" x="225" y="80" width="120" height="80" rx="12"/>
+          <text class="lblb" x="285" y="118" text-anchor="middle">ECU</text>
+          <text class="lbl2" x="285" y="138" text-anchor="middle">decide</text>
+          <path class="wire-hi flow" d="M180 120 H225"/>
+          <rect class="boxs" x="390" y="10" width="200" height="56" rx="10"/>
+          <text class="lblb" x="490" y="34" text-anchor="middle">RALENTÍ</text><text class="lbl2" x="490" y="54" text-anchor="middle">paso a paso · CC · rotativa</text>
+          <rect class="boxs" x="390" y="92" width="200" height="56" rx="10"/>
+          <text class="lblb" x="490" y="116" text-anchor="middle">ENCENDIDO DIS</text><text class="lbl2" x="490" y="136" text-anchor="middle">chispa perdida</text>
+          <rect class="boxs" x="390" y="174" width="200" height="56" rx="10"/>
+          <text class="lblb" x="490" y="198" text-anchor="middle">VÁLVULA EGR</text><text class="lbl2" x="490" y="218" text-anchor="middle">electroválvula de vacío</text>
+          <path class="wire-sig flow" d="M345 110 H370 V38 H390 M370 120 H390 M370 110 V202 H390"/>
+          <rect class="box" x="225" y="244" width="365" height="46" rx="10"/>
+          <text class="lblb" x="240" y="264">CATALIZADOR</text><text class="lbl2" x="240" y="281">no lo comanda nadie: depende de λ y de la temperatura</text>
+          <path class="wire flow" d="M490 230 V244" />
+        </svg>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card"><span class="ic">🌀</span><span class="tag">Ralentí</span><h4>Aire extra controlado</h4><p>La ECU mira <b>RPM</b> y <b>temperatura del refrigerante</b> y abre un bypass (o la propia mariposa) lo justo para sostener el régimen.</p></div>
+      <div class="card"><span class="ic">🧪</span><span class="tag">Emisiones</span><h4>Catalizador + EGR</h4><p>El catalizador transforma CO, HC y NOx. La EGR baja la temperatura de combustión para que se forme <b>menos NOx</b>.</p></div>
+      <div class="card"><span class="ic">⚡</span><span class="tag">Encendido</span><h4>DIS sin distribuidor</h4><p>Una bobina doble por cada par de cilindros: dispara las dos bujías a la vez, una útil y una "perdida".</p></div>
+    </div>
+    <div class="manref"><span class="lab">📝 Notas</span><ul><li>Interruptores que la ECU lee para "compensar el ajuste exacto de estabilidad del motor" en marcha mínima: <b>A/C</b>, <b>dirección hidráulica</b>, freno, embrague, desempañador de luneta, electroventilador.</li><li>Un interruptor puede avisar <b>cerrando a masa</b> o abriendo el circuito de tensión de referencia.</li></ul></div>
+  </section>
+
+  <!-- 02 · PASO A PASO -->
+  <section class="block reveal" id="paso">
+    <div class="kicker"><span class="num">02</span><span class="rule"></span></div>
+    <h2 class="sec display">Motor <span class="spark">paso a paso</span> de ralentí</h2>
+    <p class="lead">Un motorcito con <b>dos bobinados</b> en el estator y un rotor de imanes permanentes. Cada pulso de la ECU lo gira un "paso"; un <b>tornillo / tuerca</b> convierte ese giro en avance recto de un <b>obturador</b> que abre o cierra un <b>conducto bypass</b> paralelo a la mariposa.</p>
+    <p>La cuenta del manual es simple: <b>≈0,04 mm por paso</b> y unos <b>200 pasos = 8 mm</b> de carrera total. Con la mariposa cerrada siempre entra un caudal mínimo <b>Q0</b> que se filtra por debajo de ella (lo fija un <b>tope sellado</b> de fábrica, "tapón de inviolabilidad"). Encima de eso, el paso a paso agrega el caudal <b>Q</b> que haga falta.</p>
+    <div class="schematic sim">
+      <div class="cap"><span class="led"></span><b>Simulador: la ECU sostiene el ralentí</b><span class="mono">prendé cargas · mové los pasos</span></div>
+      <div class="body">
+        <div class="simgrid">
+          <svg viewBox="0 0 380 280" role="img" aria-label="Cuerpo de mariposa con bypass y motor paso a paso con obturador">
+            <rect class="boxn" x="270" y="8" width="100" height="52" rx="10"/>
+            <text class="lblb" x="320" y="38" text-anchor="middle">ECU</text>
+            <rect class="box" x="120" y="8" width="130" height="52" rx="10"/>
+            <text class="lbl2" x="185" y="22" text-anchor="middle" style="font-size:9.5px">MOTOR PASO A PASO</text>
+            <path id="stA" class="coil" d="M136 46 q5 -14 10 0 q5 -14 10 0 q5 -14 10 0"/>
+            <path id="stB" class="coil" d="M204 46 q5 -14 10 0 q5 -14 10 0 q5 -14 10 0"/>
+            <text class="lbl2" x="151" y="56" text-anchor="middle" style="font-size:9px">A</text><text class="lbl2" x="219" y="56" text-anchor="middle" style="font-size:9px">B</text>
+            <path class="wire" d="M270 26 H250 M270 44 H250"/>
+            <path d="M100 150 V95 H290 V150" fill="none" stroke="var(--line2)" stroke-width="20" stroke-linejoin="round" opacity=".7"/>
+            <path id="stFlow" class="wire-sig flow" d="M100 150 V95 H290 V150" opacity=".5"/>
+            <text class="lbl2" x="104" y="80">bypass</text>
+            <line x1="185" y1="60" x2="185" y2="70" stroke="var(--wire)" stroke-width="4"/>
+            <rect id="stPin" x="176" y="66" width="18" height="38" rx="4" fill="var(--copper)" stroke="var(--panel)" stroke-width="1.5"/>
+            <text class="lbl2" x="200" y="80" id="stMmTag">obturador</text>
+            <rect class="box" x="10" y="150" width="360" height="66" rx="10"/>
+            <text class="lbl2" x="20" y="140">aire →</text>
+            <rect x="186" y="152" width="8" height="62" rx="3" fill="var(--wire)" transform="rotate(10 190 183)"/>
+            <path class="wire-sig flow" d="M30 208 H350" opacity=".35"/>
+            <text class="lbl2" x="190" y="236" text-anchor="middle">mariposa cerrada · Q0 por el tope sellado</text>
+            <text class="lblb" x="20" y="266" id="stRpmTag">850 rpm</text>
+            <rect x="110" y="256" width="250" height="12" rx="6" fill="var(--bg2)" stroke="var(--line)"/>
+            <rect id="stRpmBar" x="110" y="256" width="150" height="12" rx="6" fill="var(--signal)"/>
+          </svg>
+          <div>
+            <div class="ctrls">
+              <button class="btn ghost sm" data-l="ac">❄️ + A/C</button>
+              <button class="btn ghost sm" data-l="dh">🛞 + dirección</button>
+              <button class="btn ghost sm" data-l="cold">🥶 motor frío</button>
+            </div>
+            <div class="ctl"><label for="stS">Pasos</label><input class="slider" type="range" id="stS" min="0" max="200" value="30"><output id="stSo">30</output></div>
+            <label class="readout"><input type="checkbox" id="stAuto" checked> ECU regulando (si movés los pasos a mano, la ECU se desconecta)</label>
+            <div class="ro"><span>Carrera <b id="stMm">1,20 mm</b></span><span>Pide la ECU <b class="sig" id="stNeed">30</b></span><span>Ralentí <b id="stRpm">850</b></span></div>
+            <p class="note" id="stNote"></p>
+          </div>
+        </div>
+        <div class="scopebox" style="margin-top:12px"><svg id="stPlot" viewBox="0 0 600 200"></svg></div>
+        <p class="readout" style="margin:.5em 0 0">Curva: Q0 fijo + Q que crece con los pasos. El manual dibuja la curva sin valores: la forma es <span class="gen">ilustrativa</span>, igual que las rpm y la cantidad de pasos de cada carga.</p>
+      </div>
+    </div>
+    <div class="callout mem"><span class="lab">La idea clave</span><p>Prendé el A/C: el compresor frena el motor, las <b>rpm caen</b>. La ECU lo ve en el sensor de RPM y manda pulsos: el obturador <b>retrocede</b> (más pasos), entra más aire Q y el ralentí vuelve. Por eso un bypass sucio (carbonilla) o un paso a paso trabado dan <b>ralentí que se cae al prender el aire</b>. Destildá "ECU regulando" y probá sacar pasos: así se siente un paso a paso trabado cerrado.</p></div>
+    <h3 class="sub3">Otras formas de agregar aire en ralentí</h3>
+    <div class="grid g2">
+      <div class="card"><span class="ic">🔄</span><span class="tag">Válvula rotativa de ralentí</span><h4>Motor de 3 pines</h4><p>Un motor que gira y abre más o menos un paso de aire en paralelo a la mariposa. <b>Pin central: 12 V</b>; en los <b>dos pines de los costados</b> la ECU manda <b>pulsos de masa</b>: uno lo gira hacia un lado y el otro hacia el otro, según las rpm. La proporción entre los dos pulsos (ciclo de trabajo) define la posición <span class="gen">dato general de taller</span>.</p></div>
+      <div class="card"><span class="ic">🧲</span><span class="tag">Válvula de aire adicional</span><h4>Solenoide con resorte</h4><p>Un solenoide abre o cierra un pasaje <b>alrededor de la mariposa</b>. La ECU le manda pulsos de masa de <b>frecuencia variable</b>, calculada con varios sensores, y el vástago se va corriendo. Desenergizada, un <b>resorte</b> la deja cerrada o abierta según el diseño.</p></div>
+    </div>
+    <div class="manref"><span class="lab">📝 Notas</span><ul><li>Paso a paso: <b>dos bobinados</b> en el estator, rotor con pares de polos permanentes, reductor <b>tornillo / tornillo hembra</b>.</li><li>Q0 llega del filtro y "se filtra a través de la válvula mariposa en posición de cierre"; en calentamiento o con servicios (dirección hidráulica, A/C, cambio automático) se añade un caudal Q.</li><li>La ECU usa la <b>velocidad angular del motor</b> y la <b>temperatura del refrigerante</b>.</li><li>≈<b>0,04 mm/paso</b>; caudal máximo Q2 (Q3 con cambio automático) con el obturador totalmente retraído: <b>unos 200 pasos = 8 mm</b>.</li><li>Q0 "se regula en su montaje y se garantiza con un tapón de inviolabilidad": no se toca.</li></ul></div>
+  </section>
+
+  <!-- 03 · REGULADOR CC -->
+  <section class="block reveal" id="cc">
+    <div class="kicker"><span class="num">03</span><span class="rule"></span></div>
+    <h2 class="sec display">Regulador de ralentí de <span class="spark">corriente continua</span> (monopunto Bosch)</h2>
+    <p class="lead">En el monopunto Bosch (Mono-Motronic) no hay bypass: un <b>motor de CC de 12&nbsp;V</b> con reducción (tornillo sin fin + rueda helicoidal) empuja un <b>vástago</b> contra la <b>leva</b> de la mariposa y la abre directamente, hasta <b>≈18°</b>.</p>
+    <p>¿Cómo gira para los dos lados un motor de CC? <b>Invirtiendo la polaridad</b>: un conmutador electrónico dentro de la ECU cambia cuál de los dos cables recibe + y cuál masa. En la punta del vástago hay un <b>microinterruptor (C)</b> que queda <b>cerrado</b> cuando el pedal está en reposo: así la ECU sabe que está en ralentí.</p>
+    <div class="schematic sim">
+      <div class="cap"><span class="led"></span><b>Simulador: inversión de polaridad y contacto de ralentí</b><span class="mono">mandá el motor · pisá el pedal</span></div>
+      <div class="body">
+        <div class="simgrid">
+          <svg viewBox="0 0 360 290" role="img" aria-label="Motor de CC empujando la leva de la mariposa, con microinterruptor y terminales de la ECU">
+            <rect class="boxh" x="14" y="66" width="126" height="64" rx="10"/>
+            <circle cx="44" cy="98" r="16" class="box"/><text class="lblb" x="44" y="103" text-anchor="middle">M</text>
+            <text class="lbl2" x="66" y="92" style="font-size:9.5px">CC 12 V</text><text class="lbl2" x="66" y="108" style="font-size:9.5px">+ reductor</text>
+            <text class="lblb" x="44" y="58" text-anchor="middle" id="dcRot" style="fill:var(--spark)"></text>
+            <rect id="dcStem" x="140" y="97" width="100" height="8" rx="3" fill="var(--wire)"/>
+            <rect id="dcSw" x="236" y="93" width="10" height="16" rx="2" fill="var(--ok)"/>
+            <text class="lbl2" x="150" y="90">vástago</text>
+            <circle cx="260" cy="180" r="55" class="box"/>
+            <g id="dcPlate"><rect x="256" y="128" width="8" height="104" rx="3" fill="var(--wire)"/></g>
+            <g id="dcLever"><line x1="260" y1="180" x2="260" y2="102" stroke="var(--copper)" stroke-width="6" stroke-linecap="round"/></g>
+            <circle cx="260" cy="180" r="6" fill="var(--copper)"/>
+            <text class="lbl2" x="300" y="112">leva</text>
+            <rect class="boxn" x="14" y="206" width="176" height="64" rx="10"/>
+            <text class="lblb" x="102" y="262" text-anchor="middle">ECU</text>
+            <path class="wire" d="M40 130 V206 M80 130 V206"/>
+            <path class="wire" id="dcW8" d="M124 130 V206"/>
+            <text class="lblb" x="40" y="226" text-anchor="middle">32</text><text class="lblb" x="80" y="226" text-anchor="middle">34</text><text class="lblb" x="124" y="226" text-anchor="middle">8</text>
+            <text class="lbl2" x="36" y="160" text-anchor="end" id="dcP32" style="font-size:10px">—</text>
+            <text class="lbl2" x="84" y="160" id="dcP34" style="font-size:10px">—</text>
+            <text class="lbl2" x="130" y="182" style="font-size:9.5px">C (3-4)</text>
+            <text class="lblb" x="260" y="258" text-anchor="middle" id="dcAng">4,0°</text>
+            <text class="lbl2" x="260" y="276" text-anchor="middle">apertura mariposa</text>
+          </svg>
+          <div>
+            <div class="seg" id="dcDir"><button data-d="1">Abrir</button><button data-d="-1">Cerrar</button><button class="on" data-d="0">Quieto</button></div>
+            <div class="seg" id="dcPed" style="margin-top:10px"><button class="on" data-p="0">Pie suelto</button><button data-p="1">Pisando el acelerador</button></div>
+            <div class="ro"><span>Pin 32 <b id="dcV32">—</b></span><span>Pin 34 <b id="dcV34">—</b></span></div>
+            <div class="ro"><span>Contacto C <b id="dcC" class="ok">cerrado</b></span><span>Pin 8 <b class="sig" id="dcPin8">a masa</b></span></div>
+            <p class="note" id="dcNote"></p>
+          </div>
+        </div>
+        <p class="readout" style="margin:.5em 0 0">Qué pin es + en cada sentido lo elegimos para el dibujo: el manual solo dice que la ECU <b>invierte</b> la polaridad.</p>
+      </div>
+    </div>
+    <div class="callout mem"><span class="lab">La idea clave</span><p>Con el <b>contacto C cerrado</b> (pie suelto), la ECU hace dos cosas: <b>regula el ralentí</b> moviendo el motor, y si venís desacelerando con el motor arriba de ralentí, aplica el <b>cut-off</b> (corta la inyección). Cuando las rpm bajan, vuelve a inyectar y retoma el control del mínimo según rpm y temperatura del refrigerante. Si el contacto no cierra, la ECU "cree" que estás acelerando: no regula el ralentí ni corta en desaceleración.</p></div>
+    <blockquote class="q">"La función de control del ralentí se activa con el cierre del contacto (C) que conecta a masa el terminal 8 de la computadora por medio de los terminales 3 y 4 de la bornera…"<cite>Regulador de ralentí de CC · manual p. 113</cite></blockquote>
+    <div class="manref"><span class="lab">📝 Notas</span><ul><li>Motor eléctrico de <b>CC de 12 V</b> que con reducción actúa "directamente sobre la leva del comando de la mariposa".</li><li>Microinterruptor (C) <b>cerrado con el pedal en reposo</b>: "doble función de CUT-OFF durante la fase de ralentí, para la regulación automática del mismo".</li><li>Contacto C → <b>terminal 8</b> de la ECU (vía terminales 3 y 4 de la bornera; el manual la llama "del motor paso a paso", pero es este regulador). El motor se alimenta por los <b>terminales 32 y 34</b>.</li><li>Un conmutador interno "procede a invertir oportunamente la polaridad": giro horario e inverso. Reductor: tornillo sin fin (E) + rueda helicoidal (F).</li><li>Recorrido total del vástago (H): apertura máxima de <b>cerca de 18°</b>.</li></ul></div>
+  </section>
+
+  <!-- 04 · CATALIZADOR -->
+  <section class="block reveal" id="cat">
+    <div class="kicker"><span class="num">04</span><span class="rule"></span></div>
+    <h2 class="sec display">Catalizador de <span class="spark">tres vías</span></h2>
+    <p class="lead">Un "panal de abejas" (casi siempre <b>cerámico</b>) dentro de una carcasa tipo silenciador, en el escape, <b>después de la sonda lambda</b>. Sus canalitos están revestidos con una capa porosa de <b>alúmina (Al₂O₃)</b> que multiplica la superficie, y sobre ella hay metales nobles: <b>platino, paladio y rodio</b>. Un catalizador acelera una reacción química <b>sin gastarse</b>.</p>
+    <div class="grid g3" style="margin-top:12px">
+      <div class="card"><span class="tag">Oxidación · Pt</span><h4>CO → CO₂</h4><p>El monóxido toma oxígeno y sale como dióxido de carbono.</p></div>
+      <div class="card"><span class="tag">Oxidación · Pt</span><h4>HC → CO₂ + H₂O</h4><p>La nafta sin quemar se termina de "quemar": dióxido de carbono y vapor de agua.</p></div>
+      <div class="card"><span class="tag">Reducción · Rh</span><h4>NOx → N₂</h4><p>Al óxido de nitrógeno le sacan el oxígeno: queda nitrógeno (y ese O₂ oxida CO a CO₂).</p></div>
+    </div>
+    <div class="schematic sim">
+      <div class="cap"><span class="led"></span><b>Simulador A: temperatura del catalizador</b><span class="mono">calentalo · provocá un fallo</span></div>
+      <div class="body">
+        <svg viewBox="0 0 600 330" role="img" aria-label="Corte del catalizador: carcasa, monolito cerámico de panal, detalle de un canal con alúmina y metales nobles">
+          <defs><pattern id="hc" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 0 H8 M0 0 V8" stroke="var(--line2)" stroke-width="1.2"/></pattern></defs>
+          <rect x="10" y="74" width="120" height="44" fill="var(--bg2)" stroke="var(--line2)"/>
+          <rect x="470" y="74" width="120" height="44" fill="var(--bg2)" stroke="var(--line2)"/>
+          <path d="M130 74 L170 36 H430 L470 74 V118 L430 156 H170 L130 118 Z" class="box"/>
+          <rect id="catMono" x="180" y="46" width="240" height="100" rx="6" fill="var(--panel2)"/>
+          <rect x="180" y="46" width="240" height="100" rx="6" fill="url(#hc)" stroke="var(--line2)"/>
+          <text class="lblb" x="300" y="28" text-anchor="middle" id="catMonoLab">monolito cerámico (panal)</text>
+          <path id="catFlowIn" class="wire-hi flow" d="M14 96 H180"/>
+          <path id="catFlowOut" class="wire-sig flow" d="M420 96 H586"/>
+          <text class="lbl2" x="16" y="66">CO · HC · NOx</text>
+          <text class="lbl2" x="584" y="66" text-anchor="end" id="catOut">CO₂ · H₂O · N₂</text>
+          <text class="lbl2" x="16" y="140">del motor</text><text class="lbl2" x="584" y="140" text-anchor="end">al silenciador</text>
+          <line x1="250" y1="146" x2="150" y2="196" stroke="var(--line2)" stroke-dasharray="4 4"/>
+          <circle cx="120" cy="250" r="66" class="box"/>
+          <rect x="74" y="204" width="92" height="92" rx="4" fill="color-mix(in srgb,var(--copper) 30%,var(--panel))" stroke="var(--copper)"/>
+          <rect x="88" y="218" width="64" height="64" rx="3" fill="var(--panel2)" stroke="var(--line2)"/>
+          <circle cx="92" cy="240" r="4" fill="#9fb0c8"/><circle cx="148" cy="226" r="4" fill="#9fb0c8"/>
+          <circle cx="120" cy="214" r="4" fill="#c6a75b"/><circle cx="148" cy="268" r="4" fill="#c6a75b"/>
+          <circle cx="92" cy="278" r="4" fill="#d46a8c"/><circle cx="120" cy="286" r="4" fill="#d46a8c"/>
+          <text class="lbl2" x="120" y="254" text-anchor="middle" style="font-size:9.5px">canal</text>
+          <text class="lblb" x="210" y="214">Detalle de un canal</text>
+          <rect x="210" y="226" width="12" height="10" fill="color-mix(in srgb,var(--copper) 30%,var(--panel))" stroke="var(--copper)"/><text class="lbl2" x="230" y="235">capa de alúmina Al₂O₃ (porosa)</text>
+          <circle cx="216" cy="252" r="4" fill="#9fb0c8"/><text class="lbl2" x="230" y="256">Pt platino: oxida CO y HC</text>
+          <circle cx="216" cy="272" r="4" fill="#c6a75b"/><text class="lbl2" x="230" y="276">Pd paladio</text>
+          <circle cx="216" cy="292" r="4" fill="#d46a8c"/><text class="lbl2" x="230" y="296">Rh rodio: reduce NOx</text>
+          <text class="lbl2" x="210" y="318">(a veces también rutenio e iridio)</text>
+        </svg>
+        <div class="ctl"><label for="catT">Temperatura</label><input class="slider" type="range" id="catT" min="0" max="1500" step="10" value="20"><output id="catTo">20 °C</output></div>
+        <svg viewBox="0 0 600 70" role="img" aria-label="Escala de temperatura del catalizador con zonas" id="catScale"></svg>
+        <div class="ro"><span>Estado <b id="catSt">—</b></span><span>Conversión <b class="sig" id="catEff">—</b></span></div>
+        <p class="note" id="catNote"></p>
+        <div class="ctrls"><button class="btn primary" id="catMis">💥 Cilindro que no enciende</button><button class="btn ghost" id="catNew">🔧 Catalizador nuevo</button></div>
+        <p class="readout" style="margin:.6em 0 0">El % de conversión es <span class="gen">ilustrativo</span>: las temperaturas de las zonas sí son del manual.</p>
+      </div>
+    </div>
+    <div class="callout warn"><span class="lab">Por qué un fallo de encendido funde el catalizador</span><p>Si un cilindro no enciende (bujía, cable, bobina), su mezcla sale <b>cruda</b> por el escape y se quema <b>adentro del catalizador</b>, sobre el panal. La temperatura se dispara: arriba de 800–1000 °C envejece rápido, y a <b>≈1400 °C el sustrato se derrite</b> y tapa el escape (el motor se ahoga, no levanta). El manual lo atribuye a la contraexplosión y avisa que fallas del encendido o de la mezcla pueden <b>obstruir</b> el catalizador. Lo de la nafta cruda es <span class="gen">dato general de taller</span>.</p></div>
+
+    <div class="schematic sim">
+      <div class="cap"><span class="led"></span><b>Simulador B: la ventana de λ = 1</b><span class="mono">mové la mezcla</span></div>
+      <div class="body">
+        <div class="ctl"><label for="catL">λ</label><input class="slider" type="range" id="catL" min="0.9" max="1.1" step="0.002" value="1"><output id="catLo">1,000</output></div>
+        <div class="ro"><span>CO <b id="catCO">—</b></span><span>HC <b id="catHC">—</b></span><span>NOx <b id="catNO">—</b></span><span>Mezcla <b class="sig" id="catMix">—</b></span></div>
+        <div class="scopebox" style="margin-top:8px"><svg id="catPlot" viewBox="0 0 600 200"></svg></div>
+        <div class="ctrls" style="margin-top:10px"><label class="readout"><input type="checkbox" id="catPb"> cargar nafta con plomo</label><button class="btn ghost sm" id="catPbNew">🔧 Cambiar catalizador</button></div>
+        <p class="note" id="catLNote"></p>
+        <p class="readout" style="margin:.4em 0 0">Forma de las curvas: <span class="gen">dato general de taller</span> (teoría del catalizador de tres vías). El manual no trae este gráfico.</p>
+      </div>
+    </div>
+    <div class="callout mem"><span class="lab">La idea clave</span><p>Para oxidar CO y HC hace falta <b>oxígeno de sobra</b> (mezcla pobre). Para reducir NOx hace falta <b>poco oxígeno</b> (mezcla rica). Las dos cosas a la vez solo se dan en una franja angostísima alrededor de <b>λ = 1</b>. Ninguna mezcla "a ojo" se queda ahí: por eso el catalizador de tres vías necesita la <b>sonda lambda</b> y el <b>lazo cerrado</b>, que oscila justo alrededor de λ = 1. <a class="jump" href="sensores-funcionamiento.html#mezcla">Ver la sonda lambda →</a></p></div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card"><span class="ic">2️⃣</span><span class="tag">2 vías vs 3 vías</span><h4>Oxidación sola o también reducción</h4><p>El de <b>2 vías</b> (de oxidación) trata solo <b>CO y HC</b>. El de <b>3 vías</b> además procesa los <b>NOx</b>. Los motores en V suelen llevar dos, uno por bancada; algunos tienen una sonda <b>después</b> del catalizador para vigilar su eficiencia.</p></div>
+      <div class="card"><span class="ic">📜</span><span class="tag">Historia</span><h4>De California al mundo</h4><p>El control de emisiones tomó forma legal en los <b>años 60 en California</b>. A mediados de los <b>80</b> toda la flota nafta de EE.UU. tenía catalizador de 3 vías; Europa probó antes motores de <b>mezcla pobre</b>. Los modelos <b>1996 en adelante</b> traen catalizador y solo pueden usar <b>nafta sin plomo</b>.</p></div>
+    </div>
+    <div class="manref"><span class="lab">📝 Notas</span><ul><li>Revestimiento de <b>platino, paladio y rodio</b> (también rutenio e iridio). El Pt oxida CO y HC "bajo estequiométrica y ricas condiciones"; el Rh reduce NOx. Sustrato cerámico o metálico con capa de <b>alúmina (Al₂O₃)</b> permeable.</li><li>Para que haya oxidación y reducción, el escape debe estar por encima de <b>250 a 300 °C</b>.</li><li>Gases normales: 300–400 °C, hasta <b>900 °C a plena carga</b>; rango típico 500–600 °C. Para alta eficiencia por mucho tiempo: banda de <b>400 a 800 °C</b>.</li><li>Entre <b>800 y 1000 °C</b> por mucho tiempo: envejecimiento térmico. A <b>≈1400 °C</b> el sustrato se derrite.</li><li>No es reparable. Se arruina por <b>nafta con plomo</b> ("envenenamiento"), por vibraciones y por fallas de mezcla o encendido (obstrucción).</li><li>Dice "vida media de unos 10000 km" en condiciones ideales: probablemente sea un error de tipeo (100.000 km).</li></ul></div>
+  </section>
+
+  <!-- 05 · EGR -->
+  <section class="block reveal" id="egr">
+    <div class="kicker"><span class="num">05</span><span class="rule"></span></div>
+    <h2 class="sec display">Recirculación de gases: <span class="spark">válvula EGR</span></h2>
+    <p class="lead">El aire es casi todo <b>nitrógeno</b>, que normalmente no reacciona. Pero cuando la cámara de combustión se pone <b>muy caliente</b>, el nitrógeno se combina con el oxígeno y forma <b>NOx</b>. La EGR mete un poco de gas de escape (que ya no quema) en la admisión: la mezcla queda "diluida", quema <b>más frío</b> y se forma menos NOx.</p>
+    <blockquote class="q">"La segunda misión de la recirculación de gases es bajar las temperaturas de la combustión… La válvula es controlada por la unidad de control a través de la electroválvula y por el conducto de vacío."<cite>Válvula EGR · manual p. 120</cite></blockquote>
+    <div class="schematic sim">
+      <div class="cap"><span class="led"></span><b>Simulador: abrí la EGR</b><span class="mono">elegí la situación · mové la apertura</span></div>
+      <div class="body">
+        <svg viewBox="0 0 600 300" role="img" aria-label="Múltiple de escape, válvula EGR con diafragma de vacío y electroválvula comandada por la ECU, múltiple de admisión">
+          <rect class="box" x="10" y="20" width="580" height="48" rx="10"/>
+          <text class="lblb" x="24" y="49">MÚLTIPLE DE ADMISIÓN</text>
+          <path class="wire-sig flow" d="M230 44 H400" opacity=".5"/>
+          <rect class="box" x="150" y="96" width="220" height="114" rx="12"/>
+          <text class="lblb" x="260" y="124" text-anchor="middle">CILINDROS</text>
+          <text class="lbl2" x="260" y="146" text-anchor="middle">llama</text>
+          <circle id="egrFlame" cx="260" cy="176" r="22" fill="var(--spark)" opacity=".8"/>
+          <rect class="box" x="10" y="238" width="580" height="48" rx="10"/>
+          <text class="lblb" x="24" y="267">MÚLTIPLE DE ESCAPE</text>
+          <path class="wire-hi flow" d="M230 262 H560" opacity=".5"/>
+          <path d="M450 238 V176 M450 128 V68" stroke="var(--line2)" stroke-width="16" fill="none"/>
+          <path id="egrGas" class="wire-hi flow" d="M450 238 V68" opacity="0"/>
+          <rect class="boxh" x="410" y="124" width="80" height="56" rx="8"/>
+          <path id="egrDia" d="M418 136 Q450 136 482 136" fill="none" stroke="var(--copper)" stroke-width="3"/>
+          <rect id="egrPin" x="446" y="138" width="8" height="40" fill="var(--wire)"/>
+          <text class="lblb" x="404" y="160" text-anchor="end">EGR</text>
+          <rect class="box" x="510" y="92" width="80" height="40" rx="8"/>
+          <text class="lbl2" x="550" y="110" text-anchor="middle" style="font-size:9.5px">electro-</text><text class="lbl2" x="550" y="123" text-anchor="middle" style="font-size:9.5px">válvula</text>
+          <path d="M550 68 V92 M510 120 H490" stroke="var(--navy-ink)" stroke-width="2" stroke-dasharray="5 4" fill="none"/>
+          <text class="lbl2" x="556" y="84">vacío</text>
+          <rect class="boxn" x="510" y="160" width="80" height="40" rx="8"/>
+          <text class="lblb" x="550" y="185" text-anchor="middle">ECU</text>
+          <path class="wire-sig" d="M550 160 V132"/>
+          <text class="lbl2" x="20" y="92">T comb.</text><text class="lbl2" x="90" y="92">NOx</text>
+          <rect x="24" y="100" width="34" height="120" rx="5" fill="var(--bg2)" stroke="var(--line)"/>
+          <rect x="94" y="100" width="34" height="120" rx="5" fill="var(--bg2)" stroke="var(--line)"/>
+          <rect id="egrBT" x="24" y="100" width="34" height="120" rx="5" fill="var(--copper)"/>
+          <rect id="egrBN" x="94" y="100" width="34" height="120" rx="5" fill="var(--bad)"/>
+        </svg>
+        <div class="seg" id="egrCond"><button data-o="0">Ralentí</button><button class="on" data-o="40">Crucero, motor caliente</button><button data-o="0">A fondo</button><button data-o="0">Motor frío</button></div>
+        <div class="ctl"><label for="egrA">Apertura EGR</label><input class="slider" type="range" id="egrA" min="0" max="100" value="40"><output id="egrAo">40 %</output></div>
+        <div class="ro"><span>Temp. de combustión <b id="egrT">—</b></span><span>NOx <b class="bad" id="egrN">—</b></span></div>
+        <p class="note" id="egrNote"></p>
+        <p class="readout" style="margin:.4em 0 0">Barras relativas, sin valores: <span class="gen">cualitativo</span>. Cuándo abre la ECU en cada situación: <span class="gen">dato general de taller</span> (el manual no lo detalla).</p>
+      </div>
+    </div>
+    <div class="callout mem"><span class="lab">La idea clave</span><p>Más EGR → combustión más fría → <b>menos NOx</b>. Pero el gas de escape no aporta oxígeno: si entra demasiado, la mezcla quema mal. Por eso la ECU la <b>cierra en ralentí</b> (el motor tiembla o se apaga), <b>a fondo</b> (querés toda la potencia) y con <b>motor frío</b>. Abre en carga parcial con el motor caliente, que es donde más NOx se forma en el uso diario <span class="gen">dato general de taller</span>.</p></div>
+
+    <h3 class="sub3">Diagnóstico con el sensor de temperatura de EGR</h3>
+    <p>Algunas válvulas EGR traen una <b>NTC</b>. La EGR está diseñada para que, funcionando bien, el sensor vea una temperatura <b>más o menos constante</b>. Si se aparta, la ECU sospecha:</p>
+    <div class="schematic sim">
+      <div class="cap"><span class="led"></span><b>Simulador: qué ve el sensor de temperatura EGR</b><span class="mono">elegí la falla</span></div>
+      <div class="body">
+        <div class="seg" id="egsF"><button class="on" data-f="ok">Normal</button><button data-f="open">Trabada abierta</button><button data-f="closed">No abre</button></div>
+        <svg viewBox="0 0 600 80" role="img" aria-label="Escala del sensor de temperatura EGR: frío, normal, muy caliente">
+          <rect x="20" y="20" width="560" height="18" rx="9" fill="var(--bg2)" stroke="var(--line)"/>
+          <rect x="20" y="20" width="187" height="18" rx="9" fill="color-mix(in srgb,var(--navy2) 40%,var(--panel))"/>
+          <rect x="207" y="20" width="186" height="18" fill="color-mix(in srgb,var(--ok) 45%,var(--panel))"/>
+          <rect x="393" y="20" width="187" height="18" rx="9" fill="color-mix(in srgb,var(--bad) 45%,var(--panel))"/>
+          <text class="lbl2" x="113" y="60" text-anchor="middle">demasiado baja</text>
+          <text class="lbl2" x="300" y="60" text-anchor="middle">constante (normal)</text>
+          <text class="lbl2" x="487" y="60" text-anchor="middle">demasiado alta</text>
+          <path id="egsMk" d="M300 16 l-8 -12 h16 z" fill="var(--spark)"/>
+        </svg>
+        <div class="ro"><span>Sensor <b id="egsR">—</b></span><span>La ECU deduce <b id="egsD">—</b></span></div>
+        <p class="note" id="egsS"></p>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card"><span class="ic">🛢️</span><span class="tag">PCV</span><h4>Ventilación positiva del cárter</h4><p>El manual la nombra junto con la EGR como clave para limpiar el aire de las ciudades. Los gases que se escapan por los aros hacia el cárter (blow-by) se mandan a la admisión para quemarlos, en vez de largarlos a la atmósfera; la válvula PCV dosifica ese paso <span class="gen">dato general de taller</span>.</p></div>
+      <div class="card"><span class="ic">🕰️</span><span class="tag">Historia</span><h4>De la mala fama al control electrónico</h4><p>Las primeras EGR de los <b>70</b> funcionaban solo con el vacío del múltiple y empeoraban la manejabilidad: muchos las anulaban. Con el control por computadora "no tiene ningún impacto en la facilidad de conducción" y mejora emisiones y consumo.</p></div>
+    </div>
+    <div class="manref"><span class="lab">📝 Notas</span><ul><li>Dos misiones: reducir los gases contaminantes y <b>bajar la temperatura de combustión</b>; la mezcla con gases de escape "se produce la combustión a temperaturas más bajas".</li><li>Comando: la ECU, "a través de la electroválvula y por el conducto de vacío".</li><li>El manual dice que el aire tiene "un 70 por ciento de nitrógeno"; el valor real es ≈78 % <span class="gen">dato general de taller</span>.</li><li>Sensor de temperatura EGR (NTC): temperatura <b>demasiado alta</b> → la EGR está <b>continuamente abierta</b>; <b>demasiado baja</b> → <b>no abre</b> correctamente.</li><li>Algunas EGR traen un <b>potenciómetro</b> que informa su posición.</li></ul></div>
+  </section>
+
+  <!-- 06 · DIS -->
+  <section class="block reveal" id="dis">
+    <div class="kicker"><span class="num">06</span><span class="rule"></span></div>
+    <h2 class="sec display">Encendido <span class="spark">DIS</span>: chispa perdida</h2>
+    <p class="lead">Sin distribuidor. En un 4 cilindros los pistones <b>1 y 4</b> suben y bajan juntos, igual que <b>2 y 3</b>. Una bobina doble tiene <b>cada punta del secundario</b> conectada a la bujía de uno de esos "pares de trabajo": cuando dispara, saltan <b>las dos chispas a la vez</b>. En un cilindro el pistón termina la <b>compresión</b> (chispa útil); en el otro termina el <b>escape</b> (chispa perdida, no hay mezcla que encender).</p>
+    <div class="schematic sim">
+      <div class="cap"><span class="led"></span><b>Simulador: 4 cilindros, orden 1-3-4-2</b><span class="mono">play · velocidad</span></div>
+      <div class="body">
+        <svg viewBox="0 0 600 340" role="img" aria-label="Cuatro cilindros con dos bobinas dobles: bobina A a cilindros 1 y 4, bobina B a 2 y 3" id="disSvg">
+          <rect class="boxh" x="230" y="4" width="140" height="26" rx="6"/><text class="lblb" x="300" y="22" text-anchor="middle" id="disCA">BOBINA A · 1-4</text>
+          <rect class="boxs" x="240" y="38" width="100" height="26" rx="6"/><text class="lblb" x="290" y="55" text-anchor="middle" id="disCB" style="font-size:10.5px">BOBINA B · 2-3</text>
+          <path class="wire" d="M230 17 H90 V72 M370 17 H480 V72"/>
+          <path class="wire" d="M240 51 H220 V72 M340 51 H350 V72"/>
+          <g id="disCyl"></g>
+        </svg>
+        <div class="ctrls"><button class="btn primary" id="disPlay">⏸ Pausa</button><button class="btn ghost sm" id="disStep">+10° paso</button></div>
+        <div class="ctl"><label for="disV">Velocidad</label><input class="slider" type="range" id="disV" min="20" max="400" step="10" value="120"><output id="disVo">120 °/s</output></div>
+        <div class="ro"><span>Cigüeñal <b id="disAng">0°</b></span><span>Última chispa <b id="disLast">—</b></span></div>
+        <p class="readout" style="margin:.5em 0 0">Animación muy ralentizada. Chispa dibujada unos grados antes del PMS. Cuál bujía va "centro → masa" lo fijamos para el dibujo; lo que dice el manual es que en una va de central a masa y en la otra al revés.</p>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="callout mem"><span class="lab">Por qué funciona</span><p>En el cilindro que está en escape casi no hay presión, así que la chispa perdida salta con muy poca tensión y "gasta" poca energía: casi toda queda para la útil. La vuelta siguiente se invierten los papeles: la que era perdida pasa a ser útil <span class="gen">dato general de taller</span>.</p></div>
+      <div class="callout tip"><span class="lab">Polaridad</span><p>La corriente del secundario es una sola: entra por una bujía y sale por la otra. Por eso en una salta del <b>electrodo central a masa</b> y en la otra <b>de masa al central</b>. Cada bujía tiene siempre la misma polaridad; lo que cambia de una vuelta a la otra es si su chispa es útil o perdida.</p></div>
+    </div>
+    <div class="grid g3" style="margin-top:14px">
+      <div class="card"><span class="ic">6️⃣</span><span class="tag">6 cilindros</span><h4>Pares 1-6 · 2-5 · 3-4</h4><p>Tres bobinas dobles. Funciona con número <b>par</b> de cilindros, porque necesita pistones gemelos.</p></div>
+      <div class="card"><span class="ic">🕯️</span><span class="tag">Estático integral</span><h4>Una bobina por bujía</h4><p>La evolución: bobina y bujía en un mismo elemento, <b>sin cables de alta</b>. Es de <b>descarga capacitiva</b> y genera <b>más de 40 kV</b>.</p></div>
+      <div class="card"><span class="ic">✅</span><span class="tag">Ventajas DIS</span><h4>Sin piezas que se gasten</h4><p>Sin distribuidor ni desgastes mecánicos, más tiempo para cargar la bobina, sin interferencias del distribuidor, cables cortos o ninguno y avance más preciso.</p></div>
+    </div>
+    <a class="tomed" href="bobinas.html">⚡ La bobina doble y la chispa perdida en la 1ª parte (Bobinas y módulos) →</a>
+    <div class="manref"><span class="lab">📝 Notas</span><ul><li>"Pares de trabajo": cilindros cuyos pistones están a la vez en el PMS pero en tiempos distintos: uno <b>final de compresión</b>, otro <b>cruce de válvulas</b> (final de escape).</li><li>4 cilindros: <b>1-4 y 2-3</b>. 6 cilindros: <b>1-6, 2-5 y 3-4</b>.</li><li>"La corriente circula en una de las bujías desde el electrodo central al de masa y en la otra bujía es la inversa."</li><li>Con bobinas dobles y cables de alta se lo llama encendido <b>estático o sin distribuidor</b>; con bobina sobre cada bujía, <b>estático integral</b>: descarga capacitiva, <b>más de 40 kV</b>.</li></ul></div>
+  </section>
+
+  <!-- 07 · SEÑALES Y MULTÍMETRO -->
+  <section class="block reveal" id="senales">
+    <div class="kicker"><span class="num">07</span><span class="rule"></span></div>
+    <h2 class="sec display">Señales y <span class="spark">multímetro</span></h2>
+    <p class="lead">Casi todo lo que la ECU manda a un actuador es una <b>onda cuadrada</b>: la tensión no sube ni baja de a poco, está <b>alta o baja</b>. Hay cuatro palabras para describirla, y el examen las pregunta.</p>
+    <div class="schematic sim">
+      <div class="cap"><span class="led"></span><b>Simulador: onda cuadrada</b><span class="mono">ventana de 100 ms</span></div>
+      <div class="body">
+        <div class="simgrid">
+          <div>
+            <div class="ctl"><label for="sqA">Amplitud</label><input class="slider" type="range" id="sqA" min="1" max="14" step="0.5" value="12"><output id="sqAo">12 V</output></div>
+            <div class="ctl"><label for="sqF">Frecuencia</label><input class="slider" type="range" id="sqF" min="10" max="200" step="5" value="40"><output id="sqFo">40 Hz</output></div>
+            <div class="ctl"><label for="sqD">Ciclo de trabajo</label><input class="slider" type="range" id="sqD" min="5" max="95" value="30"><output id="sqDo">30 %</output></div>
+          </div>
+          <div>
+            <div class="ro"><span>Período <b id="sqT">—</b></span><span>Ancho de pulso <b class="sig" id="sqW">—</b></span></div>
+            <div class="ro"><span>Pulsos en 100 ms <b id="sqN">—</b></span><span>Promedio <b id="sqM">—</b></span></div>
+            <p class="readout" style="margin:.4em 0 0">"Promedio" = lo que mostraría un multímetro en DC sobre esta señal <span class="gen">dato general de taller</span>.</p>
+          </div>
+        </div>
+        <div class="scopebox" style="margin-top:12px"><svg id="sqPlot" viewBox="0 0 600 200"></svg></div>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card"><span class="tag">Amplitud</span><h4>Cuánto sube</h4><p>El cambio de tensión de abajo a arriba. Si arriba hay 12 V y abajo 0 V, la amplitud es 12 V.</p></div>
+      <div class="card"><span class="tag">Frecuencia</span><h4>Cuántas veces por segundo</h4><p>Ciclos por segundo, en <b>hertz (Hz)</b>: una onda que se repite 10 veces por segundo es de 10 Hz. Muy usada en diagnóstico.</p></div>
+      <div class="card"><span class="tag">Ancho de pulso</span><h4>Cuánto dura encendido</h4><p>El tiempo que el actuador está energizado. En el inyector se cuenta en <b>milisegundos</b>: más ms, más nafta.</p></div>
+      <div class="card"><span class="tag">Ciclo de trabajo</span><h4>Qué parte del tiempo</h4><p>La relación entre el tiempo que circula corriente y el que no, en <b>%</b>. No es nuevo: el <b>ángulo de cierre (dwell)</b> del primario de encendido es un ciclo de trabajo medido en grados.</p></div>
+    </div>
+    <div class="callout tip"><span class="lab">Para no confundir</span><p>Con la frecuencia fija, subir el ciclo de trabajo alarga el ancho de pulso. Con el ciclo de trabajo fijo, subir la frecuencia lo <b>acorta</b>. Probalo arriba: el ancho de pulso depende de los dos (ancho = ciclo ÷ frecuencia). Ojo también con la <b>onda senoidal</b>: sube y baja de a poco, como la del alternador o un sensor inductivo.</p></div>
+
+    <h3 class="sub3">Qué se le pide a un sensor</h3>
+    <div class="grid g2">
+      <div class="card"><span class="tag">Constancia</span><h4>Igual miles de veces</h4><p>Un interruptor de temperatura tiene que abrir y cerrar en sus puntos de diseño miles de veces sin desajustarse.</p></div>
+      <div class="card"><span class="tag">Exactitud</span><h4>Dentro de la tolerancia</h4><p>Ejemplo del manual: un interruptor de temperatura que cierra a <b>90 °C ± 4 °C</b>. La tolerancia la fija el fabricante.</p></div>
+      <div class="card"><span class="tag">Rango de trabajo</span><h4>Valores esperables</h4><p>Un digital tiene dos valores (ON-OFF); uno analógico, un rango proporcional. Fuera del rango, la ECU lo toma como <b>anomalía</b>.</p></div>
+      <div class="card"><span class="tag">Linealidad</span><h4>Sin cortes</h4><p>Un potenciómetro debe variar sin interrumpirse. Si la pista se corta en un punto, la señal <b>cae a 0 V</b>: la ECU lo ve como avería.</p></div>
+    </div>
+
+    <h3 class="sub3">El multímetro digital</h3>
+    <p>Siempre <b>digital</b>: el analógico tiene <b>baja impedancia</b>, carga el circuito y puede dañar la electrónica de la ECU.</p>
+    <div class="grid g3">
+      <div class="card"><span class="ic">🔔</span><span class="tag">Continuidad</span><h4>Suena con menos de ≈30 Ω</h4><p>Componente <b>sin corriente y desconectado</b>. Un cable sano: suena y muestra 000.</p></div>
+      <div class="card"><span class="ic">➡️</span><span class="tag">Diodos</span><h4>Corriente de prueba 1 mA</h4><p>En inverso muestra "1" (bloquea). En directo, unos milivolts según el diodo.</p></div>
+      <div class="card"><span class="ic">Ω</span><span class="tag">Resistencia</span><h4>Desconectado</h4><p>Si queda conectado, se suma la resistencia del resto del circuito.</p></div>
+      <div class="card"><span class="ic">🔋</span><span class="tag">Tensión DC</span><h4>En paralelo</h4><p>Batería sana: <b>12,5 V</b>. Menos indica caída de tensión.</p></div>
+      <div class="card"><span class="ic">⚠️</span><span class="tag">Corriente DC</span><h4>En serie</h4><p>Toda la corriente pasa por el instrumento. Escala <b>10 A máx</b> o <b>10 mA</b>; respetar el tiempo máximo del fabricante.</p></div>
+      <div class="card"><span class="ic">〰️</span><span class="tag">Frecuencia · temp.</span><h4>6 a 6000 Hz</h4><p>Rango aprox. que se encuentra en el auto. Temperatura con <b>termocupla</b> (ambiente: sensor interno).</p></div>
+    </div>
+
+    <h3 class="sub3">Más sensores que aparecen en el manual</h3>
+    <div class="grid g3">
+      <div class="card"><span class="ic">🎚️</span><span class="tag">Potenciómetro de CO</span><h4>Mezcla sin sonda lambda</h4><p>En autos <b>sin sonda ni catalizador</b>. Alimentado con <b>5 V</b>, masa y señal. De fábrica: <b>2,5 V</b>; <b>más</b> tensión → mezcla <b>rica</b>, menos → pobre. Se regula con voltímetro o con <b>analizador de gases</b> (HC ppm, CO, CO₂, O₂, λ).</p></div>
+      <div class="card"><span class="ic">🌡️</span><span class="tag">Temperatura EGR</span><h4>NTC de diagnóstico</h4><p>Muy caliente → EGR abierta siempre. Muy fría → no abre. Lo viste en el simulador de la sección 05.</p></div>
+      <div class="card"><span class="ic">❄️</span><span class="tag">Presión de A/C</span><h4>Piezorresistivo</h4><p>Varía su resistencia con la presión del gas. Si hay <b>sobrepresión o baja presión</b>, la ECU saca de servicio el aire acondicionado.</p></div>
+    </div>
+    <div class="manref"><span class="lab">📝 Notas</span><ul><li>Virtudes: constancia, exactitud, rango de trabajo, linealidad. NTC y PTC. Potenciómetro e interruptores.</li><li>Ondas: senoidal y cuadrada; amplitud, frecuencia, ancho de pulso y ciclo de trabajo.</li><li>Multímetro: continuidad &lt; ≈30 Ω, diodo 1 mA, batería 12,5 V, 10 A / 10 mA, frecuencia 6–6000 Hz, termocupla.</li><li>Potenciómetro de CO: 5 V, regulación de fábrica 2,5 V, más alto = rica. EGR y presión de A/C.</li></ul></div>
+  </section>
+
+  <!-- 08 · REPASO -->
+  <section class="block reveal" id="repaso">
+    <div class="kicker"><span class="num">08</span><span class="rule"></span></div>
+    <h2 class="sec display">Para <span class="spark">repasar</span></h2>
+    <div class="grid g2">
+      <div class="panel pad">
+        <h3 class="sub3" style="margin-top:0">Ideas clave</h3>
+        <ol class="recap">
+          <li><b>Paso a paso</b>: 2 bobinados, tornillo/tuerca, ≈0,04 mm/paso, ≈200 pasos = 8 mm. Q0 lo da el tope sellado; el bypass agrega Q.</li>
+          <li><b>Válvula rotativa</b>: 3 pines, 12 V en el central, pulsos de masa en los costados. <b>Aire adicional</b>: solenoide, frecuencia variable, resorte.</li>
+          <li><b>Regulador de CC (monopunto)</b>: motor de 12 V sobre la leva, invierte polaridad, hasta ≈18°. Contacto C cerrado en ralentí → regulación y cut-off.</li>
+          <li><b>Catalizador 3 vías</b>: CO y HC se oxidan (Pt), NOx se reduce (Rh). Pt, Pd, Rh sobre alúmina.</li>
+          <li>Trabaja desde <b>250–300 °C</b>, ideal <b>400–800 °C</b>, envejece a <b>800–1000 °C</b>, se funde a <b>≈1400 °C</b>.</li>
+          <li><b>EGR</b>: gas de escape a la admisión → combustión más fría → menos <b>NOx</b>. La comanda la ECU con electroválvula y vacío.</li>
+          <li><b>DIS</b>: pares 1-4 y 2-3 (6 cil: 1-6, 2-5, 3-4); chispa útil + perdida, polaridades opuestas. Integral: &gt; 40 kV.</li>
+          <li>Onda cuadrada: <b>amplitud</b> (V), <b>frecuencia</b> (Hz), <b>ancho de pulso</b> (ms), <b>ciclo de trabajo</b> (%).</li>
+        </ol>
+      </div>
+      <div class="panel pad">
+        <h3 class="sub3" style="margin-top:0">Trampas de examen</h3>
+        <ul class="recap">
+          <li>La EGR <b>no</b> reduce CO ni HC "de por sí": su objetivo es bajar la <b>temperatura</b> de combustión y con eso el <b>NOx</b>.</li>
+          <li>El catalizador de <b>2 vías</b> trata CO y HC; el de <b>3 vías</b> suma el NOx. No al revés.</li>
+          <li>La nafta con plomo <b>envenena</b> el catalizador: no se recupera, no es reparable.</li>
+          <li>En la válvula rotativa, el pin central lleva <b>12 V</b>; la ECU comanda por <b>masa</b>.</li>
+          <li>Chispa perdida: los pares son cilindros que llegan <b>juntos al PMS</b> (1-4, 2-3), no los consecutivos del orden de encendido.</li>
+          <li>Q0 <b>no</b> lo regula la ECU: lo fija el tope de la mariposa (sellado).</li>
+          <li>Potenciómetro de CO: arriba de 2,5 V la mezcla es <b>rica</b>.</li>
+          <li>Corriente: amperímetro en <b>serie</b>; tensión: voltímetro en <b>paralelo</b>; resistencia: siempre <b>desconectado</b>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site"><div class="wrap" style="padding-bottom:0">
+  <div class="footrow">
+    <span>ITCA · Inyección electrónica nafta — material de estudio. Español rioplatense.</span>
+    <a class="navlink" href="sensores-funcionamiento.html">← Cómo funcionan los sensores</a>
+  </div>
+</div></footer>
+
+<script src="guia.js"></script>
+<script>
+function $(id){return document.getElementById(id)}
+function fmt(v,d){return v.toFixed(d==null?2:d).replace('.',',')}
+function seg(id,cb){var el=$(id);el.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){
+  el.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b)});cb(b.dataset)})})}
+
+/* ===== Osciloscopio genérico: series [{pts:[[x 0..1, y]], c}] ===== */
+function scope(svg,series,o){
+  var X0=46,X1=590,Y0=12,Y1=176,h='';
+  for(var i=0;i<=10;i++){var x=X0+(X1-X0)*i/10;h+='<line class="scg" x1="'+x+'" y1="'+Y0+'" x2="'+x+'" y2="'+Y1+'"/>'}
+  for(var j=0;j<=4;j++){var y=Y0+(Y1-Y0)*j/4;h+='<line class="scg" x1="'+X0+'" y1="'+y+'" x2="'+X1+'" y2="'+y+'"/>';
+    h+='<text class="sct" x="'+(X0-6)+'" y="'+(y+4)+'" text-anchor="end">'+fmt(o.ymax-(o.ymax-o.ymin)*j/4,o.yd==null?1:o.yd)+'</text>'}
+  if(o.zero!=null){var yz=Y1-(o.zero-o.ymin)/(o.ymax-o.ymin)*(Y1-Y0);h+='<line x1="'+X0+'" y1="'+yz+'" x2="'+X1+'" y2="'+yz+'" stroke="#2f4f73" stroke-width="1.4"/>'}
+  series.forEach(function(s){
+    var d=s.pts.map(function(p,k){var v=Math.max(o.ymin,Math.min(o.ymax,p[1]));
+      return (k?'L':'M')+(X0+(X1-X0)*p[0]).toFixed(1)+' '+(Y1-(v-o.ymin)/(o.ymax-o.ymin)*(Y1-Y0)).toFixed(1)}).join('');
+    h+='<path d="'+d+'" fill="none" stroke="'+s.c+'" stroke-width="'+(s.w||2)+'" stroke-linejoin="round"'+(s.dash?' stroke-dasharray="5 5"':'')+'/>';
+    if(s.label)h+='<text class="sct" x="'+(X1-4)+'" y="'+s.ly+'" text-anchor="end" style="fill:'+s.c+'">'+s.label+'</text>';});
+  (o.marks||[]).forEach(function(m){var x=X0+(X1-X0)*m[0],v=Math.max(o.ymin,Math.min(o.ymax,m[1])),y=Y1-(v-o.ymin)/(o.ymax-o.ymin)*(Y1-Y0);
+    h+='<circle cx="'+x+'" cy="'+y+'" r="6" fill="#ffc24a" stroke="#06101c" stroke-width="2"/>'});
+  h+='<text class="sct" x="'+X0+'" y="196">'+(o.xl||'')+'</text><text class="sct" x="'+X1+'" y="196" text-anchor="end">'+(o.yl||'')+'</text>';
+  svg.innerHTML=h;
+}
+var SC='#31c4ba', SC2='#ffc24a', SC3='#ff6b78';
+
+/* ===== 02 · Paso a paso ===== */
+(function(){
+  // ponytail: pasos por carga y rpm son ilustrativos (el manual no da valores)
+  var ADD={ac:45,dh:25,cold:60}, loads={}, auto=true, steps=30, moving=false;
+  function need(){var n=30;for(var k in loads)if(loads[k])n+=ADD[k];return n}
+  function Q(s){return 20+80*Math.pow(s/200,1.15)}
+  function rpm(){return Math.max(450,Math.min(1400,850+(steps-need())*5))}
+  function upd(){
+    var n=need(), r=rpm(), yb=104-steps/200*24;
+    $('stS').value=steps; $('stSo').textContent=steps;
+    $('stPin').setAttribute('height',(yb-66).toFixed(1));
+    $('stFlow').setAttribute('opacity',(steps<2?0:0.2+0.8*steps/200).toFixed(2));
+    $('stA').setAttribute('class','coil'+(moving&&steps%2===0?' on':''));
+    $('stB').setAttribute('class','coil'+(moving&&steps%2===1?' on':''));
+    $('stMm').textContent=fmt(steps*0.04)+' mm'; $('stNeed').textContent=n;
+    $('stRpm').textContent=Math.round(r); $('stRpmTag').textContent=Math.round(r)+' rpm';
+    $('stRpm').className=Math.abs(r-850)>40?'bad':'';
+    $('stRpmBar').setAttribute('width',(250*(r-400)/1050).toFixed(1));
+    var d=steps-n;
+    $('stNote').innerHTML=Math.abs(d)<=3?'<b>Ralentí estable.</b> Q0 + Q alcanza para las cargas de este momento.':
+      d<0?(auto?'<b>Las rpm cayeron.</b> La ECU lo ve y manda pulsos: el obturador retrocede, abre el bypass…':'<b>Falta aire:</b> las rpm caen, el motor tiembla y se puede apagar (como un paso a paso trabado o un bypass sucio).'):
+      (auto?'<b>Sobra aire.</b> La ECU cierra el bypass paso a paso…':'<b>Sobra aire:</b> ralentí acelerado.');
+    var pts=[];for(var s=0;s<=200;s+=4)pts.push([s/200,Q(s)]);
+    scope($('stPlot'),[{pts:[[0,20],[1,20]],c:'#8a96b8',w:1.5,dash:1,label:'Q0 (tope sellado)',ly:136},{pts:pts,c:SC,w:2.4,label:'Q0 + Q',ly:24}],
+      {ymin:0,ymax:100,yd:0,xl:'0 → pasos → 200 (8 mm)',yl:'caudal relativo %',marks:[[steps/200,Q(steps)]]});
+  }
+  setInterval(function(){var n=need(); moving=auto&&steps!==n; if(moving){steps+=steps<n?1:-1;upd()} else if($('stA').getAttribute('class')!=='coil'){upd()}},45);
+  document.querySelectorAll('#paso [data-l]').forEach(function(b){b.addEventListener('click',function(){
+    var k=b.dataset.l; loads[k]=!loads[k]; b.classList.toggle('on',loads[k]); auto=true; $('stAuto').checked=true; upd()})});
+  $('stS').addEventListener('input',function(){auto=false;$('stAuto').checked=false;steps=+this.value;moving=false;upd()});
+  $('stAuto').addEventListener('change',function(){auto=this.checked;upd()});
+  upd();
+})();
+
+/* ===== 03 · Regulador de CC ===== */
+(function(){
+  var dir=0, ped=false, a=4;
+  function draw(){
+    var plate=ped?40:a, r=a*Math.PI/180, tip=260+78*Math.sin(r)-6;
+    $('dcPlate').setAttribute('transform','rotate('+plate.toFixed(1)+' 260 180)');
+    $('dcLever').setAttribute('transform','rotate('+plate.toFixed(1)+' 260 180)');
+    $('dcStem').setAttribute('width',(tip-140).toFixed(1)); $('dcSw').setAttribute('x',(tip-4).toFixed(1));
+    $('dcSw').setAttribute('fill',ped?'var(--bad)':'var(--ok)');
+    var act=ped?0:dir, p32=act>0?'+12 V':act<0?'masa':'—', p34=act>0?'masa':act<0?'+12 V':'—';
+    $('dcV32').textContent=p32; $('dcV34').textContent=p34; $('dcP32').textContent=p32; $('dcP34').textContent=p34;
+    $('dcRot').textContent=act>0?'↻ abre':act<0?'↺ cierra':'';
+    $('dcAng').textContent=fmt(plate,1)+'°';
+    $('dcC').textContent=ped?'abierto':'cerrado'; $('dcC').className=ped?'bad':'ok';
+    $('dcPin8').textContent=ped?'sin masa':'a masa';
+    $('dcW8').setAttribute('stroke-dasharray',ped?'4 6':'');
+    $('dcNote').innerHTML=ped?'<b>Pedal pisado:</b> la leva se separa del vástago, el contacto C se abre y la ECU deja de regular el ralentí (el motor de CC queda quieto).':
+      (a>=18&&dir>0?'<b>Tope:</b> el vástago llegó a su recorrido máximo, ≈18° de mariposa.':a<=0&&dir<0?'<b>Tope:</b> vástago totalmente retraído.':
+      dir>0?'La ECU pone + en un pin y masa en el otro: el motor gira, el tornillo sin fin mueve la rueda y el vástago <b>empuja</b> la leva.':
+      dir<0?'La ECU <b>invierte la polaridad</b>: el motor gira al revés y el vástago retrocede; un resorte cierra la mariposa contra él.':
+      'Contacto C cerrado: pin 8 a masa → la ECU sabe que estás en ralentí (regula el mínimo y puede hacer cut-off).');
+  }
+  setInterval(function(){if(!ped&&dir){var b=a;a=Math.max(0,Math.min(18,a+dir*0.2));if(a!==b)draw()}},40);
+  seg('dcDir',function(d){dir=+d.d;draw()});
+  seg('dcPed',function(d){ped=d.p==='1';draw()});
+  draw();
+})();
+
+/* ===== 04A · Catalizador: temperatura ===== */
+(function(){
+  var melted=false, timer=null, X=function(t){return 20+Math.min(t,1500)/1500*560};
+  var Z=[[0,250,'var(--wire)'],[250,400,'var(--spark)'],[400,800,'var(--ok)'],[800,1000,'var(--copper)'],[1000,1400,'var(--bad)'],[1400,1500,'var(--bad)']];
+  function eff(T){if(melted||T<250)return 0;if(T<300)return (T-250)/50*40;if(T<400)return 40+(T-300)/100*55;if(T<=800)return 95;if(T<=1000)return 95-(T-800)/200*15;return 80-(T-1000)/400*40}
+  function upd(){
+    var T=+$('catT').value; if(T>=1400)melted=true;
+    $('catTo').textContent=T+' °C';
+    var h='';Z.forEach(function(z,i){h+='<rect x="'+X(z[0]).toFixed(1)+'" y="18" width="'+(X(z[1])-X(z[0])).toFixed(1)+'" height="16" fill="color-mix(in srgb,'+z[2]+' '+(i===5?80:42)+'%,var(--panel))"/>'});
+    h+='<rect x="20" y="18" width="560" height="16" rx="3" fill="none" stroke="var(--line2)"/>';
+    [0,250,400,800,1000,1400].forEach(function(t){h+='<text class="lbl2" x="'+X(t).toFixed(1)+'" y="52" text-anchor="'+(t?'middle':'start')+'" style="font-size:10.5px">'+t+'</text>'});
+    h+='<text class="lbl2" x="580" y="66" text-anchor="end" style="font-size:10px">°C</text>';
+    h+='<path d="M'+X(T).toFixed(1)+' 14 l-7 -11 h14 z" fill="var(--ink)"/>';
+    $('catScale').innerHTML=h;
+    var st,note,col;
+    if(melted){st='FUNDIDO';col='bad';note='El sustrato se derritió (≈1400 °C): el panal se tapa, sube la contrapresión, el motor se ahoga. No se repara: se cambia.'}
+    else if(T<250){st='frío';col='';note='Por debajo de 250 °C no hay reacción: los gases pasan tal cual. Pasa en los primeros minutos después de arrancar.'}
+    else if(T<300){st='light-off';col='';note='Entre 250 y 300 °C arrancan la oxidación y la reducción.'}
+    else if(T<400){st='calentando';col='';note='Ya convierte. El manual da 300–400 °C para los gases en marcha normal.'}
+    else if(T<=800){st='óptimo';col='ok';note='Banda de 400–800 °C: alta eficiencia por mucho tiempo. Rango típico de trabajo: 500–600 °C (a plena carga los gases llegan a 900 °C).'}
+    else if(T<=1000){st='envejece';col='bad';note='800–1000 °C por mucho tiempo: los metales y la capa de alúmina se "concrecionan" (se apelmazan) y pierde superficie activa: envejecimiento térmico.'}
+    else {st='peligro';col='bad';note='Muy por encima de la banda: envejece rápido y se acerca a la fusión.'}
+    $('catSt').textContent=st; $('catSt').className=col; $('catEff').textContent=Math.round(eff(T))+' %';
+    $('catNote').textContent=note;
+    var mono=melted?'color-mix(in srgb,var(--bad) 55%,var(--panel2))':T<250?'var(--panel2)':T<=800?'color-mix(in srgb,var(--ok) '+Math.round(10+eff(T)/4)+'%,var(--panel2))':'color-mix(in srgb,var(--copper) '+Math.round(20+(T-800)/20)+'%,var(--panel2))';
+    $('catMono').setAttribute('fill',mono);
+    $('catMonoLab').textContent=melted?'monolito FUNDIDO: escape tapado':'monolito cerámico (panal)';
+    $('catOut').textContent=melted?'casi no pasa gas':eff(T)>50?'CO₂ · H₂O · N₂':eff(T)>0?'convierte en parte':'sin convertir';
+    $('catFlowOut').setAttribute('class',(eff(T)>50?'wire-sig':'wire-hi')+' flow'); $('catFlowOut').setAttribute('opacity',melted?.15:1);
+  }
+  $('catT').addEventListener('input',upd);
+  $('catMis').addEventListener('click',function(){clearInterval(timer);timer=setInterval(function(){var T=+$('catT').value+20;$('catT').value=T;upd();if(T>=1460)clearInterval(timer)},40)});
+  $('catNew').addEventListener('click',function(){clearInterval(timer);melted=false;$('catT').value=500;upd()});
+  upd();
+})();
+
+/* ===== 04B · Catalizador: ventana λ ===== */
+(function(){
+  var poisoned=false;
+  function sg(x){return 1/(1+Math.exp(-x))}
+  function k(){return poisoned?0.12:1}
+  function eCO(l){return k()*(5+93*sg((l-0.993)/0.004))}
+  function eHC(l){return k()*(5+90*sg((l-0.99)/0.005))}
+  function eNO(l){return k()*(5+93*(1-sg((l-1.006)/0.003)))}
+  var X=function(l){return 46+(l-0.9)/0.2*544};
+  function upd(){
+    var l=+$('catL').value, pts=[[],[],[]];
+    for(var x=0.9;x<=1.1001;x+=0.002){var p=(x-0.9)/0.2;pts[0].push([p,eCO(x)]);pts[1].push([p,eHC(x)]);pts[2].push([p,eNO(x)])}
+    scope($('catPlot'),[{pts:pts[0],c:SC,w:2.2,label:'CO',ly:30},{pts:pts[1],c:SC2,w:2.2,label:'HC',ly:46},{pts:pts[2],c:SC3,w:2.2,label:'NOx',ly:62}],
+      {ymin:0,ymax:100,yd:0,xl:'rica ← λ 0,90 … 1,10 → pobre',yl:'% convertido',marks:[[(l-0.9)/0.2,Math.min(eCO(l),eHC(l),eNO(l))]]});
+    var lo=null,hi=null;for(var y=0.9;y<=1.1;y+=0.0005){if(Math.min(eCO(y),eHC(y),eNO(y))>=80){if(lo===null)lo=y;hi=y}}
+    if(lo!==null)$('catPlot').insertAdjacentHTML('afterbegin','<rect x="'+X(lo).toFixed(1)+'" y="12" width="'+Math.max(3,X(hi)-X(lo)).toFixed(1)+'" height="164" fill="#3fd98a" opacity=".18"/><text class="sct" x="'+((X(lo)+X(hi))/2).toFixed(1)+'" y="190" text-anchor="middle" style="fill:#3fd98a">ventana</text>');
+    $('catLo').textContent=fmt(l,3);
+    $('catCO').textContent=Math.round(eCO(l))+' %';$('catHC').textContent=Math.round(eHC(l))+' %';$('catNO').textContent=Math.round(eNO(l))+' %';
+    ['catCO','catHC','catNO'].forEach(function(id,i){$(id).className=[eCO,eHC,eNO][i](l)<60?'bad':'ok'});
+    $('catMix').textContent=l<0.995?'rica':l>1.005?'pobre':'λ ≈ 1';
+    $('catLNote').innerHTML=poisoned?'<b>Envenenado:</b> el plomo tapa los metales nobles. La eficiencia se desploma en <b>toda</b> la curva y no vuelve aunque cargues nafta sin plomo: hay que cambiarlo.':
+      l<0.995?'<b>Rica:</b> falta oxígeno → CO y HC pasan sin oxidar. El NOx sí se reduce bien.':
+      l>1.005?'<b>Pobre:</b> sobra oxígeno → CO y HC se oxidan, pero el NOx no se puede reducir y sale.':
+      '<b>Dentro de la ventana:</b> los tres gases se convierten a la vez. Por eso la ECU trabaja en lazo cerrado con la sonda lambda.';
+  }
+  $('catL').addEventListener('input',upd);
+  $('catPb').addEventListener('change',function(){if(this.checked){poisoned=true;this.disabled=true}upd()});
+  $('catPbNew').addEventListener('click',function(){poisoned=false;$('catPb').checked=false;$('catPb').disabled=false;upd()});
+  upd();
+})();
+
+/* ===== 05 · EGR ===== */
+(function(){
+  var notes=['<b>Ralentí:</b> la ECU la deja cerrada; con gas de escape el ralentí temblaría o se apagaría.','<b>Crucero, motor caliente:</b> carga parcial, combustión caliente: acá la ECU abre la EGR para bajar el NOx.','<b>A fondo:</b> la ECU la cierra; querés todo el oxígeno para la potencia.','<b>Motor frío:</b> cerrada; la combustión ya es fría y la mezcla necesita quemar bien.'], ci=1;
+  function upd(){
+    var o=+$('egrA').value/100, T=100-28*o, N=100*(1-0.75*o);
+    $('egrAo').textContent=Math.round(o*100)+' %';
+    $('egrGas').setAttribute('opacity',o<0.02?0:(0.3+0.7*o).toFixed(2));
+    $('egrPin').setAttribute('y',(138-o*14).toFixed(1));
+    $('egrDia').setAttribute('d','M418 136 Q450 '+(136-o*18).toFixed(1)+' 482 136');
+    $('egrBT').setAttribute('height',(120*T/100).toFixed(1)); $('egrBT').setAttribute('y',(220-120*T/100).toFixed(1));
+    $('egrBN').setAttribute('height',(120*N/100).toFixed(1)); $('egrBN').setAttribute('y',(220-120*N/100).toFixed(1));
+    $('egrFlame').setAttribute('r',(14+10*T/100).toFixed(1));
+    $('egrFlame').setAttribute('fill',o>0.5?'var(--copper)':'var(--spark)');
+    $('egrT').textContent=Math.round(T)+' %'; $('egrN').textContent=Math.round(N)+' %';
+    $('egrNote').innerHTML=(ci>=0?notes[ci]+' ':'')+(o>0.8?'<b>Demasiada EGR:</b> combustión lenta, el motor pierde fuerza y tironea.':'');
+  }
+  seg('egrCond',function(d){ci=[].indexOf.call($('egrCond').children,document.querySelector('#egrCond .on'));$('egrA').value=d.o;upd()});
+  $('egrA').addEventListener('input',function(){ci=-1;document.querySelectorAll('#egrCond button').forEach(function(b){b.classList.remove('on')});upd()});
+  upd();
+})();
+(function(){
+  var F={ok:[300,'constante','EGR OK','normal','La EGR trabaja como fue diseñada: la temperatura que ve el sensor se mantiene más o menos constante.'],
+    open:[520,'demasiado alta','EGR siempre abierta','ok','Pasa gas de escape todo el tiempo, también en ralentí: ralentí inestable, tirones, el motor se puede apagar <span class="gen">dato general de taller</span>.'],
+    closed:[80,'demasiado baja','EGR no abre','ok','No recircula: la combustión queda caliente → más NOx y posible detonación (pistoneo) en carga <span class="gen">dato general de taller</span>.']};
+  function upd(k){var f=F[k];$('egsMk').setAttribute('d','M'+f[0]+' 16 l-8 -12 h16 z');$('egsR').textContent=f[1];$('egsR').className=k==='ok'?'ok':'bad';
+    $('egsD').textContent=f[2];$('egsS').innerHTML=f[4]}
+  seg('egsF',function(d){upd(d.f)}); upd('ok');
+})();
+
+/* ===== 06 · DIS ===== */
+(function(){
+  var X=[90,220,350,480], NUM=[1,2,3,4], OFF={1:0,3:180,4:360,2:540}, POL={1:'centro → masa',4:'masa → centro',2:'centro → masa',3:'masa → centro'};
+  var th=0, play=true, last=performance.now(), lastTxt='—';
+  function phase(c){return ((th-OFF[c])%720+720)%720}
+  function stroke(p){return p<180?'EXPANSIÓN':p<360?'ESCAPE':p<540?'ADMISIÓN':'COMPRESIÓN'}
+  function draw(){
+    var g='', fA=false, fB=false;
+    NUM.forEach(function(c,i){
+      var p=phase(c), x=X[i], pos=(1-Math.cos(p*Math.PI/180))/2, py=126+pos*90;
+      var spark=p>=696||(p>=336&&p<360), useful=p>=696;
+      if(spark){if(c===1||c===4)fA=true;else fB=true}
+      g+='<rect x="'+(x-46)+'" y="108" width="92" height="160" rx="6" class="box"/>';
+      g+='<rect x="'+(x-42)+'" y="'+py.toFixed(1)+'" width="84" height="36" rx="5" fill="color-mix(in srgb,var(--wire) 45%,var(--panel))" stroke="var(--wire)"/>';
+      g+='<line x1="'+x+'" y1="'+(py+36).toFixed(1)+'" x2="'+x+'" y2="262" stroke="var(--wire)" stroke-width="4"/>';
+      g+='<rect x="'+(x-6)+'" y="72" width="12" height="28" rx="3" fill="var(--panel)" stroke="var(--line2)" stroke-width="1.5"/><line x1="'+x+'" y1="100" x2="'+x+'" y2="110" stroke="var(--ink)" stroke-width="2"/>';
+      var sc=stroke(p), col=sc==='COMPRESIÓN'?'var(--spark)':sc==='EXPANSIÓN'?'var(--bad)':sc==='ESCAPE'?'var(--muted)':'var(--signal)';
+      g+='<text class="lblb" x="'+x+'" y="290" text-anchor="middle" style="font-size:11px;fill:'+col+'">'+sc+'</text>';
+      g+='<text class="lblb" x="'+x+'" y="310" text-anchor="middle">Cil. '+c+'</text>';
+      g+='<text class="lbl2" x="'+x+'" y="330" text-anchor="middle" style="font-size:9.5px">'+POL[c]+'</text>';
+      if(spark){
+        g+='<circle cx="'+x+'" cy="114" r="'+(useful?13:6)+'" fill="'+(useful?'var(--spark)':'var(--signal)')+'" opacity=".9"/>';
+        g+='<text class="lblb" x="'+(x+16)+'" y="98" style="font-size:10.5px;fill:'+(useful?'var(--spark)':'var(--signal)')+'">'+(useful?'útil':'perdida')+'</text>';
+        if(useful)lastTxt='cil. '+c+' útil · '+(c===1?4:c===4?1:c===2?3:2)+' perdida';
+      }
+    });
+    $('disCyl').innerHTML=g;
+    $('disCA').style.fill=fA?'var(--spark)':''; $('disCB').style.fill=fB?'var(--signal)':'';
+    $('disAng').textContent=Math.round(th%720)+'°'; $('disLast').textContent=lastTxt;
+  }
+  function frame(now){var dt=Math.min(0.05,(now-last)/1000);last=now;if(play){th=(th+ +$('disV').value*dt)%720;draw()}requestAnimationFrame(frame)}
+  $('disPlay').addEventListener('click',function(){play=!play;this.textContent=play?'⏸ Pausa':'▶ Play'});
+  $('disStep').addEventListener('click',function(){play=false;$('disPlay').textContent='▶ Play';th=(th+10)%720;draw()});
+  $('disV').addEventListener('input',function(){$('disVo').textContent=this.value+' °/s'});
+  th=690; draw(); requestAnimationFrame(frame);
+})();
+
+/* ===== 07 · Onda cuadrada ===== */
+(function(){
+  function upd(){
+    var A=+$('sqA').value, f=+$('sqF').value, d=+$('sqD').value/100, T=1000/f, W=100, pw=T*d, pts=[];
+    for(var k=0;k*T<W;k++){var s=k*T/W, e=Math.min(1,(k*T+pw)/W); pts.push([s,0],[s,A],[e,A],[e,0])}
+    pts.push([1,0]);
+    $('sqAo').textContent=fmt(A,1)+' V'; $('sqFo').textContent=f+' Hz'; $('sqDo').textContent=Math.round(d*100)+' %';
+    $('sqT').textContent=fmt(T,1)+' ms'; $('sqW').textContent=fmt(pw,1)+' ms'; $('sqN').textContent=fmt(W/T,1); $('sqM').textContent=fmt(A*d,1)+' V';
+    scope($('sqPlot'),[{pts:pts,c:SC2,w:2.2}],{ymin:0,ymax:15,yd:0,xl:'tiempo → 100 ms',yl:'V'});
+    var px=function(t){return 46+t/W*544}, py=function(v){return 176-v/15*164}, h='', yt=py(A), xa=Math.min(px(T)-14,px(pw)+14);
+    var yb=Math.max(10,yt-10), yp=Math.max(24,yt-24);
+    h+='<line x1="'+px(0)+'" y1="'+yb+'" x2="'+px(pw)+'" y2="'+yb+'" stroke="#31c4ba" stroke-width="1.6"/><text class="sct" x="'+(px(0)+3)+'" y="'+(yb+14)+'" style="fill:#31c4ba">ancho</text>';
+    if(px(T)<590)h+='<line x1="'+px(0)+'" y1="'+yp+'" x2="'+px(T)+'" y2="'+yp+'" stroke="#8fa6ff" stroke-width="1.4" stroke-dasharray="3 3"/><text class="sct" x="'+(px(T)+3)+'" y="'+(yp+4)+'" style="fill:#8fa6ff">período</text>';
+    h+='<line x1="'+xa+'" y1="176" x2="'+xa+'" y2="'+yt+'" stroke="#ff6b78" stroke-width="1.6"/><text class="sct" x="'+(xa+4)+'" y="'+((176+yt)/2)+'" style="fill:#ff6b78">amplitud</text>';
+    $('sqPlot').insertAdjacentHTML('beforeend',h);
+  }
+  ['sqA','sqF','sqD'].forEach(function(id){$(id).addEventListener('input',upd)}); upd();
+})();
+</script>
+</body>
+</html>
