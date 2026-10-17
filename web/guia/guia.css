@@ -343,7 +343,7 @@ html{scroll-behavior:smooth}
   background:var(--panel);border:1px solid var(--line2);border-radius:16px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;gap:2px}
 @media print{.toc,.tocfab{display:none!important}}
 
-/* ===== Fichas de sensores (pines y medición) — sensores-funcionamiento / sensores-motores / competencia-movil ===== */
+/* ===== Fichas de sensores (pines y medición) — sensores-funcionamiento / sensores-motores / actuadores-emisiones ===== */
 :root{--k-ref:var(--spark);--k-sig:var(--signal);--k-gnd:var(--muted);--k-v12:var(--bad);--k-heat:var(--copper);--k-shd:var(--wire);--k-mot:var(--navy2)}
 .kdot{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;margin-right:6px}
 .legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.86rem;color:var(--muted);margin:10px 0 4px}
@@ -352,6 +352,9 @@ html{scroll-behavior:smooth}
 .ficha .sig{font-family:ui-monospace,Menlo,monospace;font-weight:800;font-size:.85rem;background:var(--spark);color:#2a1c00;border-radius:7px;padding:2px 9px}
 .ficha h3{margin:0;font-size:1.2rem;font-weight:800}
 .ficha .tipo{font-size:.84rem;color:var(--muted);width:100%}
+.ficha .fpara{margin:4px 18px 2px;padding:9px 12px;font-size:.92rem;border-left:3px solid var(--spark);background:color-mix(in srgb,var(--spark) 8%,var(--panel));border-radius:0 8px 8px 0}
+.ptbl td:first-child a{color:var(--spark)}
+.ptbl th[colspan]{padding-top:14px;color:var(--copper)}
 .fgrid{display:grid;grid-template-columns:1.05fr 1fr;gap:4px 18px;padding:4px 18px 18px;align-items:start}
 @media(max-width:760px){.fgrid{grid-template-columns:1fr}}
 .fgrid>*{min-width:0}

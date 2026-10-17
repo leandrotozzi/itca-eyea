@@ -1,5 +1,5 @@
-/* ITCA · Guía Visual — datos de sensores y motores (compartidos por sensores-funcionamiento,
-   sensores-motores y competencia-movil). Un solo lugar para corregir pines y valores. */
+/* ITCA · Guía Visual — datos de sensores, actuadores y motores (compartidos por sensores-funcionamiento,
+   sensores-motores y actuadores-emisiones). Un solo lugar para corregir pines y valores. */
 /* ===== Tipos de pin ===== */
 var KINDS = {
   ref:{c:'var(--k-ref)', n:'5 V referencia (ECU)'},
@@ -14,87 +14,159 @@ var KINDS = {
 /* ===== Fichas por tipo de sensor =====
    pins: [etiqueta, tipo, función, qué medir] */
 var SENSORS = {
-ckp:{sig:'CKP', name:'Sensor de rotación inductivo', tipo:'Posición del cigüeñal y RPM · inductivo (genera su propia tensión alterna) · lee una rueda fónica 60-2 o 36-1',
+ckp:{sig:'CKP', name:'Sensor de rotación inductivo', para:'Le dice a la ECU las <b>RPM</b> y <b>dónde está cada pistón</b>. Con eso decide cuándo saltar la chispa y cuándo inyectar: sin él, el motor no arranca.',
+  tipo:'Posición del cigüeñal y RPM · inductivo (genera su propia tensión alterna) · lee una rueda fónica 60-2 o 36-1',
   pins:[['A','sig','Señal (+)','Ω entre A y B; Vca dando arranque'],['B','sig','Señal (−) / masa de señal','idem'],['(3)','shd','Malla a masa (si tiene 3 pines)','continuidad a masa']],
   mido:['Desconectado: <b>Ω entre los 2 pines</b> de señal.','Aislación: entre cada pin y masa → <b>infinito</b> (OL).','Enchufado, dando arranque: <b>V AC</b> entre señal y masa → debe aparecer tensión alterna (sube con las RPM).','Entrehierro con sonda de lainas: <b>0,5–1,5 mm</b>. Punta limpia (sin limaduras).'],
   vals:['≈ 200–1.200 Ω (según marca)','> 0,5 V AC arranque','aislación ∞'],
   falla:'Sin señal de CKP <b>el motor no arranca</b>: no hay chispa ni inyección. Típico: cable cortado, punta sucia de viruta o rueda fónica con dientes dañados.'},
-hall:{sig:'CMP / Hall', name:'Sensor de efecto Hall (fase, VSS, algunos CKP)', tipo:'Interruptor electrónico: entrega una onda cuadrada 0 ↔ 5 V (o 0 ↔ 12 V) al pasar una ventana o diente metálico',
+hall:{sig:'CMP / Hall', name:'Sensor de efecto Hall (fase, VSS, algunos CKP)', para:'Da pulsos limpios de <b>posición</b>. Como CMP dice <b>qué cilindro</b> está en compresión (inyección secuencial); en el distribuidor o como CKP, la posición del cigüeñal y las RPM; como VSS, la velocidad.',
+  tipo:'Interruptor electrónico: entrega una onda cuadrada 0 ↔ 5 V (o 0 ↔ 12 V) al pasar una ventana o diente metálico',
   pins:[['1','v12','Alimentación 5 V o 12 V (según sistema)','V con contacto'],['2','sig','Señal (pull-up de la ECU)','V conmuta 0 ↔ 5 V girando lento'],['3','gnd','Masa','≈0 V / continuidad a masa']],
   mido:['Con contacto, conector enchufado: <b>alimentación vs masa</b> = 5 V o 12 V.','Señal por backprobe, girando el motor <b>a mano lento</b>: tiene que <b>saltar</b> entre ≈0 V y ≈5 V.','Con motor en marcha: el multímetro muestra un promedio (≈2,5 V) o la <b>frecuencia en Hz</b>; con osciloscopio se ve la onda cuadrada.','<b>No se mide en Ω</b>: es electrónico (adentro tiene un chip).'],
   vals:['0 ↔ 5 V cuadrada','alim. 5 o 12 V'],
   falla:'CMP muerto: arranca pero tarda (la ECU busca la fase) o pasa a <b>inyección simultánea</b>; luz de falla. VSS muerto: velocímetro en 0 y ralentí inestable al frenar.'},
-ect:{sig:'ECT / CTS', name:'Temperatura del refrigerante', tipo:'Termistor NTC: baja la resistencia al subir la temperatura · la ECU le da 5 V a través de una resistencia fija y mide la caída',
+ect:{sig:'ECT / CTS', name:'Temperatura del refrigerante', para:'Temperatura del motor: en frío la ECU <b>enriquece la mezcla</b> y sube el ralentí; caliente, prende el <b>electroventilador</b>. El bulbo del tablero (1 pin) es otro: solo mueve la aguja del reloj, la ECU no lo usa.',
+  tipo:'Termistor NTC: baja la resistencia al subir la temperatura · la ECU le da 5 V a través de una resistencia fija y mide la caída',
   pins:[['1','sig','Señal (5 V por resistencia de la ECU)','V: frío ≈3–3,5 V, caliente ≈0,5–1 V'],['2','gnd','Masa de sensores (desde la ECU)','≈0 V']],
   mido:['Desconectado: <b>Ω entre pines</b> y comparar con la tabla (motor frío y caliente).','En el arnés desconectado con contacto: el pin de señal da <b>≈5 V</b> (prueba que la ECU alimenta).','Enchufado: la tensión de señal <b>baja</b> a medida que el motor calienta, <b>sin saltos</b>.','Variantes de 3–4 pines: traen una segunda NTC para el <b>reloj del tablero</b>.'],
   vals:['0 °C ≈ 5,9 kΩ','20 °C ≈ 2,5 kΩ','40 °C ≈ 1,2 kΩ','80 °C ≈ 330 Ω','100 °C ≈ 190 Ω'],
   falla:'Ojo: cada marca tiene su curva (Ford: 20 °C ≈ 36 kΩ). Abierto → la ECU lee −40 °C: <b>mezcla muy rica</b>, humo negro, consumo. En corto → lee caliente: <b>arranque en frío difícil</b>. También comanda el electroventilador.'},
-iat:{sig:'IAT / ACT', name:'Temperatura del aire de admisión', tipo:'Termistor NTC (igual que el ECT) · corrige la inyección según la densidad del aire · suele venir dentro del TMAP',
+iat:{sig:'IAT / ACT', name:'Temperatura del aire de admisión', para:'Temperatura del aire que entra: el aire frío es más denso (más oxígeno), así que la ECU <b>corrige un poco la mezcla</b>.',
+  tipo:'Termistor NTC (igual que el ECT) · corrige la inyección según la densidad del aire · suele venir dentro del TMAP',
   pins:[['1','sig','Señal (5 V por resistencia de la ECU)','V: ≈2–3 V a temperatura ambiente'],['2','gnd','Masa de sensores','≈0 V']],
   mido:['Desconectado: <b>Ω a temperatura ambiente</b> (≈2–3 kΩ a 20–25 °C).','Calentá la punta con la mano o un secador: la <b>resistencia tiene que bajar</b>.','Enchufado: tensión de señal baja suave al calentarse.'],
   vals:['20 °C ≈ 2,5 kΩ','40 °C ≈ 1,2 kΩ'],
   falla:'Lectura errónea → mezcla corrida pocos %. Raramente deja el auto parado; la ECU usa un valor de reemplazo (≈20–40 °C).'},
-map:{sig:'MAP', name:'Presión absoluta del múltiple', tipo:'Piezorresistivo de silicio con electrónica: tensión alta = presión alta (motor parado / acelerón), baja = vacío (ralentí, desaceleración)',
+map:{sig:'MAP', name:'Presión absoluta del múltiple', para:'Mide el <b>vacío del múltiple</b>, o sea cuánta <b>carga</b> tiene el motor. Es el dato principal para calcular <b>cuánta nafta inyectar</b>.',
+  tipo:'Piezorresistivo de silicio con electrónica: tensión alta = presión alta (motor parado / acelerón), baja = vacío (ralentí, desaceleración)',
   pins:[['1','gnd','Masa de sensores','≈0 V'],['2','sig','Señal de presión','V: parado ≈4–4,5 V, ralentí ≈1–1,5 V'],['3','ref','5 V de referencia','≈5 V']],
   mido:['Con contacto, enchufado: <b>5 V</b> en referencia, <b>0 V</b> en masa.','<b>Contacto y motor parado</b>: señal ≈ 4–4,5 V (es la presión atmosférica; a nivel del mar).','<b>Ralentí</b>: señal ≈ 1–1,5 V (vacío alto). Acelerón brusco: sube cerca de 4 V y vuelve.','Revisar la <b>manguera de vacío</b> (fisurada = señal falsa).'],
   vals:['ref 5 V','parado ≈ 4–4,5 V','ralentí ≈ 1–1,5 V'],
   falla:'Sensor de <b>carga</b> principal en estos motores: si falla, el motor anda muy rico o muy pobre, falta de potencia, humo negro. Algunos Ford viejos (EEC-IV) usaban un MAP <b>de frecuencia</b> (Hz); el Rocam (EEC-V) ya trae un TMAP analógico.'},
-tmap:{sig:'TMAP', name:'MAP + temperatura de aire (4 pines)', tipo:'Dos sensores en un cuerpo: el MAP (activo, 5 V) y la NTC del IAT · va atornillado al múltiple de admisión',
+tmap:{sig:'TMAP', name:'MAP + temperatura de aire (4 pines)', para:'MAP + IAT en un solo cuerpo: <b>carga del motor</b> y <b>temperatura del aire</b>, los dos datos para calcular la nafta.',
+  tipo:'Dos sensores en un cuerpo: el MAP (activo, 5 V) y la NTC del IAT · va atornillado al múltiple de admisión',
   pins:[['1','gnd','Masa común','≈0 V'],['2','sig','Señal IAT (NTC)','V / Ω como el IAT'],['3','ref','5 V referencia MAP','≈5 V'],['4','sig','Señal MAP','V como el MAP']],
   mido:['Identificá los pines con contacto: el que da <b>5 V</b> es la referencia, el de <b>0 V</b> la masa.','De los otros dos: el que <b>cambia al dar arranque/acelerar</b> es el MAP; el que <b>da ≈5 V desenchufado</b> y mide kΩ contra masa (sensor fuera) es el IAT.','Valores: los del MAP y los del IAT.'],
   vals:['MAP parado ≈ 4–4,5 V','ralentí ≈ 1–1,5 V','IAT 20 °C ≈ 2,5 kΩ'],
   falla:'Igual que MAP e IAT. Ojo: el orden 1-2-3-4 <b>no es igual</b> en Bosch, Magneti Marelli y Delphi.'},
-tps:{sig:'TPS', name:'Posición de mariposa (acelerador por cable)', tipo:'Potenciómetro: pista resistiva entre 5 V y masa, el cursor sigue el eje de la mariposa',
+tps:{sig:'TPS', name:'Posición de mariposa (acelerador por cable)', para:'Dice <b>cuánto está abierta la mariposa</b> (cuánto pisás): la ECU reconoce ralentí, aceleración (enriquece) y desaceleración (corta la inyección).',
+  tipo:'Potenciómetro: pista resistiva entre 5 V y masa, el cursor sigue el eje de la mariposa',
   pins:[['1','gnd','Masa de sensores','≈0 V'],['2','ref','5 V referencia','≈5 V'],['3','sig','Señal (cursor)','V: cerrada ≈0,3–0,9 V, a fondo ≈4–4,8 V']],
   mido:['Con contacto, enchufado: <b>5 V</b> en referencia y <b>0 V</b> en masa.','Señal con mariposa <b>cerrada</b>: ≈0,3–0,9 V. <b>Abrí despacio</b> a fondo: tiene que subir <b>de forma lineal, sin saltos ni cortes</b>, hasta ≈4–4,8 V.','Desconectado: Ω entre 5 V y masa fija (≈4–6 kΩ); entre cursor y masa varía al mover.'],
   vals:['cerrada 0,3–0,9 V','a fondo 4–4,8 V','pista ≈ 4–6 kΩ'],
   falla:'Pista gastada (un "pozo" en la zona de ralentí) → <b>tirones</b> al acelerar suave, ralentí que oscila, cut-off que no actúa.'},
-etb:{sig:'ETB', name:'Cuerpo de mariposa motorizado (drive-by-wire)', tipo:'Motor de CC que mueve la mariposa (comandado por PWM) + doble sensor de posición (2 pistas, por seguridad)',
+etb:{sig:'ETB', name:'Cuerpo de mariposa motorizado (drive-by-wire)', para:'La ECU <b>abre la mariposa con un motor</b> según lo que pide el pedal: controla el aire y el ralentí sin cable de acelerador.',
+  tipo:'Motor de CC que mueve la mariposa (comandado por PWM) + doble sensor de posición (2 pistas, por seguridad)',
   pins:[['M+','mot','Motor (+/−, puente H de la ECU)','Ω motor ≈ 1–5 Ω'],['M−','mot','Motor (−/+)','idem'],['5V','ref','5 V referencia','≈5 V'],['GND','gnd','Masa sensores','≈0 V'],['S1','sig','Pista 1','V sube al abrir'],['S2','sig','Pista 2 (inversa o desplazada)','V espejo de la pista 1']],
   mido:['Desconectado: <b>Ω del motor</b> (los 2 pines de mayor sección) → pocos Ω (≈1–5).','Con contacto (no arranques): 5 V y masa en el lado sensor.','Pistas por backprobe pisando el pedal: una <b>sube</b> y la otra <b>baja</b> (o sube con otra pendiente). La ECU compara las dos (plausibilidad).','<b>No forzar</b> la mariposa con los dedos con contacto puesto.'],
   vals:['motor ≈ 1–5 Ω','pistas 0,5 → 4,5 V','reposo ≈ 5–7° abierta'],
   falla:'Suciedad o pista que no coincide → <b>modo emergencia</b>: motor limitado a ≈1.500 rpm, luz EPC/MIL. Después de limpiarla, suele pedir <b>aprendizaje</b>.'},
-app:{sig:'APP', name:'Pedal de acelerador electrónico', tipo:'Dos potenciómetros independientes en el pedal (cada uno con su 5 V, masa y señal) · la pista 2 da la mitad de la 1',
+app:{sig:'APP', name:'Pedal de acelerador electrónico', para:'Lee <b>cuánto pisás el acelerador</b> en un auto sin cable; la ECU usa ese dato para mover la mariposa motorizada.',
+  tipo:'Dos potenciómetros independientes en el pedal (cada uno con su 5 V, masa y señal) · la pista 2 da la mitad de la 1',
   pins:[['1','ref','5 V pista 1','≈5 V'],['2','ref','5 V pista 2','≈5 V'],['3','gnd','Masa pista 1','≈0 V'],['4','sig','Señal pista 1','V: reposo ≈0,7 V → a fondo ≈4 V'],['5','gnd','Masa pista 2','≈0 V'],['6','sig','Señal pista 2','≈ la mitad de la pista 1']],
   mido:['Con contacto: dos pares 5 V / masa independientes.','Señales por backprobe: <b>pista 2 ≈ ½ pista 1</b> en todo el recorrido.','Barrido lento sin saltos.'],
   vals:['P1 0,7 → 4 V','P2 = ½ P1'],
   falla:'Las pistas no coinciden → aceleración limitada (modo emergencia) y luz de falla.'},
-o2:{sig:'HO2S / λ', name:'Sonda lambda (oxígeno)', tipo:'Generador de circonio: produce 0,1–0,9 V según el O₂ del escape · calefaccionada para trabajar rápido (necesita ≈350 °C)',
+o2:{sig:'HO2S / λ', name:'Sonda lambda (oxígeno)', para:'Mide el <b>oxígeno del escape</b> y dice si la mezcla quedó <b>rica o pobre</b>. La ECU corrige la inyección todo el tiempo (lazo cerrado).',
+  tipo:'Generador de circonio: produce 0,1–0,9 V según el O₂ del escape · calefaccionada para trabajar rápido (necesita ≈350 °C)',
   pins:[['Neg','sig','Señal (+) — cable negro (Bosch)','V oscila 0,1 ↔ 0,9 V'],['Gris','gnd','Masa de señal — gris','≈0 V'],['Bco','heat','Calefactor +12 V (relé) — blanco','≈12 V con contacto/motor'],['Bco','heat','Calefactor − (ECU lo comanda a masa) — blanco','Ω calefactor']],
   mido:['Desconectado: <b>Ω entre los 2 cables blancos</b> (calefactor) → ≈2–15 Ω en frío según marca.','Con contacto: <b>12 V</b> en uno de los blancos (del lado arnés).','Motor <b>caliente</b>, ralentí/2.000 rpm: señal <b>oscila</b> 0,1 ↔ 0,9 V varias veces por segundo (lazo cerrado).','<b>Bajo</b> (&lt; 0,45 V) = pobre · <b>alto</b> (&gt; 0,45 V) = rico. La post-catalizador oscila poco (≈0,6–0,7 V estable) si el catalizador funciona.'],
   vals:['0,1 ↔ 0,9 V','calefactor ≈ 2–15 Ω','12 V calefactor'],
   falla:'Lenta o fija en 0,45 V: lazo abierto, consumo alto. Variantes: <b>1 cable</b> (solo señal, masa por la rosca), <b>3 cables</b> (señal + calefactor, masa por la rosca), <b>4 cables</b> (todo aislado).'},
-knock:{sig:'KS', name:'Sensor de detonación (picado)', tipo:'Piezoeléctrico: un cristal genera tensión al recibir la vibración del block · va atornillado al block, bajo el múltiple de admisión',
+knock:{sig:'KS', name:'Sensor de detonación (picado)', para:'"Escucha" el <b>picado</b> (detonación). Si lo detecta, la ECU <b>atrasa el encendido</b> para proteger el motor.',
+  tipo:'Piezoeléctrico: un cristal genera tensión al recibir la vibración del block · va atornillado al block, bajo el múltiple de admisión',
   pins:[['1','sig','Señal (+)','mV AC al golpear el block'],['2','sig','Señal (−) / masa','idem'],['(3)','shd','Malla (si tiene)','continuidad a masa']],
   mido:['Desconectado: entre pines → <b>muy alta resistencia</b> (MΩ / OL). Si da pocos Ω, está en corto.','Enchufado, multímetro en mV AC: <b>golpecito suave</b> con una llave cerca del sensor → aparece tensión.','<b>Torque de ajuste</b> correcto (≈20 Nm): flojo no detecta, demasiado apretado detecta de más. Sin arandelas.'],
   vals:['R ≈ MΩ (OL)','mV AC al golpear','torque ≈ 20 Nm'],
   falla:'La ECU <b>atrasa el encendido</b> por seguridad: el motor pierde potencia y consume más.'},
-vss:{sig:'VSS', name:'Sensor de velocidad del vehículo', tipo:'Hall en la caja de cambios (salida del diferencial): pulsos cuadrados, frecuencia proporcional a la velocidad',
+vss:{sig:'VSS', name:'Sensor de velocidad del vehículo', para:'Mide la <b>velocidad del auto</b>: velocímetro y odómetro y, para la ECU, ralentí y corte en desaceleración.',
+  tipo:'Hall en la caja de cambios (salida del diferencial): pulsos cuadrados, frecuencia proporcional a la velocidad',
   pins:[['1','v12','Alimentación 12 V (o 5 V)','V con contacto'],['2','gnd','Masa','≈0 V'],['3','sig','Señal de pulsos','V conmuta girando una rueda']],
   mido:['Con contacto: alimentación y masa.','Rueda motriz levantada, girándola a mano (o en marcha): la señal <b>conmuta</b> 0 ↔ 5/12 V; con multímetro en Hz sube con la velocidad.','Detenido = sin pulsos.'],
   vals:['pulsos 0 ↔ 5/12 V','Hz ∝ velocidad'],
   falla:'Velocímetro y odómetro en 0, ralentí inestable en desaceleración, a veces cut-off que no actúa.'},
-oil:{sig:'OPS', name:'Presostato (bulbo) de presión de aceite', tipo:'Interruptor normalmente cerrado a masa: con presión (motor andando) abre y apaga la luz del tablero',
+oil:{sig:'OPS', name:'Presostato (bulbo) de presión de aceite', para:'Prende la <b>luz de aceite</b> del tablero si no hay presión. Avisa al conductor; la ECU no lo usa.',
+  tipo:'Interruptor normalmente cerrado a masa: con presión (motor andando) abre y apaga la luz del tablero',
   pins:[['1','sig','Cable a la lámpara del tablero','continuidad a masa con motor parado']],
   mido:['Motor <b>parado</b>: entre el terminal y masa → <b>continuidad</b> (0 Ω): la luz prende.','Motor <b>en marcha</b>: circuito <b>abierto</b> (OL): la luz se apaga.','Si la luz no se apaga: verificar presión real con manómetro antes de culpar al bulbo.'],
   vals:['parado = 0 Ω','andando = abierto'],
   falla:'No es de inyección (va al tablero), pero <b>es un sensor del motor</b> y lo suelen pedir.'}
 };
 
-/* ===== Actuadores que se confunden con sensores ===== */
-var ACT = [
-  ['Inyector','2','12 V (relé) + masa comandada por la ECU','Ω ≈ 11–16 Ω (alta impedancia)'],
-  ['Motor paso a paso (IAC)','4','2 bobinas (A/A′ y B/B′)','Ω por bobina ≈ 40–60 Ω'],
-  ['Válvula canister','2','12 V + masa ECU (PWM)','Ω ≈ 20–30 Ω'],
-  ['Bobina doble / casete','3–4','12 V + 1 o 2 comandos de la ECU (+masa)','primario ≈ 0,4–1 Ω'],
-  ['Bomba de combustible','2–4','12 V del relé + masa (+ aforador)','consumo ≈ 4–7 A']
-];
+/* ===== Fichas de actuadores (mismo formato que SENSORS + np: pines, ver: [link, texto]) ===== */
+var ACTF = {
+iac:{sig:'IAC', name:'Motor paso a paso de ralentí', np:'4',
+  para:'Deja pasar <b>aire extra con el pie suelto</b> para que el ralentí no se caiga (motor frío, A/C, dirección hidráulica).',
+  tipo:'Motor de 2 bobinas: cada pulso de la ECU lo gira un paso y un tornillo mueve un obturador que abre o cierra un bypass de la mariposa',
+  pins:[['A','mot','Bobina A','Ω A–A′ ≈ 40–60 Ω'],['A′','mot','Bobina A (otro extremo)','idem'],['B','mot','Bobina B','Ω B–B′ ≈ 40–60 Ω'],['B′','mot','Bobina B (otro extremo)','idem']],
+  mido:['Desconectado: <b>Ω de cada bobina</b> (A–A′ y B–B′) → ≈40–60 Ω, las dos parecidas.','Entre bobinas distintas (A–B): <b>sin continuidad</b> (OL).','Al dar contacto muchos hacen un <b>zumbido</b>: la ECU lo lleva a su posición inicial.','Sacarlo y mirar el <b>bypass</b> y la punta: la carbonilla es la falla más común.'],
+  vals:['bobina ≈ 40–60 Ω','A–B = OL','≈200 pasos = 8 mm'],
+  falla:'Trabado o bypass sucio: <b>ralentí bajo o que se cae</b> al prender el A/C, se apaga al soltar el acelerador. Trabado abierto: ralentí alto.',
+  ver:['actuadores-emisiones.html#paso','Paso a paso y simulador']},
+iav:{sig:'IAV', name:'Válvula rotativa de ralentí', np:'2–3',
+  para:'Igual que el paso a paso: deja pasar <b>aire extra en ralentí</b> por un conducto al costado de la mariposa.',
+  tipo:'Motor que gira y abre más o menos un paso de aire paralelo a la mariposa · la ECU la comanda con pulsos de masa (ciclo de trabajo) · hay versiones de 2 pines (un solo bobinado)',
+  pins:[['1','mot','Comando de masa (abre)','Ω contra el central'],['2','v12','12 V (pin central)','≈12 V con contacto'],['3','mot','Comando de masa (cierra)','Ω contra el central']],
+  mido:['Desconectada: <b>Ω entre el pin central y cada costado</b> → valores parecidos (≈10–25 Ω).','Con contacto, lado arnés: <b>12 V en el central</b>.','Motor en ralentí: prendé el A/C → la ECU cambia el ciclo de trabajo y la válvula abre más.'],
+  vals:['bobinados ≈ 10–25 Ω','central 12 V'],
+  falla:'Sucia o trabada: <b>ralentí que oscila</b>, se cae con cargas o queda alto.',
+  ver:['actuadores-emisiones.html#paso','Otras formas de agregar aire en ralentí']},
+isa:{sig:'CC', name:'Regulador de ralentí de CC (monopunto Bosch)', np:'4',
+  para:'En el monopunto Bosch sostiene el ralentí <b>abriendo la propia mariposa</b> (no hay bypass) y avisa con un contacto que el pie está suelto.',
+  tipo:'Motor de CC de 12 V que empuja la leva de la mariposa; la ECU invierte la polaridad para abrir o cerrar · trae el contacto de ralentí (C)',
+  pins:[['M+','mot','Motor (+/− según el sentido)','Ω del motor: pocos Ω'],['M−','mot','Motor (−/+)','idem'],['C','sig','Contacto de ralentí','continuidad con el pie suelto'],['C′','gnd','Masa del contacto','≈0 V']],
+  mido:['Desconectado: <b>Ω del motor</b> → pocos Ω.','Contacto C: <b>cerrado</b> con el vástago apoyado (pie suelto), <b>abierto</b> al acelerar.','Con contacto: la ECU alterna la polaridad en los dos pines del motor.'],
+  vals:['motor: pocos Ω','C cerrado en ralentí','hasta ≈18°'],
+  falla:'Contacto C que no cierra: la ECU cree que acelerás y <b>no regula el ralentí ni corta en desaceleración</b>. Motor trabado: ralentí fijo.',
+  ver:['actuadores-emisiones.html#cc','Regulador de CC y simulador']},
+inj:{sig:'INY', name:'Inyector', np:'2',
+  para:'Tira la nafta pulverizada. La ECU calcula <b>cuántos milisegundos</b> lo abre: más ms, más nafta.',
+  tipo:'Electroválvula: la ECU la abre poniendo a masa su bobina · multipunto: uno por cilindro · monopunto: uno solo, arriba de la mariposa',
+  pins:[['1','v12','12 V del relé','≈12 V con contacto'],['2','sig','Comando de masa de la ECU','pulsos (ms)']],
+  mido:['Desconectado: <b>Ω entre pines</b> → multipunto ≈11–16 Ω (alta impedancia); <b>monopunto ≈1–2 Ω</b> (baja).','Con contacto, lado arnés: <b>12 V</b> en un pin.','Lámpara de prueba (noid) en el conector: <b>parpadea</b> dando arranque = la ECU comanda.','Motor andando: con un estetoscopio (o un destornillador) se oye el <b>clic</b> de cada uno.'],
+  vals:['multipunto ≈ 11–16 Ω','monopunto ≈ 1–2 Ω','12 V de alimentación'],
+  falla:'Cortado: ese cilindro <b>no anda</b> (motor "en 3"). Tapado o goteando: tironeo, consumo, humo negro, arranque difícil en caliente.',
+  ver:['ecu-combustible.html#inyector','El inyector y el ancho de pulso']},
+coil:{sig:'BOB', name:'Bobina de encendido (con distribuidor)', np:'2–3',
+  para:'Transforma los <b>12 V en miles de volts</b> para que salte la chispa; el distribuidor la reparte a cada bujía.',
+  tipo:'Transformador: primario de pocas vueltas y secundario de miles; al cortar la corriente del primario salta la alta tensión',
+  pins:[['+','v12','12 V (contacto)','≈12 V con contacto'],['−','sig','Comando a masa (módulo / ECU)','pulsos']],
+  mido:['Desconectada: <b>Ω primario</b> (+ a −) → ≈0,5–1 Ω.','<b>Ω secundario</b> (+ a la salida de alta) → ≈5–10 kΩ.','Con contacto: <b>12 V</b> en el +.','Dando arranque: chispa con un <b>probador de chispa</b> en el cable de alta (nunca con la mano).'],
+  vals:['primario ≈ 0,5–1 Ω','secundario ≈ 5–10 kΩ'],
+  falla:'Sin chispa: <b>no arranca</b>. Bobina floja: falla en carga o con el motor caliente.',
+  ver:['bobinas.html#prueba','Bobinas: prueba y diagnóstico']},
+dis:{sig:'DIS', name:'Bobina doble (chispa perdida)', np:'3–4',
+  para:'Transforma los <b>12 V en miles de volts</b> sin distribuidor: cada mitad dispara un par de bujías a la vez (1-4 y 2-3).',
+  tipo:'Dos bobinas en un bloque (casete) · la ECU comanda cada mitad por separado',
+  pins:[['1','sig','Comando bobina 1-4 (ECU)','pulsos'],['2','v12','12 V','≈12 V con contacto'],['3','sig','Comando bobina 2-3 (ECU)','pulsos']],
+  mido:['Desconectada: <b>Ω primario</b> entre el 12 V y cada comando → ≈0,4–1 Ω.','<b>Ω secundario</b> entre las dos salidas de un mismo par (1 y 4) → ≈5–15 kΩ.','Con contacto: 12 V en el pin común.'],
+  vals:['primario ≈ 0,4–1 Ω','secundario ≈ 5–15 kΩ'],
+  falla:'Una mitad muerta: <b>fallan dos cilindros a la vez</b> (1-4 o 2-3).',
+  ver:['actuadores-emisiones.html#dis','Encendido DIS']},
+pump:{sig:'BOMBA', name:'Bomba de combustible', np:'2–4',
+  para:'Manda nafta del tanque a los inyectores <b>con presión</b> (≈1 bar monopunto, ≈3 bar multipunto).',
+  tipo:'Motor eléctrico de 12 V sumergido en el tanque · la ECU la prende a través de un relé · con 4 pines trae el aforador (nivel)',
+  pins:[['+','v12','12 V del relé','≈12 V al dar contacto (2–3 s) y en marcha'],['−','gnd','Masa','≈0 V']],
+  mido:['Al dar contacto <b>se escucha</b> 2–3 s: la ECU la "ceba".','Lado arnés: <b>12 V</b> esos segundos; si no llegan, revisá <b>fusible y relé</b>.','<b>Consumo</b> con pinza amperométrica: ≈4–7 A. Más: bomba gastada o filtro tapado.','<b>Presión</b> con manómetro en la rampa: ≈1 bar monopunto, ≈3 bar multipunto.'],
+  vals:['consumo ≈ 4–7 A','≈1 bar monopunto','≈3 bar multipunto'],
+  falla:'Sin presión: <b>no arranca</b>. Poca presión: se corta en carga o en subida. Muchas veces es el <b>relé o el fusible</b>, no la bomba.',
+  ver:['ecu-combustible.html#combustible','El circuito de combustible']},
+evap:{sig:'EVAP', name:'Válvula canister', np:'2',
+  para:'Quema los <b>vapores de nafta del tanque</b> (guardados en el filtro de carbón) en vez de largarlos al aire.',
+  tipo:'Electroválvula comandada por PWM entre el canister y la admisión',
+  pins:[['1','v12','12 V','≈12 V con contacto'],['2','sig','Comando de masa (PWM)','pulsos']],
+  mido:['Desconectada: <b>Ω</b> ≈20–30 Ω.','Sin tensión tiene que estar <b>cerrada</b>: soplando no pasa aire.'],
+  vals:['≈ 20–30 Ω','cerrada sin tensión'],
+  falla:'Trabada abierta: ralentí inestable y arranque difícil después de cargar nafta. Trabada cerrada: olor a nafta.'}
+};
+for(var k in ACTF) ACTF[k].act=true;
 
 /* ===== Motores =====
    S(nombre, ficha, fila comparativa, zona, fx, fy, ubicación, pines, función de pines, valores, confianza) */
 function S(n,f,r,zona,fx,fy,ubic,p,pines,val,c){return {n:n,f:f,r:r,zona:zona,fx:fx,fy:fy,ubic:ubic,p:p,pines:pines,val:val,c:c};}
-/* A(nombre, pines, qué es cada pin, medición, nota) · actuadores propios del motor (campo opcional acts) */
-function A(n,p,pines,med,nota){return {n:n,p:p,pines:pines,med:med,nota:nota};}
+/* A(ficha en ACTF, nombre, pines, qué es cada pin, medición, nota) · actuadores propios del motor (campo opcional acts) */
+function A(f,n,p,pines,med,nota){return {f:f,n:n,p:p,pines:pines,med:med,nota:nota};}
 var ENGINES = {
 r19:{short:'Renault 19', sub:'1.4 Energy monopunto', name:'Renault 19 1.4 Energy (E7J) · inyección monopunto',
   info:[['ECU','Siemens Fenix 3 · Bosch Monomotronic (según año: mirá la etiqueta)'],['Acelerador','Cable: TPS + paso a paso de ralentí'],['Inyección','Monopunto: <b>1 inyector</b> en el cuerpo de mariposa'],['Encendido','Bobina + módulo (distribuidor)']],
@@ -108,10 +180,10 @@ r19:{short:'Renault 19', sub:'1.4 Energy monopunto', name:'Renault 19 1.4 Energy
     S('Presión del múltiple (MAP) con manguera','map','MAP','admision',.5,.62,'<b>Separado</b> (en el vano motor), conectado al múltiple por una <b>manguera de vacío</b>.','3','Masa · señal · 5 V','Parado ≈4–4,5 V · ralentí ≈1–1,5 V','medio'),
     S('Sonda lambda','o2','λ pre','escape',.62,.6,'Múltiple / bajada de escape.','1, 3 o 4','Según versión: contá los cables (señal · masa · calefactor)','Oscila 0,1 ↔ 0,9 V','bajo')],
   acts:[
-    A('Inyector monopunto','2','12 V (relé) + masa comandada por la ECU','<b>Baja impedancia ≈1–2 Ω</b> (no 11–16 Ω como el multipunto)','Uno solo, arriba del cuerpo de mariposa.'),
-    A('Bobina de encendido + módulo','2–3','12 V + comando del módulo / ECU','Primario ≈0,5–1 Ω · secundario ≈5–10 kΩ','Reparte con distribuidor.'),
-    A('Bomba de combustible','2','12 V del relé + masa','Consumo ≈4–7 A · presión monopunto ≈1 bar','En el tanque.'),
-    A('Motor paso a paso de ralentí (IAC)','4','2 bobinas (A/A′ y B/B′)','Ω por bobina ≈40–60 Ω','<b>Faltaba en el motor</b> de la competencia.')]},
+    A('inj','Inyector monopunto','2','12 V (relé) + masa comandada por la ECU','<b>Baja impedancia ≈1–2 Ω</b> (no 11–16 Ω como el multipunto)','Uno solo, arriba del cuerpo de mariposa.'),
+    A('coil','Bobina de encendido + módulo','2–3','12 V + comando del módulo / ECU','Primario ≈0,5–1 Ω · secundario ≈5–10 kΩ','Reparte con distribuidor.'),
+    A('pump','Bomba de combustible','2','12 V del relé + masa','Consumo ≈4–7 A · presión monopunto ≈1 bar','En el tanque.'),
+    A('iac','Motor paso a paso de ralentí (IAC)','4','2 bobinas (A/A′ y B/B′)','Ω por bobina ≈40–60 Ω','<b>Faltaba en el motor</b> de la competencia.')]},
 vectra:{short:'Chevrolet Vectra', sub:'2.0 8v multipunto', name:'Chevrolet Vectra 2.0 8v · inyección multipunto',
   info:[['ECU','Bosch Motronic · Delphi Multec (según año: mirá la etiqueta)'],['Acelerador','Cable: TPS + válvula de ralentí (IAV)'],['Inyección','Multipunto: 4 inyectores en el múltiple'],['Encendido','Bobina doble (chispa perdida)']],
   nota:'<b>Motor de la competencia</b> (7 sensores, 4 actuadores). <b>No tiene sensor de fase (CMP)</b>: la ECU se arregla solo con el CKP, que lee la <b>rueda fónica de la polea</b> del cigüeñal. La válvula de ralentí puede ser <b>rotativa (2–3 pines)</b> o <b>paso a paso (4 pines)</b> según versión: contá los pines. Sin manual: valores típicos, <b>confirmá midiendo</b>.',
@@ -124,10 +196,10 @@ vectra:{short:'Chevrolet Vectra', sub:'2.0 8v multipunto', name:'Chevrolet Vectr
     S('Temp. aire (IAT)','iat','IAT','filtro',.75,.62,'En el conducto de aire, entre el filtro y la mariposa.','2','Señal · masa','NTC ≈2–3 kΩ a temp. ambiente','medio'),
     S('Sonda lambda','o2','λ pre','escape',.62,.6,'Múltiple / bajada de escape, antes del catalizador.','1, 3 o 4','Según versión: contá los cables (señal · masa · calefactor)','Oscila 0,1 ↔ 0,9 V','bajo')],
   acts:[
-    A('Válvula de ralentí (IAV)','2–4','Rotativa: 12 V + comando(s) ECU · paso a paso: 2 bobinas','Medir Ω entre pines (rotativa ≈ 10–25 Ω · paso a paso ≈40–60 Ω por bobina)','Regula el aire que pasa por fuera de la mariposa.'),
-    A('Inyectores (×4)','2','12 V (relé) + masa comandada por la ECU','Ω ≈ 12–16 Ω (alta impedancia)','Uno por cilindro, en el múltiple.'),
-    A('Bobina doble','3–4','12 V + 2 comandos de la ECU (+masa)','Primario ≈0,4–1 Ω','Chispa perdida: 1-4 y 2-3.'),
-    A('Bomba de combustible','2','12 V del relé + masa','Consumo ≈4–7 A · presión ≈3 bar','En el tanque.')]},
+    A('iav','Válvula de ralentí (IAV)','2–4','Rotativa: 12 V + comando(s) ECU · paso a paso: 2 bobinas','Medir Ω entre pines (rotativa ≈ 10–25 Ω · paso a paso ≈40–60 Ω por bobina)','Regula el aire que pasa por fuera de la mariposa.'),
+    A('inj','Inyectores (×4)','2','12 V (relé) + masa comandada por la ECU','Ω ≈ 12–16 Ω (alta impedancia)','Uno por cilindro, en el múltiple.'),
+    A('dis','Bobina doble','3–4','12 V + 2 comandos de la ECU (+masa)','Primario ≈0,4–1 Ω','Chispa perdida: 1-4 y 2-3.'),
+    A('pump','Bomba de combustible','2','12 V del relé + masa','Consumo ≈4–7 A · presión ≈3 bar','En el tanque.')]},
 ap:{short:'VW AP', sub:'1.6/1.8 Gol · Senda · Saveiro', name:'VW AP 1.6 / 1.8 8v (Gol · Senda · Saveiro) · multipunto',
   info:[['ECU','Magneti Marelli 1AVP · Bosch Motronic (según año: mirá la etiqueta)'],['Acelerador','Cable: TPS + motor paso a paso'],['Inyección','Multipunto: 4 inyectores'],['Encendido','Bobina única + <b>distribuidor</b>']],
   nota:'<b>Motor de la competencia</b> (6 sensores, 4 actuadores). La <b>posición la da un Hall dentro del distribuidor</b> (3 pines): no hay CKP en la polea ni en el volante, y <b>no se mide en Ω</b>: alimentación + señal girando el motor a mano. El <b>TMAP</b> junta MAP y temp. de aire. Sin manual: valores típicos, <b>confirmá midiendo</b>.',
@@ -139,10 +211,10 @@ ap:{short:'VW AP', sub:'1.6/1.8 Gol · Senda · Saveiro', name:'VW AP 1.6 / 1.8 
     S('Temp. refrigerante (ECT)','ect','ECT','tapa',.08,.6,'Brida de agua en el extremo de la tapa.','2','Señal · masa','NTC: baja al calentar','medio'),
     S('Detonación (KS)','knock','KS','block',.5,.5,'Block, del lado de admisión.','2 (+malla)','Señal + · señal − · (malla)','R muy alta (MΩ)','medio')],
   acts:[
-    A('Motor paso a paso de ralentí (IAC)','4','2 bobinas (A/A′ y B/B′)','Ω por bobina ≈40–60 Ω','En el cuerpo de mariposa.'),
-    A('Inyectores (×4)','2','12 V (relé) + masa comandada por la ECU','Ω ≈ 12–16 Ω (alta impedancia)','Uno por cilindro, en el múltiple.'),
-    A('Bobina de encendido','3','12 V + comando de la ECU / módulo + masa','Primario ≈0,5–1 Ω · secundario ≈5–10 kΩ','Una sola: reparte el distribuidor.'),
-    A('Bomba de combustible','2','12 V del relé + masa','Consumo ≈4–7 A · presión ≈3 bar','En el tanque.')]},
+    A('iac','Motor paso a paso de ralentí (IAC)','4','2 bobinas (A/A′ y B/B′)','Ω por bobina ≈40–60 Ω','En el cuerpo de mariposa.'),
+    A('inj','Inyectores (×4)','2','12 V (relé) + masa comandada por la ECU','Ω ≈ 12–16 Ω (alta impedancia)','Uno por cilindro, en el múltiple.'),
+    A('coil','Bobina de encendido','3','12 V + comando de la ECU / módulo + masa','Primario ≈0,5–1 Ω · secundario ≈5–10 kΩ','Una sola: reparte el distribuidor.'),
+    A('pump','Bomba de combustible','2','12 V del relé + masa','Consumo ≈4–7 A · presión ≈3 bar','En el tanque.')]},
 agile:{short:'Chevrolet Agile', sub:'1.4 8v Econo.Flex', name:'Chevrolet Agile 1.4 8v Econo.Flex (2009–2016)',
   info:[['ECU','Delphi Multec (HN14 / MT27E, según fuente)'],['Acelerador','Electrónico: mariposa motorizada + pedal'],['Inyección','Multipunto secuencial · Flex'],['Combustible','Bomba en tanque con regulador · 4 bar']],
   nota:'El <b>CKP es de 3 pines</b> y las fuentes no coinciden si es inductivo con malla o Hall. Truco para la competencia: <b>medí Ω entre pines</b>: si dos de ellos dan cientos de Ω, es <b>inductivo</b> (A-B señal, C malla); si no da nada coherente y hay 5/12 V con contacto, es <b>Hall</b>. Sin señal de rotación, la ECU usa la de fase como respaldo.',
@@ -251,7 +323,7 @@ function pinDiagram(s){
   var o='<svg viewBox="0 0 '+W+' '+h+'" role="img" aria-label="Diagrama de pines de '+s.sig+'">';
   o+='<rect class="boxs" x="'+sx+'" y="8" width="'+sw+'" height="'+(h-16)+'" rx="12"/>';
   o+='<text class="boxt" x="'+(sx+sw/2-8)+'" y="'+(h/2+2)+'">'+s.sig.split(' ')[0]+'</text>';
-  o+='<text class="boxt2" x="'+(sx+sw/2-8)+'" y="'+(h/2+18)+'">sensor</text>';
+  o+='<text class="boxt2" x="'+(sx+sw/2-8)+'" y="'+(h/2+18)+'">'+(s.act?'actuador':'sensor')+'</text>';
   o+='<rect class="boxe" x="'+ex+'" y="8" width="'+ew+'" height="'+(h-16)+'" rx="12"/>';
   o+='<text class="boxt" x="'+(ex+ew/2)+'" y="'+(h/2+2)+'">ECU</text>';
   o+='<text class="boxt2" x="'+(ex+ew/2)+'" y="'+(h/2+18)+'">'+(s.sig==='OPS'?'tablero':'módulo')+'</text>';
@@ -266,10 +338,14 @@ function pinDiagram(s){
   return o+'</svg>';
 }
 
-/* ===== Ficha de un tipo de sensor: principio, pines, cómo se mide, valores ===== */
-function renderFicha(id){
-  var s=SENSORS[id], h='';
-  h+='<article class="panel ficha" id="f-'+id+'"><div class="fhead"><span class="sig">'+s.sig+'</span><h3>'+s.name+'</h3><span class="tipo">'+s.tipo+'</span></div>';
+/* ===== Links a la ficha de cada sensor / actuador (cada ficha vive en una sola página) ===== */
+function fichaHref(id,act){return act?'actuadores-emisiones.html#a-'+id:'sensores-funcionamiento.html#f-'+id;}
+
+/* ===== Ficha de un sensor (o de un actuador, con act): para qué sirve, pines, cómo se mide, valores ===== */
+function renderFicha(id,act){
+  var s=(act?ACTF:SENSORS)[id], h='';
+  h+='<article class="panel ficha" id="'+(act?'a-':'f-')+id+'"><div class="fhead"><span class="sig">'+s.sig+'</span><h3>'+s.name+'</h3><span class="tipo">'+s.tipo+'</span></div>';
+  h+='<p class="fpara"><b>Para qué sirve:</b> '+s.para+(s.ver?' <a class="jump" href="'+s.ver[0]+'">📖 '+s.ver[1]+' →</a>':'')+'</p>';
   h+='<div class="fgrid"><div><div class="diag">'+pinDiagram(s)+'</div>';
   h+='<h5>Valores típicos</h5><div class="vals">'+s.vals.map(function(v){return '<span class="val">'+v+'</span>';}).join('')+'</div>';
   h+='<p class="fail"><b>Si falla:</b> '+s.falla+'</p></div><div>';
@@ -282,10 +358,18 @@ function renderLegend(el){
 }
 function renderActTable(){
   return '<table class="pintbl"><tr><th>Actuador</th><th>Pines</th><th>Qué es cada pin</th><th>Medición</th></tr>'+
-    ACT.map(function(a){return '<tr><td>'+a[0]+'</td><td>'+a[1]+'</td><td>'+a[2]+'</td><td class="m">'+a[3]+'</td></tr>';}).join('')+'</table>';
+    Object.keys(ACTF).map(function(id){var a=ACTF[id];
+      return '<tr><td><a href="'+fichaHref(id,1)+'">'+a.name+'</a></td><td>'+a.np+'</td><td>'+a.pins.map(function(p){return p[2];}).join(' · ')+'</td><td class="m">'+a.vals.join(' · ')+'</td></tr>';}).join('')+'</table>';
 }
 function renderEngActs(e){
   if(!e.acts||!e.acts.length) return '';
   return '<table class="pintbl"><tr><th>Actuador</th><th>Pines</th><th>Qué es cada pin</th><th>Medición</th></tr>'+
-    e.acts.map(function(a){return '<tr><td><b>'+a.n+'</b>'+(a.nota?'<br><small>'+a.nota+'</small>':'')+'</td><td>'+a.p+'</td><td>'+a.pines+'</td><td class="m">'+a.med+'</td></tr>';}).join('')+'</table>';
+    e.acts.map(function(a){return '<tr><td><b>'+a.n+'</b>'+(a.nota?'<br><small>'+a.nota+'</small>':'')+'<br><a class="jump" href="'+fichaHref(a.f,1)+'">ficha →</a></td><td>'+a.p+'</td><td>'+a.pines+'</td><td class="m">'+a.med+'</td></tr>';}).join('')+'</table>';
+}
+/* ===== Para qué sirve cada cosa: sensores (informan) y actuadores (ejecutan) ===== */
+function renderParaTable(){
+  function rows(src,act){return Object.keys(src).map(function(id){var s=src[id];
+    return '<tr><td><a href="'+fichaHref(id,act)+'">'+s.sig+'</a></td><td><b>'+s.name+'</b><br>'+s.para+'</td></tr>';}).join('');}
+  return '<table class="pintbl ptbl"><tr><th colspan="2">Sensores · le cuentan a la ECU qué pasa</th></tr>'+rows(SENSORS,0)+
+    '<tr><th colspan="2">Actuadores · lo que la ECU mueve</th></tr>'+rows(ACTF,1)+'</table>';
 }

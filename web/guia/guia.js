@@ -47,7 +47,6 @@
       ['arranque-alternador.html','Arranque y alternador'],['bobinas.html','Bobinas y módulos'],['despiece.html','Despiece interactivo']]],
     ['2ª parte · Inyección', [
       ['sensores-funcionamiento.html','Sensores: cómo funcionan y se miden'],['sensores-motores.html','Sensores por motor (competencia)'],
-      ['competencia-movil.html','📱 Ayuda rápida (celular)'],
       ['ecu-combustible.html','ECU y sistema de combustible'],['actuadores-emisiones.html','Actuadores, ralentí y emisiones']]],
     ['Practicar', [['index.html','Índice de la guía'],['../test-electricidad.html','Test interactivo ⚡']]]
   ];

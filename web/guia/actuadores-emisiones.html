@@ -467,9 +467,18 @@ blockquote.q cite{display:block;font-style:normal;font-family:ui-monospace,Menlo
     <div class="manref"><span class="lab">📝 Notas</span><ul><li>Virtudes: constancia, exactitud, rango de trabajo, linealidad. NTC y PTC. Potenciómetro e interruptores.</li><li>Ondas: senoidal y cuadrada; amplitud, frecuencia, ancho de pulso y ciclo de trabajo.</li><li>Multímetro: continuidad &lt; ≈30 Ω, diodo 1 mA, batería 12,5 V, 10 A / 10 mA, frecuencia 6–6000 Hz, termocupla.</li><li>Potenciómetro de CO: 5 V, regulación de fábrica 2,5 V, más alto = rica. EGR y presión de A/C.</li></ul></div>
   </section>
 
-  <!-- 08 · REPASO -->
-  <section class="block reveal" id="repaso">
+  <!-- 08 · FICHAS -->
+  <section class="block reveal" id="fichas">
     <div class="kicker"><span class="num">08</span><span class="rule"></span></div>
+    <h2 class="sec display">Fichas: <span class="spark">cómo se mide</span> cada actuador</h2>
+    <p class="lead">Para la competencia: para qué sirve, qué es cada pin, cómo lo medís y qué valores esperar. Qué actuadores trae cada motor está en <a class="jump" href="sensores-motores.html#motores">Sensores por motor →</a></p>
+    <div class="legend" id="legend"></div>
+    <div id="actFichas"></div>
+  </section>
+
+  <!-- 09 · REPASO -->
+  <section class="block reveal" id="repaso">
+    <div class="kicker"><span class="num">09</span><span class="rule"></span></div>
     <h2 class="sec display">Para <span class="spark">repasar</span></h2>
     <div class="grid g2">
       <div class="panel pad">
@@ -511,7 +520,13 @@ blockquote.q cite{display:block;font-style:normal;font-family:ui-monospace,Menlo
 </div></footer>
 
 <script src="guia.js"></script>
+<script src="sensores-data.js"></script>
 <script>
+/* ===== 08 · Fichas de actuadores (datos en sensores-data.js) ===== */
+renderLegend(document.getElementById('legend'));
+document.getElementById('actFichas').innerHTML=Object.keys(ACTF).map(function(id){return renderFicha(id,1);}).join('');
+if(location.hash){var t=document.querySelector(location.hash); if(t) t.scrollIntoView();}
+
 function $(id){return document.getElementById(id)}
 function fmt(v,d){return v.toFixed(d==null?2:d).replace('.',',')}
 function seg(id,cb){var el=$(id);el.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){

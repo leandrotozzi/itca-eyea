@@ -19,8 +19,6 @@
 .rule-c p b{color:var(--ink)}
 
 @media(max-width:560px){.hbar>.navlink{display:none}}
-.mobcta{display:block;text-decoration:none;color:inherit;margin-top:14px}
-.mobcta:hover{border-color:var(--spark)}
 
 /* --- motores --- */
 .engsel{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
@@ -120,7 +118,6 @@
     <span class="eyebrow"><span class="dot"></span> Inyección nafta · Sensores · Medición</span>
     <h1 class="big display">Sensores, <span class="spark">motor por motor</span></h1>
     <p class="sub">Para la competencia: te dan un motor y tenés que decir <b>qué sensores tiene</b>, <b>dónde están</b>, <b>cuántos pines</b> tiene cada uno, <b>qué es cada pin</b> y <b>cómo lo medís</b>. Acá están los motores típicos del parque argentino, uno por uno. Cómo funciona y cómo se mide cada <b>tipo</b> de sensor está en <a class="jump" href="sensores-funcionamiento.html">Sensores: cómo funcionan y cómo se miden →</a></p>
-    <a class="callout tip mobcta" href="competencia-movil.html"><span class="lab">📱 En la competencia</span><p>Usá la <b>ayuda rápida</b> en el celular: elegís el motor y ves cada sensor con ubicación, pines y cómo medirlo.</p></a>
     <div class="metastrip" id="heroChips"></div>
     <div class="callout warn" style="margin-top:20px"><span class="lab">Ojo con los números de pin</span>
       <p>La <b>numeración física</b> del conector (1, 2, 3…) cambia según fabricante, año y proveedor del sensor. Lo que <b>no cambia</b> es la <b>función</b>: siempre hay un 5 V de referencia, una masa y una señal. En la competencia, <b>identificá cada pin midiendo</b> (método del paso 3) y no de memoria.</p></div>
@@ -146,6 +143,10 @@
       <div class="rule-c"><div class="pn">4<small>pines</small></div><p><b>TMAP</b> (MAP + IAT juntos) · <b>lambda calefaccionada</b> · ECT doble (ECU + tablero). Actuador: motor paso a paso.</p></div>
       <div class="rule-c"><div class="pn">6<small>pines</small></div><p><b>Mariposa motorizada</b> (motor + 2 pistas) · <b>pedal del acelerador</b> (2 potenciómetros).</p></div>
     </div>
+
+    <h3 class="sub3">Para qué sirve cada cosa</h3>
+    <p class="lead">Los sensores le cuentan a la ECU qué pasa; los actuadores son sus manos. Tocá la sigla para ver la ficha completa (pines, cómo se mide, valores).</p>
+    <div class="panel" style="padding:4px 18px 14px;overflow-x:auto" id="paraBox"></div>
 
     <h3 class="sub3">Colores de los pines</h3>
     <div class="legend" id="legend"></div>
@@ -403,6 +404,7 @@ function showSensor(i){
   document.querySelectorAll('#eplist .chip-part').forEach(function(m){m.classList.toggle('on',+m.dataset.i===i);});
   document.getElementById('emap').classList.add('has-on');
   document.getElementById('xp').innerHTML='<h4><span class="xp-n val">'+(i+1)+'</span> '+s.n+' <span class="conf '+s.c+'">confianza '+s.c+'</span></h4>'+
+    '<div class="row"><span class="k">Para qué sirve</span><span>'+f.para+'</span></div>'+
     '<div class="row"><span class="k">Ubicación</span><span>'+s.ubic+'</span></div>'+
     '<div class="row"><span class="k">Pines</span><span><b>'+s.p+'</b> · '+s.pines+'</span></div>'+
     (s.val?'<div class="row"><span class="k">Valores</span><span>'+s.val+'</span></div>':'')+
@@ -481,6 +483,7 @@ document.getElementById('qShow').addEventListener('click',function(){
 
 renderLegend(document.getElementById('legend'));
 document.getElementById('actBox').innerHTML=renderActTable();
+document.getElementById('paraBox').innerHTML=renderParaTable();
 renderEngines(); renderSheet(); qNew();
 </script>
 </body>
