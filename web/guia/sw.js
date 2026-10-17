@@ -1,7 +1,7 @@
 /* ITCA · Guía Visual — service worker de la ayuda rápida: la deja disponible sin señal.
    Red primero (siempre la versión más nueva si hay conexión), caché si no hay.
    Cambiar CACHE al agregar archivos a FILES. */
-var CACHE = 'itca-movil-v1';
+var CACHE = 'itca-movil-v3';
 var FILES = ['competencia-movil.html', 'guia.css', 'guia.js', 'sensores-data.js', 'logo.png'];
 
 self.addEventListener('install', function(e){

@@ -101,6 +101,9 @@ body{font-size:17px}
   <div class="sh">Sensores de este motor</div>
   <div id="sList"></div>
 
+  <div class="sh" id="aHead">Actuadores de este motor</div>
+  <div id="aList" style="overflow-x:auto"></div>
+
   <div class="sh">Siempre a mano</div>
   <details class="fold">
     <summary>🧭 Método en 4 pasos</summary>
@@ -154,6 +157,9 @@ function selectEngine(id){
   document.getElementById('eInfo').innerHTML=e.info.map(function(r){return '<div><span class="k">'+r[0]+'</span>'+r[1]+'</div>';}).join('');
   var note=document.getElementById('eNote'); note.style.display=e.nota?'':'none'; note.removeAttribute('open');
   document.getElementById('eNoteTxt').innerHTML=e.nota||'';
+  var acts=renderEngActs(e);
+  document.getElementById('aList').innerHTML=acts;
+  document.getElementById('aHead').style.display=acts?'':'none';
   var open=load(KEY_OPEN);
   document.getElementById('sList').innerHTML=e.sensors.map(function(s,i){
     var f=SENSORS[s.f];

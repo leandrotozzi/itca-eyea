@@ -173,6 +173,8 @@
     </div>
     <h3 class="sub3">Tabla resumen del motor</h3>
     <div class="tblscroll"><table class="tbl etbl" id="etbl"></table></div>
+    <div id="eacts"><h3 class="sub3">Actuadores de este motor</h3>
+    <div class="tblscroll" id="eactsTbl"></div></div>
     <div class="callout tip"><span class="lab">Confianza de los datos</span>
       <p><span class="conf alto">alto</span> sale de un manual de servicio (Ford EEC-V Rocam, Renault MR-453 "Injection V42") o de varias fuentes que coinciden. <span class="conf medio">medio</span> sale de catálogos de repuestos o revistas técnicas (Oficina Brasil, O Mecânico) o es lo típico de esa familia. <span class="conf bajo">bajo</span> no está confirmado: verificalo en el motor. Las <b>funciones</b> de los pines son seguras; la <b>numeración</b> 1-2-3, no siempre.</p></div>
   </section>
@@ -391,6 +393,9 @@ function selectEngine(id){
   var t='<thead><tr><th>#</th><th>Sensor</th><th>Ubicación</th><th>Pines</th><th>Función de cada pin</th><th>Conf.</th></tr></thead><tbody>';
   e.sensors.forEach(function(s,i){t+='<tr><td>'+(i+1)+'</td><td><b>'+s.n+'</b><br><a class="jump" href="sensores-funcionamiento.html#f-'+s.f+'">ficha →</a></td><td>'+s.ubic+'</td><td class="num">'+s.p+'</td><td>'+s.pines+'</td><td><span class="conf '+s.c+'">'+s.c+'</span></td></tr>';});
   document.getElementById('etbl').innerHTML=t+'</tbody>';
+  var acts=renderEngActs(e);
+  document.getElementById('eactsTbl').innerHTML=acts;
+  document.getElementById('eacts').style.display=acts?'':'none';
 }
 function showSensor(i){
   var e=ENGINES[curEng], s=e.sensors[i], f=SENSORS[s.f];
@@ -436,7 +441,8 @@ var QCAND=[
   ['IAT@filtro','IAT',62,72],['MAF@filtro','MAF',136,72],['TPS@mariposa','TPS',232,72],['ETB@mariposa','ETB',290,72],
   ['MAP@admision','MAP',450,72],['TMAP@admision','TMAP',570,72],['ECT@tapa','ECT',252,196],['CMP@tapa','CMP',640,196],
   ['KS@block','KS',450,282],['OPS@block','OPS',268,306],['λ pre@escape','λ pre',450,368],['λ post@cat','λ post',495,436],
-  ['CKP@caja','CKP',152,236],['VSS@caja','VSS',78,296],['CKP@dist','CKP',768,226],['APP@pedal','APP',112,436]];
+  ['CKP@caja','CKP',152,236],['VSS@caja','VSS',78,296],['CKP@dist','CKP',768,226],['APP@pedal','APP',112,436],
+  ['CKP@block','Distribuidor',610,306]];
 var qEngId=null, qHas={}, qDone={}, qOk=0, qBad=0;
 function qNew(){
   var ids=Object.keys(ENGINES).filter(function(id){return id!==qEngId;});
@@ -465,7 +471,7 @@ function qPick(g){
   var k=g.dataset.k; if(qDone[k])return; qDone[k]=1;
   var c=QCAND.filter(function(x){return x[0]===k;})[0], log=document.getElementById('qlog');
   if(qHas[k]){g.classList.add('ok'); qOk++; log.innerHTML='✅ <b>'+qHas[k].join(' + ')+'</b>';}
-  else{g.classList.add('bad'); qBad++; log.innerHTML='❌ Este motor <b>no tiene '+c[1]+'</b> ahí'+(c[1]==='CKP'?' (mirá si va en la polea o en el volante)':'')+'.';}
+  else{g.classList.add('bad'); qBad++; log.innerHTML='❌ Este motor <b>no tiene '+c[1]+'</b> ahí'+(c[1]==='CKP'||c[0]==='CKP@block'?' (mirá si va en la polea, en el volante o en el distribuidor)':'')+'.';}
   qScore();
   if(qOk===Object.keys(qHas).length) log.innerHTML='🏁 <b>¡Completo!</b> '+qOk+' sensores con '+qBad+(qBad===1?' error':' errores')+'. Tocá <b>Otro motor</b>.';
 }

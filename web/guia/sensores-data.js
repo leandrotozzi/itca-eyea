@@ -93,7 +93,56 @@ var ACT = [
 /* ===== Motores =====
    S(nombre, ficha, fila comparativa, zona, fx, fy, ubicación, pines, función de pines, valores, confianza) */
 function S(n,f,r,zona,fx,fy,ubic,p,pines,val,c){return {n:n,f:f,r:r,zona:zona,fx:fx,fy:fy,ubic:ubic,p:p,pines:pines,val:val,c:c};}
+/* A(nombre, pines, qué es cada pin, medición, nota) · actuadores propios del motor (campo opcional acts) */
+function A(n,p,pines,med,nota){return {n:n,p:p,pines:pines,med:med,nota:nota};}
 var ENGINES = {
+r19:{short:'Renault 19', sub:'1.4 Energy monopunto', name:'Renault 19 1.4 Energy (E7J) · inyección monopunto',
+  info:[['ECU','Siemens Fenix 3 · Bosch Monomotronic (según año: mirá la etiqueta)'],['Acelerador','Cable: TPS + paso a paso de ralentí'],['Inyección','Monopunto: <b>1 inyector</b> en el cuerpo de mariposa'],['Encendido','Bobina + módulo (distribuidor)']],
+  nota:'<b>Motor de la competencia</b> (7 sensores, 4 actuadores). El <b>MAP va separado</b>, conectado al múltiple con una <b>manguera de vacío</b>: revisá que no esté fisurada. Hay <b>dos sensores de temperatura del motor</b>: el de la <b>ECU</b> (NTC de 2 pines) y el del <b>reloj del tablero</b> (1 pin, masa por la rosca): no confundirlos. El CKP lee el <b>volante</b> desde la caja. El paso a paso de ralentí (IAC) <b>faltaba</b> en el motor. Sin manual: valores típicos, <b>confirmá midiendo</b>.',
+  sensors:[
+    S('Posición mariposa (TPS)','tps','TPS','mariposa',.5,.62,'En el <b>cuerpo de mariposa monopunto</b> (acelerador por cable).','3','Masa · 5 V · señal','Cerrada 0,3–0,9 V · a fondo 4–4,8 V','medio'),
+    S('Temp. aire (IAT)','iat','IAT','filtro',.75,.62,'En la tapa del cuerpo monopunto / caja del filtro, en el paso del aire.','2','Señal · masa','NTC ≈2–3 kΩ a temp. ambiente','medio'),
+    S('Rotación / PMS (CKP)','ckp','CKP','caja',.82,.55,'Sobre la carcasa de la caja, leyendo los dientes del <b>volante</b>.','2 (+malla)','Señal + · señal − · (malla)','≈200–270 Ω','medio'),
+    S('Temp. refrigerante · ECU (ECT)','ect','ECT','tapa',.08,.6,'Salida de agua / caja del termostato, en la tapa.','2','Señal · masa','NTC: baja al calentar','medio'),
+    S('Temp. refrigerante · tablero','ect','ECT','tapa',.2,.6,'Cerca del de la ECU, en la salida de agua.','1','Cable al reloj del tablero (masa por la rosca)','Va al tablero, <b>no a la ECU</b>','medio'),
+    S('Presión del múltiple (MAP) con manguera','map','MAP','admision',.5,.62,'<b>Separado</b> (en el vano motor), conectado al múltiple por una <b>manguera de vacío</b>.','3','Masa · señal · 5 V','Parado ≈4–4,5 V · ralentí ≈1–1,5 V','medio'),
+    S('Sonda lambda','o2','λ pre','escape',.62,.6,'Múltiple / bajada de escape.','1, 3 o 4','Según versión: contá los cables (señal · masa · calefactor)','Oscila 0,1 ↔ 0,9 V','bajo')],
+  acts:[
+    A('Inyector monopunto','2','12 V (relé) + masa comandada por la ECU','<b>Baja impedancia ≈1–2 Ω</b> (no 11–16 Ω como el multipunto)','Uno solo, arriba del cuerpo de mariposa.'),
+    A('Bobina de encendido + módulo','2–3','12 V + comando del módulo / ECU','Primario ≈0,5–1 Ω · secundario ≈5–10 kΩ','Reparte con distribuidor.'),
+    A('Bomba de combustible','2','12 V del relé + masa','Consumo ≈4–7 A · presión monopunto ≈1 bar','En el tanque.'),
+    A('Motor paso a paso de ralentí (IAC)','4','2 bobinas (A/A′ y B/B′)','Ω por bobina ≈40–60 Ω','<b>Faltaba en el motor</b> de la competencia.')]},
+vectra:{short:'Chevrolet Vectra', sub:'2.0 8v multipunto', name:'Chevrolet Vectra 2.0 8v · inyección multipunto',
+  info:[['ECU','Bosch Motronic · Delphi Multec (según año: mirá la etiqueta)'],['Acelerador','Cable: TPS + válvula de ralentí (IAV)'],['Inyección','Multipunto: 4 inyectores en el múltiple'],['Encendido','Bobina doble (chispa perdida)']],
+  nota:'<b>Motor de la competencia</b> (7 sensores, 4 actuadores). <b>No tiene sensor de fase (CMP)</b>: la ECU se arregla solo con el CKP, que lee la <b>rueda fónica de la polea</b> del cigüeñal. La válvula de ralentí puede ser <b>rotativa (2–3 pines)</b> o <b>paso a paso (4 pines)</b> según versión: contá los pines. Sin manual: valores típicos, <b>confirmá midiendo</b>.',
+  sensors:[
+    S('Temp. refrigerante (ECT)','ect','ECT','tapa',.08,.6,'Salida de agua / caja del termostato, en la tapa.','2','Señal · masa','NTC: baja al calentar','medio'),
+    S('Presión del múltiple (MAP)','map','MAP','admision',.5,.62,'En el múltiple de admisión o en el vano motor con manguera de vacío.','3','Masa · señal · 5 V','Parado ≈4–4,5 V · ralentí ≈1–1,5 V','medio'),
+    S('Posición mariposa (TPS)','tps','TPS','mariposa',.5,.62,'En el cuerpo de mariposa (acelerador por cable).','3','Masa · 5 V · señal','Cerrada 0,3–0,9 V · a fondo 4–4,8 V','medio'),
+    S('Rotación (CKP)','ckp','CKP','dist',.5,.8,'Adelante y abajo, frente a la rueda fónica de la <b>polea del cigüeñal</b>.','2 (+malla)','Señal + · señal − · (malla)','Cientos de Ω · V AC dando arranque','medio'),
+    S('Detonación (KS)','knock','KS','block',.5,.5,'Block, del lado de admisión, debajo del múltiple.','2','Señal + · señal −','R muy alta (MΩ)','medio'),
+    S('Temp. aire (IAT)','iat','IAT','filtro',.75,.62,'En el conducto de aire, entre el filtro y la mariposa.','2','Señal · masa','NTC ≈2–3 kΩ a temp. ambiente','medio'),
+    S('Sonda lambda','o2','λ pre','escape',.62,.6,'Múltiple / bajada de escape, antes del catalizador.','1, 3 o 4','Según versión: contá los cables (señal · masa · calefactor)','Oscila 0,1 ↔ 0,9 V','bajo')],
+  acts:[
+    A('Válvula de ralentí (IAV)','2–4','Rotativa: 12 V + comando(s) ECU · paso a paso: 2 bobinas','Medir Ω entre pines (rotativa ≈ 10–25 Ω · paso a paso ≈40–60 Ω por bobina)','Regula el aire que pasa por fuera de la mariposa.'),
+    A('Inyectores (×4)','2','12 V (relé) + masa comandada por la ECU','Ω ≈ 12–16 Ω (alta impedancia)','Uno por cilindro, en el múltiple.'),
+    A('Bobina doble','3–4','12 V + 2 comandos de la ECU (+masa)','Primario ≈0,4–1 Ω','Chispa perdida: 1-4 y 2-3.'),
+    A('Bomba de combustible','2','12 V del relé + masa','Consumo ≈4–7 A · presión ≈3 bar','En el tanque.')]},
+ap:{short:'VW AP', sub:'1.6/1.8 Gol · Senda · Saveiro', name:'VW AP 1.6 / 1.8 8v (Gol · Senda · Saveiro) · multipunto',
+  info:[['ECU','Magneti Marelli 1AVP · Bosch Motronic (según año: mirá la etiqueta)'],['Acelerador','Cable: TPS + motor paso a paso'],['Inyección','Multipunto: 4 inyectores'],['Encendido','Bobina única + <b>distribuidor</b>']],
+  nota:'<b>Motor de la competencia</b> (6 sensores, 4 actuadores). La <b>posición la da un Hall dentro del distribuidor</b> (3 pines): no hay CKP en la polea ni en el volante, y <b>no se mide en Ω</b>: alimentación + señal girando el motor a mano. El <b>TMAP</b> junta MAP y temp. de aire. Sin manual: valores típicos, <b>confirmá midiendo</b>.',
+  sensors:[
+    S('Posición mariposa (TPS)','tps','TPS','mariposa',.5,.62,'En el cuerpo de mariposa (acelerador por cable).','3','Masa · 5 V · señal','Cerrada 0,3–0,9 V · a fondo 4–4,8 V','medio'),
+    S('Hall del distribuidor (posición)','hall','CKP','block',.85,.75,'<b>Dentro del distribuidor</b>, al costado del block (lo mueve el eje intermedio).','3','Alimentación · señal · masa','Cuadrada 0 ↔ 5 V girando a mano · no se mide en Ω','medio'),
+    S('Sonda lambda','o2','λ pre','escape',.62,.6,'Múltiple / bajada de escape, antes del catalizador.','1, 3 o 4','Según versión: contá los cables (señal · masa · calefactor)','Oscila 0,1 ↔ 0,9 V','bajo'),
+    S('MAP + temp. aire (TMAP)','tmap','TMAP','admision',.5,.62,'Arriba del múltiple de admisión.','4','Masa · señal IAT · 5 V · señal MAP','Parado ≈4–4,5 V · ralentí ≈1–1,5 V','medio'),
+    S('Temp. refrigerante (ECT)','ect','ECT','tapa',.08,.6,'Brida de agua en el extremo de la tapa.','2','Señal · masa','NTC: baja al calentar','medio'),
+    S('Detonación (KS)','knock','KS','block',.5,.5,'Block, del lado de admisión.','2 (+malla)','Señal + · señal − · (malla)','R muy alta (MΩ)','medio')],
+  acts:[
+    A('Motor paso a paso de ralentí (IAC)','4','2 bobinas (A/A′ y B/B′)','Ω por bobina ≈40–60 Ω','En el cuerpo de mariposa.'),
+    A('Inyectores (×4)','2','12 V (relé) + masa comandada por la ECU','Ω ≈ 12–16 Ω (alta impedancia)','Uno por cilindro, en el múltiple.'),
+    A('Bobina de encendido','3','12 V + comando de la ECU / módulo + masa','Primario ≈0,5–1 Ω · secundario ≈5–10 kΩ','Una sola: reparte el distribuidor.'),
+    A('Bomba de combustible','2','12 V del relé + masa','Consumo ≈4–7 A · presión ≈3 bar','En el tanque.')]},
 agile:{short:'Chevrolet Agile', sub:'1.4 8v Econo.Flex', name:'Chevrolet Agile 1.4 8v Econo.Flex (2009–2016)',
   info:[['ECU','Delphi Multec (HN14 / MT27E, según fuente)'],['Acelerador','Electrónico: mariposa motorizada + pedal'],['Inyección','Multipunto secuencial · Flex'],['Combustible','Bomba en tanque con regulador · 4 bar']],
   nota:'El <b>CKP es de 3 pines</b> y las fuentes no coinciden si es inductivo con malla o Hall. Truco para la competencia: <b>medí Ω entre pines</b>: si dos de ellos dan cientos de Ω, es <b>inductivo</b> (A-B señal, C malla); si no da nada coherente y hay 5/12 V con contacto, es <b>Hall</b>. Sin señal de rotación, la ECU usa la de fase como respaldo.',
@@ -234,4 +283,9 @@ function renderLegend(el){
 function renderActTable(){
   return '<table class="pintbl"><tr><th>Actuador</th><th>Pines</th><th>Qué es cada pin</th><th>Medición</th></tr>'+
     ACT.map(function(a){return '<tr><td>'+a[0]+'</td><td>'+a[1]+'</td><td>'+a[2]+'</td><td class="m">'+a[3]+'</td></tr>';}).join('')+'</table>';
+}
+function renderEngActs(e){
+  if(!e.acts||!e.acts.length) return '';
+  return '<table class="pintbl"><tr><th>Actuador</th><th>Pines</th><th>Qué es cada pin</th><th>Medición</th></tr>'+
+    e.acts.map(function(a){return '<tr><td><b>'+a.n+'</b>'+(a.nota?'<br><small>'+a.nota+'</small>':'')+'</td><td>'+a.p+'</td><td>'+a.pines+'</td><td class="m">'+a.med+'</td></tr>';}).join('')+'</table>';
 }
