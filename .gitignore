@@ -12,3 +12,6 @@ _site/
 
 # instrucciones locales de trabajo
 CLAUDE.md
+
+# capturas y logs de Playwright MCP
+.playwright-mcp/
